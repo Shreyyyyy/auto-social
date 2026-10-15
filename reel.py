@@ -13,7 +13,7 @@ Gemini + Google Search does the research (news, facts, SEO keywords); every reel
   ./start.sh channels         # list Buffer channel ids
   ./start.sh resume out/<run> # finish a failed run, reusing what's done
 """
-import base64, io, json, os, re, shutil, subprocess, sys, time, wave
+import base64, fcntl, hashlib, io, json, os, re, shutil, subprocess, sys, time, wave
 from pathlib import Path
 from typing import Literal
 
@@ -26,6 +26,7 @@ from pydantic import BaseModel
 load_dotenv()
 E = os.getenv
 GEMINI = "https://generativelanguage.googleapis.com/v1beta/models"
+GKEY = lambda: {"x-goog-api-key": E("GEMINI_API_KEY", "")}  # header, so the key never appears in URLs, errors or logs
 TTS_MODEL = E("TTS_MODEL", "gemini-2.5-flash-preview-tts")
 MUSIC_MODEL = E("MUSIC_MODEL", "lyria-3-clip-preview")
 RESEARCH_MODEL = E("RESEARCH_MODEL", "gemini-3.8-flash")  # with Google Search grounding
@@ -213,7 +214,7 @@ def ask_gemini(prompt, schema):
         "contents": [{"parts": [{"text": p}]}],
         "generationConfig": {"responseMimeType": "application/json"}
     }
-    r = requests.post(f"{GEMINI}/gemini-2.5-flash:generateContent", params={"key": E("GEMINI_API_KEY")}, json=body, timeout=120).json()
+    r = requests.post(f"{GEMINI}/gemini-2.5-flash:generateContent", headers=GKEY(), json=body, timeout=120).json()
     if r.get("error"):
         raise RuntimeError(f"Gemini API error: {r['error']}")
     raw = r["candidates"][0]["content"]["parts"][0]["text"]
@@ -246,7 +247,7 @@ def save_wav(path, pcm, rate=24000):
 
 def gemini(model, parts, **config):
     """Gemini API (REST) -> (mime, bytes) of the first media part."""
-    r = requests.post(f"{GEMINI}/{model}:generateContent", params={"key": E("GEMINI_API_KEY")}, timeout=300,
+    r = requests.post(f"{GEMINI}/{model}:generateContent", headers=GKEY(), timeout=300,
                       json={"contents": [{"parts": parts}], "generationConfig": config}).json()
     for p in ((r.get("candidates") or [{}])[0].get("content") or {}).get("parts", []):
         if "inlineData" in p: return p["inlineData"]["mimeType"], base64.b64decode(p["inlineData"]["data"])
@@ -255,7 +256,7 @@ def gemini(model, parts, **config):
 
 def research(topic, extra=""):
     """Gemini + Google Search grounding -> concise research notes with sources (news, facts, analogies, SEO)."""
-    r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", params={"key": E("GEMINI_API_KEY")}, timeout=300,
+    r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=300,
                       json={"contents": [{"parts": [{"text": RESEARCH + extra + "\nTOPIC: " + topic}]}], "tools": [{"google_search": {}}]}).json()
     c = (r.get("candidates") or [{}])[0]
     text = "".join(p.get("text", "") for p in (c.get("content") or {}).get("parts", []))
@@ -266,7 +267,7 @@ def research(topic, extra=""):
 
 def google_tts(line, path):
     """Google Cloud Text-to-Speech, Chirp 3 HD Hindi voice (needs the Cloud TTS API enabled for this key)."""
-    r = requests.post("https://texttospeech.googleapis.com/v1/text:synthesize", params={"key": E("GEMINI_API_KEY")}, timeout=120,
+    r = requests.post("https://texttospeech.googleapis.com/v1/text:synthesize", headers=GKEY(), timeout=120,
                       json={"input": {"text": line.text}, "voice": {"languageCode": "hi-IN", "name": f"hi-IN-Chirp3-HD-{CAST[line.speaker][1]}"},
                             "audioConfig": {"audioEncoding": "LINEAR16", "sampleRateHertz": 24000}}).json()
     if "audioContent" not in r: raise PermissionError(str(r.get("error", r))[:200])
@@ -424,6 +425,7 @@ def timeline(reel, d):
 
 def make(brief, meta=None, d=None):
     """Script -> voices -> music + stock media -> Remotion render. Pass d=<out dir> to resume a failed run."""
+    _l = lock()
     d = Path(d) if d else OUT / time.strftime("%Y%m%d-%H%M%S"); pub = d / "public"
     for sub in ("img", "clip", "sfx"): (pub / sub).mkdir(parents=True, exist_ok=True)
     if (d / "script.json").exists():
@@ -520,10 +522,37 @@ def buffer(query, **variables):
     return r["data"]
 
 
+def fingerprint(video):
+    return hashlib.sha256(Path(video).read_bytes()).hexdigest()[:16]
+
+
+def already_posted(fp):
+    """Duplicate guard: has this exact video file already been sent to Buffer from any run?"""
+    for f in OUT.glob("*/meta.json"):
+        j = json.loads(f.read_text())
+        if j.get("posted") and j.get("fingerprint") == fp: return f.parent.name
+    return None
+
+
+def set_status(video, **kv):
+    m = Path(video).parent / "meta.json"
+    j = json.loads(m.read_text()) | kv; m.write_text(json.dumps(j, ensure_ascii=False, indent=2), encoding="utf-8")
+    return j
+
+
+def approve(video, caption):
+    """Explicit human approval of THIS video + caption (required before any scheduled job may post it)."""
+    j = set_status(video, status="approved", caption=caption, fingerprint=fingerprint(video), approved_at=time.strftime("%Y-%m-%d %H:%M:%S %Z"))
+    if j.get("series"): sr = load(j["series"]); sr["episodes"][j["ep"] - 1]["status"] = "approved"; save(sr)
+    return f"✅ Approved for posting: {j['title']}"
+
+
 def post(video, caption):
     """Queue the reel in Buffer (BUFFER_MODE=addToQueue uses your Buffer schedule; shareNow posts immediately).
-    The SEO first comment (engagement question) is posted with it."""
+    The SEO first comment (engagement question) is posted with it. Refuses duplicates."""
     m = Path(video).parent / "meta.json"
+    fp = fingerprint(video)
+    if (dup := already_posted(fp)): raise RuntimeError(f"already sent to Buffer from run {dup} - not posting it twice")
     ig = {"type": "reel", "shouldShareToFeed": True, "isAiGenerated": True}
     if m.exists() and json.loads(m.read_text()).get("first_comment"): ig["firstComment"] = json.loads(m.read_text())["first_comment"]
     p = buffer("""mutation($input: CreatePostInput!) { createPost(input: $input) {
@@ -532,9 +561,12 @@ def post(video, caption):
         "mode": E("BUFFER_MODE", "addToQueue"),
         "assets": [{"video": {"url": upload(video), "metadata": {"thumbnailOffset": 1000}}}],
         "metadata": {"instagram": ig}})["createPost"]
-    if "post" not in p: raise RuntimeError(f"Buffer: {p.get('message', p)}")
+    if "post" not in p:
+        if m.exists(): set_status(video, status="failed", error=str(p.get("message", p))[:300])
+        raise RuntimeError(f"Buffer: {p.get('message', p)}")
     if m.exists():  # remember it in history / series
-        j = json.loads(m.read_text()) | {"posted": True}; m.write_text(json.dumps(j, ensure_ascii=False, indent=2))
+        j = set_status(video, posted=True, status="queued", fingerprint=fp, buffer_post_id=p["post"]["id"],
+                       caption=caption, posted_at=time.strftime("%Y-%m-%d %H:%M:%S %Z"))
         if j.get("series"):
             sr = load(j["series"]); sr["episodes"][j["ep"] - 1]["status"] = "posted"; save(sr)
     return f"✅ Sent to Buffer ({E('BUFFER_MODE', 'addToQueue')}) - post id {p['post']['id']}"
@@ -578,24 +610,48 @@ def make_episode(sr, i):
     return video, cap
 
 
+_LOCK = []
+
+
+class lock:
+    """One job at a time across processes (cron vs UI vs CLI); re-entrant within a process."""
+    def __init__(self):
+        self.f = None
+        if _LOCK: return
+        self.f = open(".reel.lock", "w")
+        try: fcntl.flock(self.f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError: self.f.close(); raise RuntimeError("another reel job is running - try again when it finishes")
+        _LOCK.append(self)
+
+    def __del__(self):
+        if self.f: _LOCK.clear(); self.f.close()
+
+
 def auto():
-    """Cron: next unposted episode of SERIES (or the most recently touched series) -> generate if needed -> Buffer."""
+    """Cron, approval-gated: posts the next episode ONLY if you approved that exact video in the UI.
+    If the next episode isn't made yet, it is generated and left 'awaiting approval' - never posted silently."""
+    _l = lock()
     files = sorted(SERIES.glob("*.json"), key=lambda f: f.stat().st_mtime)
     if not files: return print("No series yet - plan one in the UI first.")
     sr = load(E("SERIES") or files[-1].stem)
     i = next((i for i, e in enumerate(sr["episodes"]) if e["status"] != "posted"), None)
     if i is None: return print(f"'{sr['name']}' is fully posted.")
     e = sr["episodes"][i]
-    video, cap = ((e["video"], json.loads((Path(e["video"]).parent / "meta.json").read_text())["caption"])
-                  if e["status"] == "generated" else make_episode(sr, i))
-    print(post(video, cap))
+    if e["status"] == "planned":
+        video, _ = make_episode(sr, i)
+        return print(f"Episode {i + 1} generated -> awaiting your approval in the UI (History tab): {video}")
+    meta = json.loads((Path(e["video"]).parent / "meta.json").read_text())
+    if meta.get("status") != "approved" or meta.get("fingerprint") != fingerprint(e["video"]):
+        return print(f"Episode {i + 1} is waiting for approval - not posting. Approve it in the History tab.")
+    print(post(e["video"], meta["caption"]))
 
 
 def history():
     rows = []
     for m in sorted(OUT.glob("*/meta.json"), reverse=True):
         j = json.loads(m.read_text())
-        rows.append([m.parent.name, j["title"], j.get("series", "-"), "✅ posted" if j.get("posted") else "🎬 ready"])
+        st = "📤 queued" if j.get("posted") else {"approved": "✅ approved", "failed": "❌ failed"}.get(j.get("status"), "🕒 awaiting approval")
+        rows.append([m.parent.name, j["title"], j.get("series", "-"), st])
     return rows
 
 
@@ -614,9 +670,14 @@ def ui():
             except Exception as e: raise gr.Error(f"{type(e).__name__}: {e}", duration=None)
         return run
 
-    def safe_post(path, cap):
+    def safe_post(path, cap):  # clicking Post = explicit approval of this exact video + caption
         if not path: return "❌ Generate or pick a reel first"
-        try: return post(path, cap)
+        try: approve(path, cap); return post(path, cap)
+        except Exception as e: return f"❌ {type(e).__name__}: {e}"
+
+    def safe_approve(path, cap):
+        if not path: return "❌ Pick a reel first"
+        try: return approve(path, cap) + " - the scheduled job may now post it"
         except Exception as e: return f"❌ {type(e).__name__}: {e}"
 
     def plan_one(idea):
@@ -684,7 +745,10 @@ def ui():
                     runs = gr.Dataframe(history(), headers=["Run", "Title", "Series", "Status"], interactive=False, wrap=True)
                 with gr.Column(scale=2):
                     vid2, cap2, path2 = gr.Video(label="Reel", height=560), gr.Textbox(label="Caption", lines=4), gr.State()
-                    post2, status2 = gr.Button("📤 Post via Buffer", variant="primary"), gr.Markdown()
+                    with gr.Row():
+                        appr2 = gr.Button("✅ Approve for scheduled post")
+                        post2 = gr.Button("📤 Post now via Buffer", variant="primary")
+                    status2 = gr.Markdown()
 
         plan_btn.click(guard(plan_one), idea, brief)
         gen_btn.click(guard(gen_one), brief, [vid1, cap1, path1, runs])
@@ -696,6 +760,7 @@ def ui():
         hist_tab.select(history, None, runs)
         runs.select(pick_run, None, [vid2, cap2, path2])
         post2.click(safe_post, [path2, cap2], status2).then(history, None, runs)
+        appr2.click(safe_approve, [path2, cap2], status2).then(history, None, runs)
     app.launch(inbrowser=True, theme=gr.themes.Soft(primary_hue="orange"))
 
 
