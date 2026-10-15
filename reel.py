@@ -993,13 +993,25 @@ def post(video, caption):
     fp = fingerprint(video)
     if (dup := already_posted(fp)): raise RuntimeError(f"already sent to Buffer from run {dup} - not posting it twice")
     ig = {"type": "reel", "shouldShareToFeed": True, "isAiGenerated": True}
-    if m.exists() and json.loads(m.read_text()).get("first_comment"): ig["firstComment"] = json.loads(m.read_text())["first_comment"]
-    p = buffer("""mutation($input: CreatePostInput!) { createPost(input: $input) {
-        ... on PostActionSuccess { post { id } } ... on MutationError { message } } }""", input={
-        "text": caption, "channelId": E("BUFFER_CHANNEL_ID"), "schedulingType": "automatic",
-        "mode": E("BUFFER_MODE", "addToQueue"),
-        "assets": [{"video": {"url": upload(video), "metadata": {"thumbnailOffset": 1333}}}],
-        "metadata": {"instagram": ig}})["createPost"]
+    if m.exists() and json.loads(m.read_text()).get("first_comment") and E("BUFFER_FIRST_COMMENT", "1") == "1":
+        ig["firstComment"] = json.loads(m.read_text())["first_comment"]
+    url, note = upload(video), ""  # upload once, even if the post has to be retried
+
+    def create(meta_ig):
+        try:
+            r = buffer("""mutation($input: CreatePostInput!) { createPost(input: $input) {
+                ... on PostActionSuccess { post { id } } ... on MutationError { message } } }""", input={
+                "text": caption, "channelId": E("BUFFER_CHANNEL_ID"), "schedulingType": "automatic",
+                "mode": E("BUFFER_MODE", "addToQueue"),
+                "assets": [{"video": {"url": url, "metadata": {"thumbnailOffset": 1333}}}],
+                "metadata": {"instagram": meta_ig}})["createPost"]
+        except RuntimeError as e: r = {"message": str(e).removeprefix("Buffer: ")}
+        return r
+    p = create(ig)
+    if "post" not in p and "first comment" in str(p.get("message", "")).lower() and "firstComment" in ig:
+        # Buffer's free plan can't post first comments: post without it, the comment is in marketing.md to add by hand
+        ig.pop("firstComment"); p = create(ig)
+        note = "\n\n💬 Buffer's free plan can't add the first comment - post it yourself from the SEO & marketing pack and pin it."
     if "post" not in p:
         if m.exists(): set_status(video, status="failed", error=str(p.get("message", p))[:300])
         raise RuntimeError(f"Buffer: {p.get('message', p)}")
@@ -1008,7 +1020,7 @@ def post(video, caption):
                        caption=caption, posted_at=time.strftime("%Y-%m-%d %H:%M:%S %Z"))
         if j.get("series"):
             sr = load(j["series"]); sr["episodes"][j["ep"] - 1]["status"] = "posted"; save(sr)
-    return f"✅ Sent to Buffer ({E('BUFFER_MODE', 'addToQueue')}) - post id {p['post']['id']}"
+    return f"✅ Sent to Buffer ({E('BUFFER_MODE', 'addToQueue')}) - post id {p['post']['id']}" + note
 
 
 def channels():
