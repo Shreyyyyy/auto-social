@@ -1,0 +1,428 @@
+[
+ [
+  "38M Mrwhosetheboss",
+  "7jGU0wPOKzc",
+  {
+   "first_1s": "Arun Maini sits at a table against an Apple Store backdrop, raising a finger and saying 'Stealing from an Apple Store' with bold red/white text overlay.",
+   "hook_words": "Stealing from an Apple Store may be the dumbest thing that you could ever do. Here's why.",
+   "hook_type": "shocking claim",
+   "teaching_method": "Presents an intuitive mystery (why don't Apple employees stop thieves?), uses real viral surveillance footage as evidence, and then unpacks the layered technical countermeasures step-by-step: security tether alarms, custom retail iOS build, Wi-Fi geofencing kill-switch, inability to restore standard firmware, and IMEI hardware tracking.",
+   "visual_style": "Fast-paced mix of talking head in studio, authentic viral robbery surveillance footage, close-ups of disabled iPhones, and kinetic overlays; averages roughly 4 to 5 cuts per 10 seconds.",
+   "on_screen_text": "Large, bold uppercase subtitles centered in the lower-middle frame, styled in red and white with dark outlines, appearing dynamically word-by-word.",
+   "voice": "Energetic, articulate, engaging British accent, fast pacing (~2.8 words per second), curious and authoritative delivery.",
+   "retention_tricks": [
+    "Viral real-world robbery clip creates instant visual drama",
+    "Open loop at 0:11 asking why staff don't react",
+    "Escalation phrase at 0:29 ('But it gets even worse for the thief')",
+    "Proof-on-screen showing the actual disabled iPhone tracking warning message",
+    "Visual punchline with an animated police hat dropping onto his head"
+   ],
+   "ending": "Concludes on a firm punchline that Apple and the police will track the thief down, accompanied by an animated police hat and a subscribe prompt; does not loop seamlessly.",
+   "share_trigger": "Debunking a common intrusive curiosity ('What actually happens if someone steals a display phone?') that viewers immediately want to show friends.",
+   "length_s": 47,
+   "why_10M": [
+    "Taps into a massive universal curiosity: everyone has visited an Apple Store and wondered why thousands of dollars of tech sit openly on wooden tables.",
+    "Utilizes authentic viral footage of a brazen robbery to hook the viewer emotionally before switching into educational mode.",
+    "Satisfying multi-layered payoff: reveals insider technical safeguards that make the stolen phone completely worthless bricked plastic."
+   ],
+   "steal_for_hindi_ai_teaching": [
+    "Open with an intrusive thought or taboo myth: e.g., 'College ya office me AI use karna pakda nahi ja sakta? Ye sabse badi galatfehmi hai!'",
+    "Use escalating reveals: structured as 'Pehle toh ye hota hai... lekin sabse khatarnak baat ye hai...'",
+    "Pair rapid talking-head clips with real screen-recorded proof showing the exact tools/interfaces in action rather than abstract explanations."
+   ]
+  }
+ ],
+ [
+  "35M Mrwhosetheboss",
+  "1xI_lsZ4sxI",
+  {
+   "first_1s": "Arun Maini pours a large bag of colorful jelly beans into a clear jar while asking: 'Which AI can guess exactly...'",
+   "hook_words": "Which AI can guess exactly how many jelly beans are in this jar",
+   "hook_type": "question",
+   "teaching_method": "Tests a real-world benchmark by feeding the exact same photo and prompt to 7 major AI vision models, tracks their guesses on an on-screen leaderboard, and physically counts all jelly beans by hand to crown the most accurate AI.",
+   "visual_style": "High-production real footage, macro close-ups of smartphone screens with AI UI, talking head, fast editing with roughly 6 to 8 cuts per 10 seconds.",
+   "on_screen_text": "Centered bold captions with active word highlighting, branded AI model logos, real-time leaderboard graphic, and a fast-updating numerical count overlay.",
+   "voice": "Energetic, engaging British tech reviewer tone; fast-paced delivery (~2.6 words per second); playful, inquisitive, and dramatic.",
+   "retention_tricks": [
+    "Gamified classic carnival game concept applied to cutting-edge AI",
+    "Persistent on-screen scoreboard maintaining stakes across all models",
+    "Comedic disbelief reactions to wildly inaccurate predictions (DeepSeek's 128, Siri's vague response)",
+    "Fast-forward manual counting sequence building suspense toward the true number",
+    "Open loop maintained until the final 5 seconds to reveal the winner"
+   ],
+   "ending": "Reaches the final count of 2,143, compares it to the scoreboard, declares Google Gemini the winner with confetti animation, and cuts cleanly.",
+   "share_trigger": "Tech fans and AI enthusiasts sharing proof of Gemini beating ChatGPT, Claude, and Copilot in a simple real-world visual estimation test.",
+   "length_s": 58,
+   "why_10M": [
+    "Universal, intuitive test: Replaces boring technical AI benchmarks with a universally understood visual challenge.",
+    "Brand rivalry spectacle: Pits all major AI giants (OpenAI, Google, Apple, Anthropic, Microsoft, DeepSeek, xAI) directly against one another.",
+    "Unbreakable retention loop: Viewers are forced to watch until the manual hand-count completes to discover who won."
+   ],
+   "steal_for_hindi_ai_teaching": [
+    "Replace abstract AI metrics (benchmarks, parameters) with tangible Indian real-world tests (e.g., counting samosas in a tray, estimating currency notes, reading handwritten Hindi chits).",
+    "Use a visual head-to-head scorecard overlay comparing ChatGPT, Gemini, and Claude side-by-side to create rooting interest.",
+    "Show physical, hands-on verification at the end so beginners see immediate, indisputable evidence of AI accuracy."
+   ]
+  }
+ ],
+ [
+  "21M Zack D Films",
+  "NNIK86faGPE",
+  {
+   "first_1s": "3D animated hands grip and struggle to pull a blue retail security tag off a graphic t-shirt; voiceover says: 'If you try to pull open a security tag...'",
+   "hook_words": "If you try to pull open a security tag with your hands",
+   "hook_type": "visual curiosity",
+   "teaching_method": "Step-by-step mechanical cutaway: first demonstrates the ball-bearing lock mechanism resisting manual force, then simulates what happens when forced with a tool, visualizes the internal glass dye ampoules shattering, and concludes with the real-world consequence.",
+   "visual_style": "Photorealistic 3D CGI animation with mechanical cross-section cutaways; approximately 4 to 5 cuts per 10 seconds.",
+   "on_screen_text": "Centered lower-third subtitles in bold white font with a black drop shadow, displaying 2 to 4 words per beat synced to speech.",
+   "voice": "Authoritative, upbeat, clear documentary-style voiceover; pacing is steady at approximately 2.8 words per second.",
+   "retention_tricks": [
+    "X-ray cutaway showing internal ball-bearing and spring mechanics",
+    "High-stakes escalation from hand pulling to using a prying tool",
+    "Visually satisfying ink explosion and fluid splatter simulation",
+    "Narrative shift from mechanical explanation to humorous thief humiliation"
+   ],
+   "ending": "The thief flees with stained clothes and is cornered by shoppers and staff pointing and laughing at him at the exit; ends on a punchy visual conclusion.",
+   "share_trigger": "Satisfying everyday curiosity about retail anti-theft tags that millions of people see but have never opened.",
+   "length_s": 29,
+   "why_10M": [
+    "Taps into universal curiosity about a mundane object everyone has encountered in clothing stores.",
+    "Impeccable 3D cross-section visualization that makes an invisible mechanical action crystal clear.",
+    "Delivers instant gratification with a dynamic ink burst and a satisfying moral conclusion."
+   ],
+   "steal_for_hindi_ai_teaching": [
+    "Hook with a common user mistake ('Agar aap ChatGPT ko bas aise prompt doge...') to create immediate stakes.",
+    "Use internal visual cutaways or schematic 3D/motion graphics to show what AI actually 'sees' inside when processing tokens.",
+    "End with a tangible before-and-after outcome showing how the right method saves time or prevents a bad result."
+   ]
+  }
+ ],
+ [
+  "20M Dhruv Rathee",
+  "lfx_Mv-7v9Y",
+  {
+   "first_1s": "Dhruv Rathee looks into the camera and says 'Ek bohot hi shocking plane crash...', followed immediately by split-screen CCTV footage of a plane at an airport.",
+   "hook_words": "Ek bohot hi shocking plane crash",
+   "hook_type": "shocking claim",
+   "teaching_method": "Presents a high-stakes real-world mystery (a shocking plane crash of an aircraft with a spotless safety record), then uses a systematic process of elimination to investigate potential causes (plane age, pilot experience, weather) before pinpointing potential technical failure and demanding institutional accountability.",
+   "visual_style": "Split-screen talking head paired with real archival footage, news article screenshots, aviation logs, and data cards. Features dynamic light-leak transitions with approximately 1.5 to 2 cuts per 10 seconds.",
+   "on_screen_text": "High-contrast bold text badges with yellow and red accent blocks, centered or lower third (e.g., 'AI-171 FLIGHT', 'TOO OLD OF A PLANE?', 'INEXPERIENCED PILOT?', 'BAD WEATHER?', 'TECHNICAL FAILURE?'), used sparingly to introduce each hypothesis.",
+   "voice": "Serious, investigative, authoritative, and analytical. Paced at approximately 2.5 words per second in clear, articulate Hindi.",
+   "retention_tricks": [
+    "Deductive elimination format (addresses and debunks 3 obvious explanations one by one)",
+    "Split-screen layout pairing presenter reactions directly with dramatic footage",
+    "Screen proof overlays (official METAR weather reports, flight database entries, news articles)",
+    "Flash/light-leak visual resets between narrative segments",
+    "Unresolved high-stakes open loop waiting for black box data"
+   ],
+   "ending": "Concludes on an unresolved investigative question demanding accountability from Boeing and Air India, punctuated by a quick yellow flash transition without an explicit loop.",
+   "share_trigger": "High-stakes public safety information breaking down a shocking aviation incident that viewers feel compelled to share with family and frequent travelers.",
+   "length_s": 128,
+   "why_10M": [
+    "Inherent viral curiosity around major aviation disasters combined with clear, reliable investigative journalism.",
+    "Masterful myth-busting and elimination structure that keeps viewers hooked through multiple questions.",
+    "Credible primary sources (pilot flight hours, METAR logs, plane serial data) creating immense trust and shareability."
+   ],
+   "steal_for_hindi_ai_teaching": [
+    "Use the 'Hypothesis Elimination' hook: Pose a scary doubt (e.g., 'Will AI take your job next month?') and systematically debunk 3 common misconceptions with data.",
+    "Integrate authentic primary proof on screen: Show actual prompt logs, benchmark charts, or official pricing rather than talking in generic theoretical terms.",
+    "Deploy bold question badge overlays: Use colored alert tags (e.g., 'CODING CHAHIYE?', 'EXPENSIVE TOOL?') to clearly segment and pace each conceptual step."
+   ]
+  }
+ ],
+ [
+  "20M Dhruv Rathee",
+  "Q3FcCNXUoU8",
+  {
+   "first_1s": "Host speaks to the camera against a textured golden backdrop before the screen splits to show hands unfolding a dual-screen 'iPhone Duo'. Host says: 'Kal Apple ne apna naya iPhone Duo release kiya...'",
+   "hook_words": "Kal Apple ne apna naya iPhone Duo release kiya aur aap jaante ho is ek iPhone ki cost mein aap kya-kya khareed sakte ho?",
+   "hook_type": "shocking claim",
+   "teaching_method": "Anchors a massive price point (₹3 Lakhs) and progressively compares it against five distinct value bundles: home transformation, career/studio setup, fitness gym, utility savings (solar), and cash-flowing businesses (e-rickshaw/dairy).",
+   "visual_style": "Split-screen talking head with floating cutout product graphics, smooth slide-in animations, and clean price badges; approximately 6 to 8 visual cuts/updates per 10 seconds.",
+   "on_screen_text": "Clean sans-serif price tags (e.g., '₹2,99,000', '₹45,000 x 3') and descriptive labels positioned directly beside item images; minimal text clutter.",
+   "voice": "Authoritative, engaging, conversational Hindi spoken at around 2.8 words per second, balanced between curiosity and consumer rationality.",
+   "retention_tricks": [
+    "Stacked visual inventory where appliances pop in one after another to fill the screen",
+    "Escalating categories moving from lifestyle to career, then to cost-saving solar, and finally income-generating assets",
+    "Humorous yet grounded contrast (buying two Murrah buffaloes vs. a gadget)",
+    "Rhetorical pacing keeping viewer guessing what comparison comes next"
+   ],
+   "ending": "Poses a closing reflective question: 'Toh aapko sochna chahiye, kya sahi mein ye worth it hai?'; standard wrap-up without an infinite loop.",
+   "share_trigger": "High-relatability debate topic—viewers share it to tease friends obsessed with expensive gadgets and spark discussions about middle-class financial sense.",
+   "length_s": 76,
+   "why_10M": [
+    "Appeals to the universal intrigue around crazy Apple pricing contrasted against practical middle-class Indian realities.",
+    "Dynamic visual stacking of real items with exact price tags makes abstract monetary value immediately tangible.",
+    "The surprising inclusion of practical earning assets like e-rickshaws and dairy buffaloes drives viral comments and humor."
+   ],
+   "steal_for_hindi_ai_teaching": [
+    "Anchor value by comparing: 'Is paid AI tool/course ki cost (₹10,000) mein aap ye 5 free AI workflows setup karke mahine ka itna kama sakte ho'.",
+    "Use visual item stacking to display individual AI tools, input prompts, and outputs popping onto the screen with crisp labels.",
+    "Frame AI education around direct income generation and cost savings rather than abstract tech jargon."
+   ]
+  }
+ ],
+ [
+  "18.2M Zack D Films",
+  "nFRYgfitomc",
+  {
+   "first_1s": "A 3D character pulls a thick dusty book from a shelf, followed instantly by a dizzying zoom-out revealing an endless sea of library bookshelves floating in empty space, while the narrator begins speaking.",
+   "hook_words": "If you checked out every book from every library in the world and scanned them...",
+   "hook_type": "hypothetical scenario / visual scale shock",
+   "teaching_method": "Explains Large Language Models (LLMs) in 5 visual sequential steps: 1) Data collection (scanning all books and web pages), 2) Data cleaning (removing duplicates and false facts), 3) Tokenization (slicing text into letters and words), 4) Neural mapping (connecting words that frequently appear together), 5) Supervised learning & next-token prediction (guessing the next word and correcting mistakes until it mirrors human speech).",
+   "visual_style": "High-detail 3D CGI animation with dynamic camera moves; rapid visual transitions averaging 4 to 5 scene/angle changes per 10 seconds.",
+   "on_screen_text": "Centered lower-third subtitles, bold white font with black outline, displayed in 1-3 word sync pulses matching spoken cadence.",
+   "voice": "Clear, friendly, story-driven narrator; confident and paced at approximately 2.5 to 2.8 words per second with natural educational curiosity.",
+   "retention_tricks": [
+    "Infinite scale escalation (single book -> infinite library -> infinite printer sheets)",
+    "Tangible physical metaphors for digital processes (funnel filter for data cleaning, wires connecting directly into PC)",
+    "Gamified visual feedback (slot machine style word selector, glowing spheres flashing green for correct / red for error)",
+    "Self-referential Easter egg prompt on screen ('Could you tell me who Zack D. Films is...')",
+    "Continuous forward momentum with no pauses in audio or visual action"
+   ],
+   "ending": "Ends on the character celebrating triumphantly as the AI generates human-level prose ('sounded just like a human') before cutting off cleanly.",
+   "share_trigger": "High-utility 'aha!' moment that simplifies the most talked-about modern technology (ChatGPT) into 60 seconds without mathematical jargon, making the sharer look knowledgeable.",
+   "length_s": 64,
+   "why_10M": [
+    "Demystifies a globally viral, complex topic (how ChatGPT works) into pure common sense.",
+    "Flawless 3D visual storytelling that transforms abstract code into physical, tactile objects (books, funnels, glowing neural webs).",
+    "Pacing and sound design maintain intense micro-curiosity from the first frame to the last second."
+   ],
+   "steal_for_hindi_ai_teaching": [
+    "Replace abstract terminology (Tokens, Weights, LLM, Loss Function) with simple visual metaphors like 'shabdon ke tukde' (word pieces) and 'andaza lagana' (guessing the next word).",
+    "Visualize the training feedback loop as a simple green-tick / red-cross game of trial and error repeated billions of times.",
+    "Open with a high-stakes, imaginative visual hook rather than a lecture introduction (e.g., 'Agar duniya ki saari kitabein ek computer ko padha di jayein...')."
+   ]
+  }
+ ],
+ [
+  "18M Zack D Films",
+  "P0xEjb7Th6Q",
+  {
+   "first_1s": "White screen displays caption 'Take a photo', quickly revealing a 3D animated girl with pigtails pedaling a pink bicycle on a cyan surface as the voiceover says 'Take a photo of bike girl'.",
+   "hook_words": "Take a photo of bike girl",
+   "hook_type": "visual curiosity",
+   "teaching_method": "Step-by-step mechanical and optical deconstruction: captures sequential action frames, slices them into micro-strips, interleaves the strips into a repeating pattern, adds micro-lenticular curved lenses to isolate viewing angles, and demonstrates how a sliding pull-tab shifts the image behind the lenses during a page turn to create continuous animation.",
+   "visual_style": "High-fidelity 3D CGI animation with smooth camera moves, microscopic macro zooms, and slicing VFX; approximately 4 cuts or major camera shifts per 10 seconds.",
+   "on_screen_text": "Centered lower-third subtitles in bold white sans-serif with subtle black stroke, displaying 2 to 4 words at a time in sync with speech.",
+   "voice": "Clear, articulate, mid-tempo male narration (~2.5 words per second), curious, authoritative, and engaging storytelling tone.",
+   "retention_tricks": [
+    "Macro zoom showing optical light-bending inside cylindrical lenses",
+    "Satisfying visual slicing and interlacing animation",
+    "Physical reveal of the hidden paper tab mechanism",
+    "Fast narrative progression from simple photography to complex optics",
+    "Humorous micro-narrative of the girl falling off her bike"
+   ],
+   "ending": "Shows the mechanical book page turning as the lens shifts and animates the full sequence of the girl crashing her bike in a rapid flash.",
+   "share_trigger": "Demystifies a ubiquitous childhood nostalgia item (lenticular animation / 'Scanimation' books) that most people never understood mechanically.",
+   "length_s": 40,
+   "why_10M": [
+    "Universal nostalgia: Explains the hidden mechanics of moving picture books everyone has seen but never understood.",
+    "Unmatched 3D visualization: Renders invisible optical refraction and micro-strip interlacing into clear, satisfying visuals.",
+    "Brisk, zero-filler pacing: Constant visual motion and tight narrative structure prevent viewer drop-off."
+   ],
+   "steal_for_hindi_ai_teaching": [
+    "Visualize abstract digital mechanics physically (e.g., show an AI prompt being chopped into visual 'tokens' just like sliced picture strips).",
+    "Use everyday demystification hooks (e.g., 'Jab aap ChatGPT ko ek photo dikhate ho, usko kya dikhta hai?').",
+    "Incorporate extreme macro zooms to show how neural weights or attention layers route data step by step."
+   ]
+  }
+ ],
+ [
+  "18M Zack D Films",
+  "ouss9FuL5Lk",
+  {
+   "first_1s": "A 3D animated fighter jet approaches an aircraft carrier flight deck from behind while the narrator says, 'As it goes in to land...'",
+   "hook_words": "As it goes in to land, the pilot shoves the throttle forward",
+   "hook_type": "Counter-intuitive paradox / shocking claim",
+   "teaching_method": "Presents a counter-intuitive contradiction (accelerating while landing), contrasts it briefly with typical airplane landing, reveals the mechanical device (tailhook and arresting cable), and explains the life-saving fail-safe logic (if the hook misses, full power prevents plunging into the ocean).",
+   "visual_style": "High-fidelity 3D CGI simulation with dynamic camera angles, cockpit cutaways, and green wireframe/highlight overlays; fast-paced with approximately 6 to 7 shot/angle changes per 10 seconds.",
+   "on_screen_text": "Bold white sans-serif text centered at the bottom, updating phrase by phrase in sync with voiceover, accompanied by graphic icons (green checkmark, red 'X').",
+   "voice": "Engaging, crisp, authoritative educational narrator; pace is around 2.6 words per second with clear pauses before reveals.",
+   "retention_tricks": [
+    "Immediate counter-intuitive hook (doing the opposite of common sense)",
+    "Highlighted cutaway visuals (glowing green throttle lever and hook trajectory)",
+    "Contrasting scenarios side by side (commercial landing vs. carrier landing)",
+    "Gamified visual validation symbols (green checkmark for successful catch, red cross for a miss)",
+    "High-stakes consequence reveal saved for the climax ('plunging into the ocean')"
+   ],
+   "ending": "The jet fails to hook the wire and safely lifts off over the carrier bow into the open ocean, resolving the paradox. Ends cleanly on the phrase 'instead of plunging into the ocean.'",
+   "share_trigger": "Surprising aviation trivia that completely contradicts everyday logic, prompting viewers to share with friends saying 'I had no idea fighter jets land on full throttle!'",
+   "length_s": 29,
+   "why_10M": [
+    "Instant curiosity gap: Posing a question/paradox that defies universal intuition (speeding up to stop).",
+    "Flawless visual clarity: 3D mechanics show exactly how the arresting wire works far better than real camera angles ever could.",
+    "Life-or-death stakes: Framing the rule around preventing a catastrophic ocean crash keeps adrenaline and viewer attention locked."
+   ],
+   "steal_for_hindi_ai_teaching": [
+    "Open with a counter-intuitive contradiction (e.g., 'ChatGPT ko zyada detail doge toh wo aur kharab answer dega... sunne me ulta lagta hai na?').",
+    "Use graphical binary feedback (pop up a green checkmark on correct prompting/settings and a red 'X' on common beginner mistakes).",
+    "Show the 'plunge into the ocean' worst-case scenario early (e.g., showing wasted money, leaked API keys, or hallucinated wrong business decisions) before explaining the fail-safe technique."
+   ]
+  }
+ ],
+ [
+  "17M Cleo Abram",
+  "iLJbQtTU4o4",
+  {
+   "first_1s": "A woman in a red shirt gestures toward the camera saying 'Mount Everest is not...', immediately cutting to a shot of snow-capped Mount Everest with bold neon text.",
+   "hook_words": "Mount Everest is not the world's tallest mountain.",
+   "hook_type": "myth / shocking claim",
+   "teaching_method": "Presents a 3-way contest where each mountain wins under a different definition: Everest (highest above sea level, but stands on a high plateau), Chimborazo (farthest from Earth's center due to the equatorial bulge), and Mauna Kea (tallest base-to-peak starting on the ocean floor). Finishes by asking the viewer to judge which definition is legitimate.",
+   "visual_style": "High-energy mix of talking-head shots, 3D rotating globe animations, cross-section measurement graphics, and scenic aerial footage. Pacing is fast with approximately 5 to 6 cuts per 10 seconds.",
+   "on_screen_text": "Vibrant, bold uppercase titles with outline/drop-shadow (yellow/cyan) at top and center; synchronized lowercase-to-uppercase subtitles at bottom center; animated elevation lines and metric/imperial measurement tags.",
+   "voice": "Passionate, conversational, playful ('I think it's been cheating'), steady high-energy cadence averaging around 2.8 words per second.",
+   "retention_tricks": [
+    "Gamified 3-way competition framing ('you vote on which you think is the real winner')",
+    "Blurred preview cards early on hiding contenders 2 and 3",
+    "Engaging visual cross-section comparisons illustrating sea level vs ocean floor vs Earth's center",
+    "Personification of mountains ('cheating')",
+    "Constant alternating between presenter face and dynamic 3D motion graphics"
+   ],
+   "ending": "Side-by-side three-tier recap graphic of all 3 contenders with their titles, followed by a direct call to action to subscribe and comment their vote.",
+   "share_trigger": "Counterintuitive trivia that challenges a fact taught in grade school, making viewers want to share it to test or impress their friends.",
+   "length_s": 73,
+   "why_10M": [
+    "Disrupts universally accepted knowledge in the first 2 seconds, forcing immediate stop-and-watch.",
+    "Showdown format with blurred mystery contenders guarantees high completion rate to find out who wins.",
+    "Crystal-clear visual cross-sections turn abstract spatial geography into instantly understandable graphics."
+   ],
+   "steal_for_hindi_ai_teaching": [
+    "Start by attacking a popular myth (e.g., 'ChatGPT sabse smart AI nahi hai' / 'ChatGPT isn't actually the smartest AI').",
+    "Use a 3-way category showdown (e.g., comparing ChatGPT vs Claude vs Gemini based on speed, coding, and Hindi translation) with blurred reveals.",
+    "End with an active debate call to action (e.g., 'Aapke kaam ke liye kaun sa jeeta? Comment me batao') to generate viral comment activity."
+   ]
+  }
+ ],
+ [
+  "17M Dhruv Rathee",
+  "FWCOfAmiupQ",
+  {
+   "first_1s": "Dhruv Rathee holds up three fingers while animated floating badge icons appear over his fingertips; audio starts immediately with 'Teen khabrein jo aapko news channels par...'",
+   "hook_words": "Teen khabrein jo aapko news channels par kahin nahi dekhne ko milengi",
+   "hook_type": "forbidden knowledge / listicle promise",
+   "teaching_method": "Numbered breakdown (1 to 3) where each point pairs a past official claim or perception with verified data reports (GDP rankings, Press Freedom index, V-Dem Democracy index) shown directly on screen.",
+   "visual_style": "Fast-paced talking head mixed with green-screen PIP, archival political speech clips, and highlighted digital articles; cut frequency is approximately 5 to 7 cuts per 10 seconds.",
+   "on_screen_text": "Clean digital badge icons on fingers (#1, #2, #3) and realistic yellow highlighter markers on original news headlines and index tables.",
+   "voice": "Authoritative, fast-paced (approx. 2.8 words/second), investigative, assertive Hindi delivery with clear diction.",
+   "retention_tricks": [
+    "Three-part countdown visual anchor on hand showing progress",
+    "Juxtaposition of celebratory political speeches against contrasting international reports",
+    "Yellow animated highlighting over key statistical lines in articles",
+    "Rapid cuts to archival b-roll and financial graphs to prevent visual fatigue"
+   ],
+   "ending": "Direct call to action to share the video because mainstream media won't show it, closing on the exact phrase that seamlessly loops into the opening line.",
+   "share_trigger": "Information asymmetry and civic indignation—viewers share to alert peers about suppressed or underreported national statistics.",
+   "length_s": 80,
+   "why_10M": [
+    "High-stakes forbidden knowledge frame ('what news channels won't tell you') triggers instant curiosity.",
+    "Credibility established via visual evidence (primary reports from FT, RSF, V-Dem) rather than mere spoken assertions.",
+    "Masterful seamless loop and countdown framework that maintains view-through rate across all 80 seconds."
+   ],
+   "steal_for_hindi_ai_teaching": [
+    "Use a '3 AI tools mainstream tech influencers aren't telling you about' hook with floating fingertip badge counters.",
+    "Show real screens with highlighted text rather than just talking head slides to prove real-world utility.",
+    "Loop the closing call to action back into the hook line to maximize second-watch loop completion."
+   ]
+  }
+ ],
+ [
+  "15M Mrwhosetheboss",
+  "PtgElT4pK_o",
+  {
+   "first_1s": "Arun Maini types '5 + 5' into his smartphone calculator and says 'Check this out. If I type in 5 plus 5...'",
+   "hook_words": "Check this out. If I type in 5 plus 5 divided by 5 on my phone, it tells me the answer is 6.",
+   "hook_type": "visual curiosity / demo puzzle",
+   "teaching_method": "Comparison and conflict resolution: 1) Demonstrates phone giving answer 6; 2) Demonstrates pocket calculator giving answer 2; 3) Poses the mystery ('Which one of them is wrong?'); 4) Breaks down pocket calculator's left-to-right sequential input with animated retro display overlays; 5) Breaks down phone's BODMAS order of operations with visual arithmetic steps; 6) Declares the phone the winner based on mathematical standard.",
+   "visual_style": "High-production talking head combined with crisp macro close-ups of phone and physical calculator screens, dynamic zoom cuts (approx. 4 cuts per 10 seconds), and digital green LCD overlays simulating calculator steps.",
+   "on_screen_text": "Large bold centered subtitles in green and white with black stroke, animated keyword highlights ('HOW', 'POSSIBLE?', 'BODMAS'), and prominent custom digital LCD math breakdown graphics.",
+   "voice": "Enthusiastic, clear British English, pacing around 2.7 words per second, engaging and conversational yet authoritative.",
+   "retention_tricks": [
+    "Immediate cognitive dissonance in first 10 seconds (phone = 6, calculator = 2)",
+    "Direct challenge question: 'Which one of them is wrong?'",
+    "Step-by-step visual math equations appearing on screen keeping viewers following along",
+    "Fast hand gesture transitions and snappy camera punch-ins",
+    "Clear 'who wins' competitive payoff at the finish"
+   ],
+   "ending": "Holds up both devices side by side and concludes 'In the battle of phone versus calculator, phone wins' with a definitive punchy finish.",
+   "share_trigger": "Shocking simple trivia that viewers immediately want to test on their own phones/calculators and send to friends or family group chats to test their math logic.",
+   "length_s": 55,
+   "why_10M": [
+    "Universal accessibility: Uses elementary grade math (5+5÷5) and everyday tools (phone & calculator) that every person on earth understands.",
+    "Immediate cognitive dissonance: Showing two reliable devices giving completely different answers creates irresistible curiosity within 10 seconds.",
+    "Satisfying clarity: Explains an intimidating math acronym (BODMAS) visually in under 20 seconds, giving the viewer an instant 'aha!' feeling."
+   ],
+   "steal_for_hindi_ai_teaching": [
+    "The Tool Showdown Hook: Start by giving the exact same prompt to ChatGPT and Google Gemini on camera, showing contradictory outputs within 5 seconds ('Dekho same sawal, do alag jawab!').",
+    "Visual Step-by-Step Breakdown: Don't just lecture about AI models; use animated graphic callouts showing the 'under-the-hood' process (e.g., how tokens predict next words vs search index retrieval).",
+    "Definitive Winner Verdict: Conclude with a clear, relatable recommendation ('Toh research ke liye Gemini jeeta, content writing ke liye ChatGPT jeeta') rather than open-ended nuance."
+   ]
+  }
+ ],
+ [
+  "14M Cleo Abram",
+  "Y4dzIWxFqp8",
+  {
+   "first_1s": "A 3D animated colorful World Cup soccer ball levitates over a stadium background while the narrator asks: 'Why does the ball for the World Cup...'",
+   "hook_words": "Why does the ball for the World Cup look like this, and not this?",
+   "hook_type": "visual curiosity / contrast question",
+   "teaching_method": "Explains a complex aerodynamics/geometry problem step-by-step: defines the core challenge (flattening a sphere into flat shapes), introduces 3D geometric base shapes (polyhedra), shows physical folding of panels, contrasts with the traditional 32-panel soccer ball, analyzes the infamous Jabulani failure (too smooth, boundary layer separation, erratic drag), explains the aerodynamic solution using golf ball dimple physics, and reveals the modern ball's micro-grooves.",
+   "visual_style": "Hybrid of clean 3D render animations, hands-on physical paper/foam folding demos, sports archive footage, and quick talking-head cut-ins; rapid pacing with ~7-9 cuts per 10s.",
+   "on_screen_text": "Bold, centered white capital subtitles at the bottom with bright yellow/green keyword highlights, 3D floating labels on geometric solids, clean arrow callouts, and credit citations in the top-left corner.",
+   "voice": "Enthusiastic, clear, friendly female science communicator; energetic and confident delivery at approximately 3.3 words per second.",
+   "retention_tricks": [
+    "Instant A/B visual comparison in the first 3 seconds",
+    "Open loop at 0:07 teasing a pixelated 'even more controversial' third ball design",
+    "Satisfying tactile folding/assembling animations that maintain visual flow",
+    "Morphing 3D geometry transformations (icosahedron truncated into classic soccer ball)",
+    "Familiar real-world comparison to golf ball dimples to ground the physics",
+    "Secondary open loop right before the CTA teasing a 'secret sensor inside'"
+   ],
+   "ending": "Shows a cross-section teaser of a microchip/sensor inside the ball, pointing directly downward to the subscribe overlay prompt; does not seamless-loop.",
+   "share_trigger": "Football fans and science nerds love sharing why the notorious 2010 Jabulani ball behaved so erratically, settling long-standing sports debates with hard physics.",
+   "length_s": 62,
+   "why_10M": [
+    "Universal mainstream hook leveraging global soccer passion combined with surprising underlying geometry and physics.",
+    "Flawless visual storytelling: complex math (Euler characteristics, truncated polyhedra) is communicated effortlessly through tactile origami and 3D folding animations.",
+    "High-stakes sports controversy: revisiting the infamous Jabulani ball's erratic flight turns abstract aerodynamics into high-drama entertainment."
+   ],
+   "steal_for_hindi_ai_teaching": [
+    "Start with a visual contrast hook (e.g., 'Why does ChatGPT answer like this [boring plain text], but this new AI agent answers like this [executing tasks]?') rather than technical definitions.",
+    "Use tactile physical visual metaphors (like paper folding or assembling puzzle pieces) to visually represent embeddings, tokenization, or neural net layers before touching code.",
+    "Introduce a famous controversial AI failure/hallucination case study as the narrative turning point to explain why newer architectures (like RLHF or RAG) were invented."
+   ]
+  }
+ ],
+ [
+  "11.8M AI Warehouse",
+  "LXosuQEOLn0",
+  {
+   "first_1s": "On-screen title 'AI learns to dodge' with 'Hour 1' at the bottom; an orange cube faces a blue cube in a sterile 3D test room before the blue cube instantly smashes the orange cube into pieces with a punchy sound effect.",
+   "hook_words": "None (No spoken voiceover; title text reads 'AI learns to dodge')",
+   "hook_type": "visual curiosity",
+   "teaching_method": "Evolutionary time-lapse progression showing reinforcement learning through trial and error across simulated training hours (Hour 1 to Hour 12), illustrating how AI agents improve dodging and pathfinding behaviors over time.",
+   "visual_style": "3D physics engine simulation with voxel destruction; fast-paced cuts showing successive training milestones (~2.5 cuts per 10s).",
+   "on_screen_text": "Clean, bold white sans-serif text; top banner 'AI learns to dodge', center digital scoreboard countdown (10 to 00), bottom stage labels ('Hour 1', 'Hour 2', etc.) in black boxes.",
+   "voice": "No voiceover; relies purely on satisfying arcade sound effects, impact thuds, and voxel shatter sounds.",
+   "retention_tricks": [
+    "Chronological level-up structure (Hour 1 to Hour 12) creating anticipation for the final outcome",
+    "Visible 10-second countdown timer on each round amplifying tension",
+    "Humorous physical comedy with cute googly-eyed cubes being crushed or juking",
+    "Dramatic near-misses that increase in complexity with each iteration"
+   ],
+   "ending": "At Hour 12, the orange cube successfully dodges the blue cube until the timer reaches 00, whereupon both cubes burst into celebration particles; loops back to Hour 1.",
+   "share_trigger": "Amazing visual demonstration of AI reinforcement learning that is fun, effortless to understand, and relatable to gamers.",
+   "length_s": 40,
+   "why_10M": [
+    "Zero language barrier enables universal global virality without translation",
+    "Clear, suspenseful stakes in every round driven by a 10-second countdown timer",
+    "Extremely satisfying progression loop that makes abstract machine learning instantly intuitive"
+   ],
+   "steal_for_hindi_ai_teaching": [
+    "Use visual simulations or gamified models instead of math/code to explain AI training concepts like reinforcement learning",
+    "Structure short-form content into an 'Hour 1 vs Hour 100' or 'Attempt 1 vs Attempt 50' progression timeline",
+    "Rely on high-contrast visual cues and tension-building timers before explaining theoretical details in Hindi"
+   ]
+  }
+ ]
+]

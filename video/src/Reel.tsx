@@ -14,7 +14,8 @@ const pop = (t: number, at: number, damping = 13) => (t < at ? 0 : spring({frame
 const clamp = {extrapolateLeft: "clamp", extrapolateRight: "clamp"} as const;
 const font = (size: number, color: string, weight = 800, family = FONT): React.CSSProperties => ({fontFamily: family, fontWeight: weight, fontSize: size, color, lineHeight: 1.12, textAlign: "center"});
 const col: React.CSSProperties = {display: "flex", flexDirection: "column", alignItems: "center"};
-const BOARD = ["define", "diagram", "flow", "chart", "counter", "compare", "stamp", "list", "recap", "quote", "chat"];
+const BOARD = ["define", "diagram", "flow", "chart", "chat", "recap"];          // full whiteboard scenes
+const STICKER = ["counter", "compare", "stamp", "list", "quote"];                 // float over real footage
 
 // A "sticker" box: ink outline + offset shadow, like a teacher's marker drawing.
 const box = (INK: string, bg = "#fff", extra: React.CSSProperties = {}): React.CSSProperties =>
@@ -102,12 +103,26 @@ const Board: React.FC<{v: any; t: number; s: number; e: number; HI: string; INK:
   return <div style={col}>{title}{body}</div>;
 };
 
+// Clean cover for the profile grid: first footage frame + the hook, big, inside the centre safe area.
+const Cover: React.FC<any> = (p) => {
+  const HI = p.theme?.highlight || "#FFD43B", sh = (p.shots || []).find((x: any) => x.src);
+  return <AbsoluteFill style={{background: PAPER}}>
+    {sh && <OffthreadVideo src={staticFile(sh.src)} muted startFrom={30} style={{width: "100%", height: "100%", objectFit: "cover"}} />}
+    <AbsoluteFill style={{background: "rgba(0,0,0,.35)"}} />
+    <AbsoluteFill style={{alignItems: "center", justifyContent: "center", padding: "0 80px"}}>
+      <div style={{...font(118, "#fff", 900), WebkitTextStroke: "12px #000", paintOrder: "stroke", lineHeight: 1.05}}>
+        {String(p.hook).split(" ").map((w: string, j: number, a: string[]) => <span key={j} style={j === a.length - 1 || /\d/.test(w) ? {color: HI} : {}}>{w}{j < a.length - 1 ? " " : ""}</span>)}
+      </div></AbsoluteFill>
+  </AbsoluteFill>;
+};
+
 export const Reel: React.FC<any> = (p) => {
+  if (p.cover) return <Cover {...p} />;
   const t = useCurrentFrame() / FPS, L = p.lines, HI = p.theme?.highlight || "#FFD43B", INK = p.theme?.ink || "#1D1D1F";
   const i = Math.max(0, L.findLastIndex((l: any) => l.start <= t)), line = L[i];
   const ws = line?.words || [], cur = ws.findLastIndex((w: any) => w[1] <= t), c0 = Math.floor(Math.max(cur, 0) / 3) * 3;
   const board = (l: any) => !!l && (BOARD.includes(l.v?.type) || !!l.text_scene);
-  const onBoard = board(line), bigWords = onBoard && !BOARD.includes(line.v?.type), left = Math.max(0, Math.ceil(p.duration - t));
+  const onBoard = board(line), bigWords = onBoard && !BOARD.includes(line.v?.type) && !STICKER.includes(line.v?.type), left = Math.max(0, Math.ceil(p.duration - t));
   return <AbsoluteFill style={{background: "#000", overflow: "hidden"}}>
     {/* real-world moments: full-screen footage with a slow push-in */}
     {(p.shots || []).map((sh: any, j: number) => sh.src && <Sequence key={j} from={Math.round(sh.start * FPS)} durationInFrames={Math.max(1, Math.round((sh.end - sh.start) * FPS))}>
@@ -120,19 +135,26 @@ export const Reel: React.FC<any> = (p) => {
       <AbsoluteFill key={j} style={{background: PAPER, backgroundImage: "radial-gradient(#00000014 2px, transparent 2px)", backgroundSize: "44px 44px",
         transform: board(L[j - 1]) ? "none" : `translateX(${(1 - pop(t, l.start - 0.2, 20)) * 1080}px)`}}>
         <AbsoluteFill style={{top: 250, height: 900, alignItems: "center", justifyContent: "center"}}>
-          {BOARD.includes(l.v?.type) ? <Board v={l.v} t={t} s={l.start} e={l.end} HI={HI} INK={INK} />
+          {STICKER.includes(l.v?.type) ? null : BOARD.includes(l.v?.type) ? <Board v={l.v} t={t} s={l.start} e={l.end} HI={HI} INK={INK} />
             // no visual and no relevant footage: the spoken words become big hand-written style text
             : <div style={{width: 940, textAlign: "center", lineHeight: 1.15}}>{(l.words || []).filter((w: any) => w[1] <= t).slice(-7).map(([w]: any, q: number, a: any[]) =>
                 <span key={q} style={{...font(104, q === a.length - 1 ? BLUE : INK, 700, HAND), display: "inline-block", margin: "0 14px"}}>{w}</span>)}</div>}
         </AbsoluteFill></AbsoluteFill>)}
+    {/* sticker cards over real footage (or over the plain board if no footage matched) */}
+    {L.map((l: any, j: number) => STICKER.includes(l.v?.type) && t >= l.start && t < l.end + 0.25 &&
+      <AbsoluteFill key={`s${j}`} style={{top: 330, height: 760, alignItems: "center", justifyContent: "center",
+        opacity: interpolate(t, [l.end - 0.05, l.end + 0.25], [1, 0], clamp)}}>
+        <div style={{background: "rgba(255,253,247,.94)", border: `5px solid ${INK}`, borderRadius: 34, boxShadow: `10px 10px 0 ${INK}`, padding: "30px 26px",
+          transform: `scale(${0.82 * (0.85 + 0.15 * pop(t, l.start))})`}}><Board v={l.v} t={t} s={l.start} e={l.end} HI={HI} INK={INK} /></div>
+      </AbsoluteFill>)}
     {/* hook headline on line 1 */}
-    {i === 0 && p.hook && <div style={{position: "absolute", top: 240, width: "100%", padding: "0 70px", boxSizing: "border-box", ...col}}>
+    {i === 0 && p.hook && <div style={{position: "absolute", top: 470, width: "100%", padding: "0 70px", boxSizing: "border-box", ...col}}>
       <div style={{...font(84, onBoard ? INK : "#fff", 900), ...(onBoard ? {} : {WebkitTextStroke: "10px #000", paintOrder: "stroke"}), opacity: pop(t, 0.05),
         transform: `scale(${interpolate(pop(t, 0.05, 12), [0, 1], [1.2, 1])})`}}>
         {String(p.hook).split(" ").map((w: string, j: number, a: string[]) => <span key={j} style={j === a.length - 1 || /\d/.test(w) ? {color: onBoard ? BLUE : HI} : {}}>{w}{j < a.length - 1 ? " " : ""}</span>)}
       </div></div>}
     {/* countdown chip keeps the "samjho in N sec" promise visible (completion) */}
-    <div style={{position: "absolute", top: 120, right: 50, ...font(36, INK, 900), background: HI, border: `4px solid ${INK}`, borderRadius: 40, padding: "6px 20px",
+    <div style={{position: "absolute", top: 240, right: 60, ...font(34, INK, 900), background: HI, border: `4px solid ${INK}`, borderRadius: 40, padding: "6px 20px",
       opacity: interpolate(t, [0.3, 0.8], [0, 1], clamp)}}>⏱ {left}s</div>
     {/* source chip whenever a line states a news fact */}
     {line?.source && <div style={{position: "absolute", top: onBoard ? 1180 : 1090, left: 60, ...font(30, INK, 700), background: "rgba(255,255,255,.95)", border: `3px solid ${INK}`, borderRadius: 12, padding: "6px 14px",

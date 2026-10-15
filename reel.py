@@ -111,14 +111,22 @@ FORMAT: one narrator (you, the teacher) over real stock footage that truly match
 teaching visuals drawn on screen (definition card, step diagram, chart, comparison, myth/truth stamp, recap). No
 presenters or characters on camera. It must feel like a real, warm creator - nothing that looks AI-generated.
 
-WHAT WINS (from analysing the most-viewed Indian AI explainer shorts vs ones stuck at 10-20 views):
-- Winners keep a clear PROMISE on screen ("40 second mein samjho") and pay it off; they SHOW the idea (clean drawings that
-  build step by step, side-by-side comparisons, a real demo on a phone) instead of describing it; they give a personal
-  benefit ("ye aapke kaam aayega kyunki..."); and they use everyday analogies.
-- Flops open with a generic question ("Kabhi socha hai AI kaise kaam karta hai?"), use vague futuristic visuals, and
-  explain without proof. Never do that: the hook must be specific and concrete to the viewer's life or today's news.
+VIRAL PLAYBOOK (from analysing 13 Shorts with 10M-38M views - Zack D. Films, Mrwhosetheboss, Cleo Abram, Dhruv Rathee,
+AI Warehouse - see research/competitors_10M.json). Follow it:
+- First second: a spoken AND visual hook together, no intro. Use a counter-intuitive claim, a common mistake, a myth
+  attack or a "what if" image ("Agar duniya ki saari kitaabein ek computer ko padha di jaayein...?"). Never a generic
+  "Kabhi socha hai AI kaise kaam karta hai?".
+- Start from an everyday thing the viewer has seen a hundred times, then reveal the hidden "how" inside it.
+- Carry ONE strong visual metaphor through the whole reel so the invisible becomes visible.
+- Keep a result pending (a test, a showdown, "Hour 1 vs Hour 100", a countdown) so they must watch to the end.
+- Escalate the reveals ("pehle ye... lekin asli kamaal ye hai...") with a tiny pause before each one.
+- Proof on screen: real numbers with sources, real-world examples, side-by-side before/after.
+- Personal stakes in Indian terms: money (₹), job, time, safety, family.
+- About 2.6 spoken words per second, a new visual every 2-3 seconds, zero filler.
+- End with a clear payoff or verdict whose last words echo the hook (so the loop replays), or a debate question.
+- Give a reason to send it ("us dost ko bhejo jo...").
 
-TEACHING ARC (in this order, one idea per line, 9-12 short lines, total spoken words <= {int(TARGET * 2.3)}):
+TEACHING ARC (in this order, one idea per line, 9-12 short lines, total spoken words about {int(TARGET * 2.6)}):
 1. HOOK - a specific moment from the viewer's own life (or today's news) where they already met this concept, plus the
    promise: e.g. "Aapka phone aapki photo mein chehra kaise pehchaanta hai? 40 second mein samjho."
 2. CONCEPT - say what it is in ONE simple sentence, zero jargon. Show a define card: TERM = meaning in 3-6 everyday words.
@@ -127,11 +135,14 @@ TEACHING ARC (in this order, one idea per line, 9-12 short lines, total spoken w
 5. REAL EXAMPLE - a real, recent news example from {C['location']} (from the research, with source + date) showing it in action.
 6. TRUTH CHECK - one common myth or fear about it, and the honest truth (stamp card). Be 100% truthful; no hype, no scare.
 7. YAAD RAKHO - one short, catchy line to remember by heart (rhythm or rhyme helps). Show it on the recap card.
-8. SIGN-OFF - warm and fun: tease the next lesson if given, else invite them to save and share with someone who'd love it.
+8. SIGN-OFF - warm and fun, and its last words echo the hook so the reel loops; tease the next lesson if given, else a
+   save/share invite.
 Any technical word must be explained the moment it appears. Speak like a fun teacher: warm, soft, a little playful, smiling.
 
 FIELDS
 - text: what you say, in {C['spoken_language']}. caption: the SAME words in {C['caption_language']}.
+- Timing: a flow/diagram/list needs about 1.2 seconds per item, so give that line enough words; keep the whole reel
+  close to {TARGET:.0f} seconds (never above {TARGET + 10:.0f}).
 - delivery: the emotion for this line, 1-4 words ("curious", "warm, smiling", "playful", "excited", "gentle, slower",
   "proud"). Vary it like a real teacher telling a story.
 - hook: <= 6 words shown big during line 1 - the concept's name + the curious part.
@@ -151,8 +162,10 @@ FIELDS
   chat    - title = app name (e.g. "ChatGPT") + items = [what a person types, the AI's short reply] - a phone demo that
             SHOWS the concept in action (great for anything you can ask an AI). Keep both under 12 words.
   recap   - title = the YAAD RAKHO line
-  Lines with a visual are shown on a bright whiteboard (no footage); lines with type "none" get real footage.
-  Use a visual on about half the lines; always use define (line 2), a diagram/flow/chart (how it works), and recap.
+  define / diagram / flow / chart / chat / recap are drawn on a bright whiteboard (no footage) - use AT MOST 4 of these.
+  counter / stamp / compare / list / quote float as stickers OVER real footage - so still give good footage searches.
+  "none" = just real footage + captions. Alternate real footage and whiteboard so it never feels like slides.
+  Always use define (line 2), one diagram/flow/chart or chat (how it works), and recap.
   Line 1 (hook) is always type "none" so it opens on real footage.
   On-screen text: max 6 words per item, in {C['caption_language']}.
 - source: for a news fact or number, "Publication · date" from the research notes, else "".
@@ -167,7 +180,9 @@ SEO (Instagram reads captions, on-screen text and the spoken audio):
   2 short lines of value with 2-3 more search phrases; end with a save/share CTA. NO hashtags in caption_ig.
 - seo.keywords: 5-8 search phrases people type. seo.hashtags: 3-5 tightly relevant hashtags, each starting with #.
 - seo.alt_text: one plain sentence describing the reel, containing the main keyword.
-- seo.first_comment: a fun question that makes people reply with what they learned or a doubt.
+- seo.first_comment: a fun, genuine question that makes people reply with what they learned or a doubt (no engagement bait).
+- seo.story_text: one line to reshare the reel on Stories (curiosity, not a summary).
+- seo.broadcast_text: one friendly line for the broadcast channel announcing today's lesson.
 
 {PSYCH}
 
@@ -202,6 +217,8 @@ class Seo(BaseModel):
     hashtags: list[str]
     alt_text: str
     first_comment: str
+    story_text: str = ""
+    broadcast_text: str = ""
 
 
 class Reel(BaseModel):
@@ -344,20 +361,53 @@ def google_tts(line, path):
 CLOUD_TTS = E("TTS_ENGINE", "gemini") == "google"  # Chirp 3 HD voices have no emotion control; Gemini one-take is the default
 
 
-def narrate(reel, path):
-    """The whole script in ONE emotional take (natural flow between lines), directed like a real voice session."""
+VOICE_JUDGE = ("You are a strict voice director for Indian Instagram creators. Listen to this take. Reply JSON: "
+               '{"brackets_or_directions_read_aloud": true/false, "sounds_like_real_teacher": 1-10, "emotion_range": 1-10, '
+               '"warmth": 1-10, "pronunciation": 1-10, "worst_moment": "..."}')
+
+
+def narrate_take(reel, path, n=0):
+    """One emotional take of the whole script, directed like a real teacher's voice session."""
     script = "\n".join(f"[{l.delivery}] {l.text}" if l.delivery else l.text for l in reel.lines)
-    prompt = f"""# AUDIO PROFILE: {C['voice_style']}.
-## SCENE: Recording a {TARGET:.0f}-second Instagram reel, talking straight to one friend, not to an audience.
+    prompt = f"""# AUDIO PROFILE: {C['voice_style']}. Everyone's favourite teacher - the one who makes hard things feel easy.
+## SCENE: Sitting next to one curious student, explaining something cool with a big smile. Recording an Instagram
+reel, but talking to ONE person, never to an audience. Take {n + 1}.
 ### DIRECTOR'S NOTES
-Style: conversational, real emotion that changes line to line as marked in [brackets]; never say the brackets aloud.
-Pacing: fast and lively, short natural pauses between lines, breathe naturally; slow down only where marked.
+Style: a real teacher, not an announcer. Smile while speaking - you can hear it. Change emotion line to line exactly as
+marked in [brackets]; never say the brackets aloud.
+Questions: ask them for real, as if waiting for the student's answer - a tiny pause after each question.
+Teaching moments: slow down a little and soften on the definition, lean on the key word, then a light "samjhe?" feel.
+Examples: speed up, get playful, a soft natural laugh where it fits. "Yaad rakho" line: slower, warm, a little proud.
+Breathe naturally, vary pitch and pace like real speech; keep pauses short so it stays lively.
 Accent: {C['accent']}.
 #### TRANSCRIPT
 {script}"""
     _, pcm = gemini(TTS_MODEL, [{"text": prompt}], responseModalities=["AUDIO"],
                     speechConfig={"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": C["voice"]}}})
     save_wav(path, pcm)
+
+
+def judge_voice(path):
+    r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=300, json={"contents": [{"parts": [
+        {"inlineData": {"mimeType": "audio/wav", "data": base64.b64encode(Path(path).read_bytes()).decode()}}, {"text": VOICE_JUDGE}]}],
+        "generationConfig": {"responseMimeType": "application/json"}}).json()
+    j = json.loads(r["candidates"][0]["content"]["parts"][0]["text"])
+    j["score"] = -99 if j.get("brackets_or_directions_read_aloud") else sum(j.get(k, 0) for k in ("sounds_like_real_teacher", "emotion_range", "warmth", "pronunciation"))
+    return j
+
+
+def narrate(reel, path):
+    """VOICE_TAKES takes (default 2); Gemini listens to each and the most human-sounding one is kept."""
+    takes = []
+    for n in range(int(E("VOICE_TAKES", "2"))):
+        f = path.with_name(f"take{n}.wav")
+        try:
+            retry(narrate_take, reel, f, n, tries=2)
+            j = judge_voice(f); takes.append((j["score"], f, j)); print(f"  take {n + 1}: teacher {j.get('sounds_like_real_teacher')}/10, emotion {j.get('emotion_range')}/10")
+        except Exception as e: print(f"  take {n + 1} failed: {e}")
+    if not takes: raise RuntimeError("no voice take succeeded")
+    best = max(takes, key=lambda x: x[0]); shutil.copy(best[1], path)
+    path.with_name("voice_takes.json").write_text(json.dumps([{"take": f.name, **j} for _, f, j in takes], ensure_ascii=False, indent=1))
 
 
 def pauses(path):
@@ -444,6 +494,27 @@ def coverr(query):
     return hits
 
 
+def pexels(query):
+    """Pexels free stock video (needs PEXELS_KEY), cached like Coverr; mapped to the same clip format."""
+    if not E("PEXELS_KEY"): return []
+    cache = LIB / "searches.json"; seen = json.loads(cache.read_text()) if cache.exists() else {}
+    key = "px:" + query.lower().strip()
+    if key in seen: return seen[key]
+    r = requests.get("https://api.pexels.com/videos/search", timeout=30, headers={"Authorization": E("PEXELS_KEY")},
+                     params={"query": query, "per_page": 15, "orientation": "portrait", "size": "medium"})
+    if r.status_code != 200: print(f"  Pexels unavailable ({r.status_code})"); return []
+    hits = []
+    for v in r.json().get("videos", []):
+        files = sorted([f for f in v.get("video_files", []) if f.get("file_type") == "video/mp4" and (f.get("height") or 0) >= 1280],
+                       key=lambda f: abs((f.get("height") or 0) - 1920))
+        if files: hits.append({"id": f"px{v['id']}", "title": v.get("url", "").rstrip("/").split("/")[-1].replace("-", " "), "tags": [],
+                               "poster": v.get("image"), "thumbnail": v.get("image"), "urls": {"mp4": files[0]["link"]},
+                               "duration": v.get("duration"), "is_vertical": v.get("height", 0) > v.get("width", 1), "source": "pexels",
+                               "credit": (v.get("user") or {}).get("name", "")})
+    seen[key] = hits; cache.write_text(json.dumps(seen))
+    return hits
+
+
 def coverr_file(hit):
     """Download a Coverr 1080p clip once (cached by video id, with its metadata for the local library)."""
     f = LIB / f"{hit['id']}.mp4"
@@ -484,10 +555,10 @@ def pick_footage(topic, say, queries, used):
     Returns (hit, score 0-10, why). Nothing is generated - it only chooses among real Coverr clips."""
     cands = []
     for q in queries:
-        for h in sorted(coverr(q), key=lambda h: not h.get("is_vertical")):
+        for h in sorted(coverr(q) + pexels(q), key=lambda h: not h.get("is_vertical")):
             if h["id"] not in used and all(h["id"] != c["id"] for c in cands): cands.append(h)
-        if len(cands) >= 10: break
-    cands = cands[:10] + library_candidates(queries, used | {c["id"] for c in cands}, 6)
+        if len(cands) >= 14: break
+    cands = cands[:14] + library_candidates(queries, used | {c["id"] for c in cands}, 6)
     imgs = [(c, thumb(c)) for c in cands]; imgs = [(c, b) for c, b in imgs if b]
     if not imgs: return None, 0, "no candidates"
     parts = [{"text": f"You are the video editor of a news-explainer reel about: {topic}.\nThe narrator is saying: \"{say}\"\n"
@@ -556,6 +627,9 @@ def valid_clip(f, min_secs=0.5):
     except ValueError: return False
 
 
+BOARD = ("define", "diagram", "flow", "chart", "chat", "recap")  # drawn on the whiteboard; other cards float over footage
+
+
 def shots_for(lines, pub, topic):
     """Full-screen footage for every line that has a RELEVANT Coverr clip (judged by Gemini from preview frames);
     otherwise a bold text scene - never unrelated footage. A jump cut inside long lines, never the same clip twice.
@@ -567,7 +641,7 @@ def shots_for(lines, pub, topic):
         secs = l["end"] - l["start"] + 0.15
         f = pub / "clip" / f"{i}.mp4"
         say = " ".join(w for w, _ in l["words"])
-        if l["v"]["type"] != "none":  # teaching visual -> whiteboard, no footage needed
+        if l["v"]["type"] in BOARD:  # teaching visual -> whiteboard, no footage needed
             plan[str(i)] = {"coverr_id": None, "why": "whiteboard teaching visual"}
         elif str(i) not in plan or (plan[str(i)].get("coverr_id") and not valid_clip(f)):
             hit, score, why = None, 0, ""
@@ -577,13 +651,14 @@ def shots_for(lines, pub, topic):
                 used.add(hit["id"])
                 try:
                     stock_video(hit, f, secs + 4) if ((LIB / f"{hit['id']}.mp4").exists() or hit.get("urls")) else stock_image(hit, f, secs + 4, i)
-                    plan[str(i)] = {"coverr_id": hit["id"], "title": hit.get("title", ""), "score": score, "why": why}
+                    plan[str(i)] = {"coverr_id": hit["id"], "title": hit.get("title", ""), "score": score, "why": why,
+                                    "source": hit.get("source", "coverr"), "credit": hit.get("credit", "")}
                 except Exception as e: plan[str(i)] = {"coverr_id": None, "why": f"clip failed: {e}"}
             else: plan[str(i)] = {"coverr_id": None, "score": score, "why": why or "no relevant clip"}
             print(f"  line {i + 1}: " + (f"Coverr '{plan[str(i)].get('title')}' ({score:.0f}/10)" if plan[str(i)].get("coverr_id") else f"text scene ({plan[str(i)]['why']})"))
         plan_f.write_text(json.dumps(plan, ensure_ascii=False, indent=1))
         if not plan[str(i)].get("coverr_id"):
-            l["text_scene"] = l["v"]["type"] == "none"
+            l["text_scene"] = l["v"]["type"] not in BOARD
             shots.append({"src": None, "start": l["start"], "end": round(l["end"] + 0.15, 2)}); continue
         cuts = [l["start"], round((l["start"] + l["end"]) / 2, 2)] if secs > 3.4 else [l["start"]]
         for k, c in enumerate(cuts):
@@ -669,7 +744,7 @@ def timeline(reel, d):
     return lines, sfx, dur
 
 
-REVIEW = f"""You are a complete beginner: {C['audience']}. You know NOTHING about tech. Watch this whole reel carefully
+REVIEW = f"""Today's date is TODAY (dates up to today are real, not typos). You are a complete beginner: {C['audience']}. You know NOTHING about tech. Watch this whole reel carefully
 (picture AND sound), exactly as you would on Instagram. Then answer honestly as JSON:
 - learned: in one simple sentence, explain the concept back in your own words (if you can't, say so)
 - remember: the one line you'd remember tomorrow
@@ -681,20 +756,67 @@ REVIEW = f"""You are a complete beginner: {C['audience']}. You know NOTHING abou
 The concept being taught: CONCEPT. The script lines: SCRIPT"""
 
 
+MARKETING_CHECKLIST = """## Before posting
+- [ ] Watch it once with sound and once muted (captions must carry it).
+- [ ] Cover: upload `cover.jpg` (title sits in the centre, safe for the 3:4 / 1:1 grid crop).
+- [ ] Caption: paste the caption above; first line has the keyword.
+- [ ] Advanced settings: paste the alt text. Keep 3-5 hashtags (they organise, they don't add reach).
+- [ ] New hook style? Post it as a **Trial Reel** first (shown to non-followers only), share to followers if it performs.
+
+## Best time (India, IST)
+- Tue/Wed 7:00-9:30 PM best; weekdays 12-2 PM next; weekends 11 AM-1 PM or 8-10 PM.
+- Then check Professional Dashboard > Insights > Most active times and follow your own audience.
+
+## First hour after posting
+- [ ] Post the first comment above and pin it.
+- [ ] Reply to every real comment in the first hour (conversations count).
+- [ ] Reshare to Stories with the story line; drop the broadcast line in your channel.
+- [ ] Send it to 3-5 people who genuinely care about the topic - sends per reach is the #1 signal for non-follower reach.
+
+## Growth habits
+- Profile Name field (searchable) should contain your main keyword, e.g. "AI Seekho | Hindi".
+- Collab posts with other educators share one view/comment pool across both audiences.
+- Never repost with another app's watermark; keep every reel original and 1080p.
+"""
+
+
+def marketing(d, reel, caption):
+    """A ready-to-use marketing pack per reel: caption, alt text, comments, story/broadcast lines, cover, timing, checklist."""
+    s = reel.seo
+    md = (f"# {reel.title}\n\n## Caption\n```\n{caption}\n```\n\n## Alt text\n{s.alt_text}\n\n"
+          f"## First comment (pin it)\n{s.first_comment}\n\n## Story reshare line\n{s.story_text}\n\n"
+          f"## Broadcast channel\n{s.broadcast_text}\n\n## Search keywords used\n" + ", ".join(s.keywords) + "\n\n" + MARKETING_CHECKLIST)
+    (d / "marketing.md").write_text(md, encoding="utf-8")
+    return md
+
+
 def review(d, reel):
     """Gemini watches the finished reel as a beginner viewer: what it learned, scores, timestamped problems."""
     small = d / "review.mp4"
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(d / "reel.mp4"), "-vf", "scale=360:-2", "-r", "15", "-c:v", "libx264",
                     "-crf", "32", "-c:a", "aac", "-b:a", "64k", str(small)], check=True)
-    prompt = REVIEW.replace("CONCEPT", reel.title).replace("SCRIPT", " | ".join(l.caption for l in reel.lines))
-    r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=600, json={"contents": [{"parts": [
-        {"inlineData": {"mimeType": "video/mp4", "data": base64.b64encode(small.read_bytes()).decode()}}, {"text": prompt}]}],
-        "generationConfig": {"responseMimeType": "application/json"}}).json()
-    j = json.loads(r["candidates"][0]["content"]["parts"][0]["text"]); small.unlink()
+    prompt = (REVIEW.replace("CONCEPT", reel.title).replace("SCRIPT", " | ".join(l.caption for l in reel.lines))
+              .replace("TODAY", time.strftime("%d %b %Y")))
+    video = base64.b64encode(small.read_bytes()).decode()
+
+    def one(_):
+        r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=600, json={"contents": [{"parts": [
+            {"inlineData": {"mimeType": "video/mp4", "data": video}}, {"text": prompt}]}], "generationConfig": {"responseMimeType": "application/json"}}).json()
+        return json.loads(r["candidates"][0]["content"]["parts"][0]["text"])
+    import concurrent.futures as cf
+    with cf.ThreadPoolExecutor(2) as ex: runs = [x for x in ex.map(lambda k: (lambda: one(k))(), range(2))]  # two independent viewers
+    small.unlink()
+    j = runs[0] | {"scores": {k: round(sum(r.get("scores", {}).get(k, 0) for r in runs) / len(runs), 1) for k in runs[0].get("scores", {})},
+                   "problems": [p for r in runs for p in r.get("problems", [])],
+                   "verdict": "post" if all(r.get("verdict") == "post" for r in runs) else "fix"}
     (d / "review.json").write_text(json.dumps(j, ensure_ascii=False, indent=2), encoding="utf-8")
     sc = j.get("scores", {})
     print(f"  review: {j.get('verdict')} | " + " ".join(f"{k} {v}" for k, v in sc.items()) + f"\n  learned: {j.get('learned')}")
     return j
+
+
+def total(j):
+    return sum(v for k, v in (j or {}).get("scores", {}).items() if k != "fun") + (j or {}).get("scores", {}).get("fun", 0) * 0.5
 
 
 def needs_fix(j):
@@ -730,7 +852,7 @@ def _make(brief, meta, d):
     t0 = time.time()
     if not (d / "narration.wav").exists() and not (d / "line0.wav").exists() and not CLOUD_TTS:
         print(f"voice: one emotional take ({TTS_MODEL}, {C['voice']})...")
-        try: retry(narrate, reel, d / "narration.wav", tries=3)
+        try: narrate(reel, d / "narration.wav")
         except Exception as e: print(f"  one-take failed ({e}) -> line by line")
     if not (d / "narration.wav").exists():
         for i, l in enumerate(reel.lines):
@@ -757,12 +879,19 @@ def _make(brief, meta, d):
                     f"--props={(d / 'props.json').resolve()}", f"--public-dir={pub.resolve()}", f"--concurrency={os.cpu_count()}"],
                    cwd="video", check=True)
     print(f"  render {time.time() - t0:.0f}s")
+    try:
+        (d / "cover_props.json").write_text(json.dumps(props | {"cover": True}, ensure_ascii=False), encoding="utf-8")
+        subprocess.run(["npx", "remotion", "still", "src/index.tsx", "Reel", str((d / "cover.jpg").resolve()), "--frame=0", "--log=error",
+                        f"--props={(d / 'cover_props.json').resolve()}", f"--public-dir={pub.resolve()}"], cwd="video", check=True)
+    except Exception as e: print(f"  cover skipped: {e}")
     tags = [h if h.startswith("#") else "#" + h for h in reel.seo.hashtags[:5]] + ([C["series_hashtag"]] if C["series_hashtag"] else [])
-    caption = reel.caption_ig.strip() + "\n\n" + " ".join(dict.fromkeys(tags)) + ("\n🎥 Footage: coverr.co" if any(sh["src"] for sh in shots) else "")
+    sources = sorted({{"coverr": "coverr.co", "pexels": "pexels.com"}[p.get("source", "coverr")] for p in footage_plan.values() if p.get("coverr_id")})
+    caption = reel.caption_ig.strip() + "\n\n" + " ".join(dict.fromkeys(tags)) + ("\n🎥 Footage: " + " + ".join(sources) if sources else "")
     meta = {"title": reel.title, "genre": reel.genre, "brief": brief, "caption": caption, "posted": False, "status": "awaiting approval",
             "footage": [{"line": i + 1, "searches": l["footage"]} | footage_plan.get(str(i), {}) for i, l in enumerate(lines)],
             "first_comment": reel.seo.first_comment, "keywords": reel.seo.keywords, "alt_text": reel.seo.alt_text} | (meta or {})
     (d / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+    marketing(d, reel, caption)
     try: rv = review(d, reel)
     except Exception as e: rv = None; print(f"  review skipped: {e}")
     job = json.loads((d / "job.json").read_text()) if (d / "job.json").exists() else {}
@@ -773,12 +902,22 @@ def _make(brief, meta, d):
         new = retry(ask, BRIEF.replace("RESEARCH_NOTES", notes) + brief + "\n\nA BEGINNER WATCHED YOUR LAST VERSION. They learned: "
                     f"{rv.get('learned')}. Scores: {rv.get('scores')}. Fix every problem below, keep what worked:\n{fix}\n"
                     "LAST VERSION:\n" + reel.model_dump_json(), Reel, tries=2)
-        for f in [*d.glob("line*.wav"), *d.glob("narration*.wav"), d / "voice.wav", d / "props.json", pub / "footage.json", *(pub / "clip").glob("*.mp4")]:
+        v1 = d / "v1"; v1.mkdir(exist_ok=True)  # keep the first version; restored if the revision scores lower
+        for f in [d / "reel.mp4", d / "cover.jpg", d / "meta.json", d / "marketing.md", d / "props.json"]:
+            if f.exists(): shutil.copy(f, v1 / f.name)
+        for f in [*d.glob("line*.wav"), *d.glob("narration*.wav"), *d.glob("take*.wav"), d / "voice.wav", d / "props.json", pub / "footage.json", *(pub / "clip").glob("*.mp4")]:
             f.unlink(missing_ok=True)
         (d / "script.v1.json").write_text((d / "script.json").read_text()); (d / "review.v1.json").write_text((d / "review.json").read_text())
         (d / "script.json").write_text(new.model_dump_json(indent=2), encoding="utf-8")
         (d / "job.json").write_text(json.dumps(job | {"revised": True}))
         return _make(brief, meta, d)
+    if rv and job.get("revised") and (d / "review.v1.json").exists() and (d / "v1" / "reel.mp4").exists():
+        old = json.loads((d / "review.v1.json").read_text())
+        if total(old) > total(rv):  # the revision came out worse: put version 1 back
+            print(f"  revision scored lower ({total(rv):.0f} < {total(old):.0f}) -> keeping version 1")
+            for f in (d / "v1").iterdir(): shutil.copy(f, d / f.name)
+            (d / "script.json").write_text((d / "script.v1.json").read_text()); rv = old
+            caption = json.loads((d / "meta.json").read_text())["caption"]
     if rv: meta = json.loads((d / "meta.json").read_text()) | {"review": {k: rv.get(k) for k in ("verdict", "scores", "learned", "remember")}}; (d / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     print("done:", d / "reel.mp4")
     return str(d / "reel.mp4"), caption
@@ -859,7 +998,7 @@ def post(video, caption):
         ... on PostActionSuccess { post { id } } ... on MutationError { message } } }""", input={
         "text": caption, "channelId": E("BUFFER_CHANNEL_ID"), "schedulingType": "automatic",
         "mode": E("BUFFER_MODE", "addToQueue"),
-        "assets": [{"video": {"url": upload(video), "metadata": {"thumbnailOffset": 1000}}}],
+        "assets": [{"video": {"url": upload(video), "metadata": {"thumbnailOffset": 1333}}}],
         "metadata": {"instagram": ig}})["createPost"]
     if "post" not in p:
         if m.exists(): set_status(video, status="failed", error=str(p.get("message", p))[:300])
@@ -960,6 +1099,36 @@ def history():
     return rows
 
 
+def stream(fn, *a):
+    """Run a long job in a thread and yield its printed progress live (for the UI)."""
+    import contextlib, io, queue, threading
+    q, out = queue.Queue(), {}
+
+    class W(io.TextIOBase):
+        def write(self, x): q.put(x); return len(x)
+
+    def run():
+        try:
+            with contextlib.redirect_stdout(W()): out["result"] = fn(*a)
+        except Exception as e: out["error"] = f"{type(e).__name__}: {e}"
+        q.put(None)
+    threading.Thread(target=run, daemon=True).start()
+    log = ""
+    while (x := q.get()) is not None:
+        log += x; yield log[-6000:], None
+    yield log[-6000:], out
+
+
+def outputs(video):
+    """Everything the UI shows for a finished reel."""
+    d = Path(video).parent; m = json.loads((d / "meta.json").read_text())
+    rv = m.get("review") or {}; sc = rv.get("scores") or {}
+    rmd = (f"### Beginner review: **{rv.get('verdict', '-')}**\n" + " · ".join(f"{k} **{v}**" for k, v in sc.items())
+           + f"\n\n> They learned: {rv.get('learned', '')}\n\n> They'll remember: {rv.get('remember', '')}") if rv else ""
+    mk = (d / "marketing.md").read_text() if (d / "marketing.md").exists() else ""
+    return str(d / "reel.mp4"), m["caption"], mk, rmd, str(d / "cover.jpg") if (d / "cover.jpg").exists() else None, str(d / "reel.mp4")
+
+
 def ui():
     import gradio as gr
 
@@ -969,14 +1138,8 @@ def ui():
     def series_ids():
         return [(load(f.stem)["name"], f.stem) for f in sorted(SERIES.glob("*.json"))]
 
-    def guard(fn):  # show the real error in the UI instead of a bare "Error"
-        def run(*a):
-            try: return fn(*a)
-            except Exception as e: raise gr.Error(f"{type(e).__name__}: {e}", duration=None)
-        return run
-
     def safe_post(path, cap):  # clicking Post = explicit approval of this exact video + caption
-        if not path: return "❌ Generate or pick a reel first"
+        if not path: return "❌ Make or pick a reel first"
         try: approve(path, cap); return post(path, cap)
         except Exception as e: return f"❌ {type(e).__name__}: {e}"
 
@@ -985,88 +1148,84 @@ def ui():
         try: return approve(path, cap) + " - the scheduled job may now post it"
         except Exception as e: return f"❌ {type(e).__name__}: {e}"
 
-    def plan_one(idea):
-        p = ask(PLAN_ONE + "\nRESEARCH NOTES:\n" + research(idea) + "\n\n" + idea, Plan)
-        return f"{p.title}\n\n{p.brief}"
+    def run_single(prompt):
+        if not prompt.strip(): raise gr.Error("Type what the reel should teach first")
+        for log, out in stream(make, prompt.strip()):
+            if out is None: yield log, None, "", "", "", None, None; continue
+            if "error" in out: yield log + f"\n❌ {out['error']}", None, "", "", "", None, None; return
+            yield (log + "\n✅ Ready - review it, then post.", *outputs(out["result"][0]))
 
-    def gen_one(brief):
-        v, c = make(brief)
-        return v, c, v, history()
-
-    def plan_s(subject, n):
-        sr = plan_series(subject, n)
-        return gr.update(choices=series_ids(), value=sr["id"]), ep_rows(sr["id"])
-
-    def gen_s(sid, x):
-        sr, log = load(sid), ""
-        todo = [i for i, e in enumerate(sr["episodes"]) if e["status"] == "planned"][:int(x)]
+    def run_playlist(subject, n, now, sid):
+        log = ""
+        if not sid:
+            if not subject.strip(): raise gr.Error("Type the playlist subject, or pick an existing playlist")
+            for log, out in stream(plan_series, subject.strip(), n):
+                yield log, gr.update(), [], None, "", "", "", None, None
+            if "error" in out: yield log + f"\n❌ {out['error']}", gr.update(), [], None, "", "", "", None, None; return
+            sid = out["result"]["id"]; log += f"\n📚 Planned '{out['result']['name']}' - {len(out['result']['episodes'])} episodes\n"
+        sr, last = load(sid), None
+        todo = [i for i, e in enumerate(sr["episodes"]) if e["status"] == "planned"][:int(now)]
         for k, i in enumerate(todo):
-            log += f"⏳ {k + 1}/{len(todo)} - episode {i + 1}: {sr['episodes'][i]['title']}\n\n"
-            yield log, ep_rows(sid)
-            try: make_episode(sr, i)
-            except Exception as e:
-                yield log + f"❌ episode {i + 1} failed: {type(e).__name__}: {e}", ep_rows(sid); return
-            log += f"✅ episode {i + 1} done\n\n"
-            yield log, ep_rows(sid)
-        yield log + ("🎉 Done - review & post in History" if todo else "Nothing left to generate."), ep_rows(sid)
+            head = log + f"\n🎬 {k + 1}/{len(todo)} - episode {i + 1}: {sr['episodes'][i]['title']}\n"
+            for l2, out in stream(make_episode, sr, i):
+                yield head + l2, gr.update(choices=series_ids(), value=sid), ep_rows(sid), *(outputs(last) if last else (None, "", "", "", None, None))
+            if "error" in out: yield head + f"\n❌ {out['error']}", gr.update(), ep_rows(sid), *(outputs(last) if last else (None, "", "", "", None, None)); return
+            last, log = out["result"][0], head + "✅ done\n"; sr = load(sid)
+        yield log + ("\n✅ Ready - review each episode in History, then post." if todo else "\nNothing left to make in this playlist."), \
+            gr.update(choices=series_ids(), value=sid), ep_rows(sid), *(outputs(last) if last else (None, "", "", "", None, None))
 
     def pick_ep(sid, evt: gr.SelectData):
         e = load(sid)["episodes"][evt.index[0]]
         return f"### #{evt.index[0] + 1} {e['title']} · {e['era']} · {e['status']}\n```\n{e['brief']}\n```"
 
     def pick_run(evt: gr.SelectData):
-        d = OUT / history()[evt.index[0]][0]
-        return str(d / "reel.mp4"), json.loads((d / "meta.json").read_text())["caption"], str(d / "reel.mp4")
+        return outputs(OUT / history()[evt.index[0]][0] / "reel.mp4")
+
+    def result_panel():
+        vid = gr.Video(label="Reel", height=600)
+        cover = gr.Image(label="Cover (upload as the reel cover)", height=300)
+        cap = gr.Textbox(label="Caption (editable)", lines=6)
+        with gr.Row():
+            appr = gr.Button("✅ Approve for scheduled post")
+            pst = gr.Button("📤 Post now via Buffer", variant="primary")
+        status = gr.Markdown()
+        rv = gr.Markdown()
+        with gr.Accordion("📈 SEO & marketing pack", open=False): mk = gr.Markdown()
+        path = gr.State()
+        appr.click(safe_approve, [path, cap], status); pst.click(safe_post, [path, cap], status)
+        return vid, cap, mk, rv, cover, path
 
     with gr.Blocks(title="AI Reels Studio") as app:
-        gr.Markdown("# 🎬 AI Reels Studio\nGemini researches (Google Search) · Claude writes · Google voice · Lyria music · Coverr footage · Remotion edits · Buffer posts after your approval")
-        with gr.Tab("⚡ Single reel"):
+        gr.Markdown("# 🎬 AI Reels Studio\nType what to teach → **Run** → a finished reel with caption, cover, SEO pack and a beginner review.")
+        with gr.Tab("▶️ Make a reel"):
             with gr.Row():
-                with gr.Column():
-                    idea = gr.Textbox(label="One-line idea", placeholder="ChatGPT ko maths mein galti kyun hoti hai?")
-                    plan_btn = gr.Button("🧠 Research & plan (with timings)")
-                    brief = gr.Textbox(label="Timed beat sheet - edit freely before generating", lines=14)
-                    gen_btn = gr.Button("🎬 Generate reel", variant="primary")
-                with gr.Column():
-                    vid1, cap1, path1 = gr.Video(label="Reel", height=560), gr.Textbox(label="Caption", lines=4), gr.State()
-                    post1, status1 = gr.Button("📤 Post via Buffer"), gr.Markdown()
-        with gr.Tab("📚 Series / playlist"):
-            with gr.Row():
-                subject = gr.Textbox(label="Series subject", placeholder="Teaching AI from the very beginning to today", scale=3)
-                days = gr.Slider(5, 100, value=30, step=1, label="Episodes (days)", scale=2)
-                plan_s_btn = gr.Button("🧠 Research & plan series", scale=1)
-            with gr.Row():
-                with gr.Column(scale=3):
-                    sid = gr.Dropdown(series_ids(), label="Series", interactive=True)
-                    eps = gr.Dataframe(headers=["#", "Era", "Title", "Status"], interactive=False, wrap=True)
                 with gr.Column(scale=2):
-                    ep_detail = gr.Markdown("Click an episode to see its beat sheet.")
-                    x = gr.Number(3, label="How many to generate now", minimum=1, maximum=100, precision=0)
-                    gen_s_btn = gr.Button("🎬 Generate next X episodes", variant="primary")
-                    log = gr.Markdown()
+                    prompt = gr.Textbox(label="What should this reel teach?", placeholder="Machine Learning kya hai?  /  Deepfake kaise pehchaanein?", lines=2)
+                    run1 = gr.Button("▶️ Run", variant="primary", size="lg")
+                    log1 = gr.Textbox(label="Progress", lines=16, max_lines=16, autoscroll=True)
+                with gr.Column(scale=3): out1 = result_panel()
+            run1.click(run_single, prompt, [log1, *out1])
+        with gr.Tab("📚 Playlist"):
+            with gr.Row():
+                with gr.Column(scale=2):
+                    subject = gr.Textbox(label="Playlist subject (new)", placeholder="AI from zero: the full story, from the first computers to today")
+                    with gr.Row():
+                        n = gr.Slider(5, 100, value=30, step=1, label="Episodes in the playlist")
+                        now = gr.Number(1, label="Make now", minimum=1, maximum=100, precision=0)
+                    sid = gr.Dropdown(series_ids(), label="…or continue an existing playlist", interactive=True)
+                    run2 = gr.Button("▶️ Run", variant="primary", size="lg")
+                    log2 = gr.Textbox(label="Progress", lines=10, max_lines=10, autoscroll=True)
+                    eps = gr.Dataframe(headers=["#", "Era", "Title", "Status"], interactive=False, wrap=True)
+                    ep_detail = gr.Markdown()
+                with gr.Column(scale=3): out2 = result_panel()
+            run2.click(run_playlist, [subject, n, now, sid], [log2, sid, eps, *out2])
+            sid.change(ep_rows, sid, eps); eps.select(pick_ep, sid, ep_detail)
         with gr.Tab("🗂 History") as hist_tab:
             with gr.Row():
-                with gr.Column(scale=3):
-                    runs = gr.Dataframe(history(), headers=["Run", "Title", "Series", "Status"], interactive=False, wrap=True)
-                with gr.Column(scale=2):
-                    vid2, cap2, path2 = gr.Video(label="Reel", height=560), gr.Textbox(label="Caption", lines=4), gr.State()
-                    with gr.Row():
-                        appr2 = gr.Button("✅ Approve for scheduled post")
-                        post2 = gr.Button("📤 Post now via Buffer", variant="primary")
-                    status2 = gr.Markdown()
-
-        plan_btn.click(guard(plan_one), idea, brief)
-        gen_btn.click(guard(gen_one), brief, [vid1, cap1, path1, runs])
-        post1.click(safe_post, [path1, cap1], status1)
-        plan_s_btn.click(guard(plan_s), [subject, days], [sid, eps])
-        sid.change(ep_rows, sid, eps)
-        eps.select(pick_ep, sid, ep_detail)
-        gen_s_btn.click(gen_s, [sid, x], [log, eps])
-        hist_tab.select(history, None, runs)
-        runs.select(pick_run, None, [vid2, cap2, path2])
-        post2.click(safe_post, [path2, cap2], status2).then(history, None, runs)
-        appr2.click(safe_approve, [path2, cap2], status2).then(history, None, runs)
-    app.launch(inbrowser=True, theme=gr.themes.Soft(primary_hue="orange"))
+                with gr.Column(scale=2): runs = gr.Dataframe(history(), headers=["Run", "Title", "Series", "Status"], interactive=False, wrap=True)
+                with gr.Column(scale=3): out3 = result_panel()
+            hist_tab.select(history, None, runs); runs.select(pick_run, None, list(out3))
+    app.queue().launch(inbrowser=True, theme=gr.themes.Soft(primary_hue="amber"))
 
 
 if __name__ == "__main__":
