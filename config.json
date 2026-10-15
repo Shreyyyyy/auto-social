@@ -1,13 +1,13 @@
 {
-  "niche": "AI and technology, explained simply",
-  "audience": "non-tech Indians - parents, shopkeepers, students, homemakers",
+  "niche": "AI explained from zero - every concept, simply",
+  "audience": "complete beginners who know nothing about AI or tech - parents, shopkeepers, homemakers, school and college students",
   "region": "India",
   "spoken_language": "natural spoken Hindi in Devanagari script, with English tech words kept in English",
   "caption_language": "Roman-script Hinglish",
   "tts_language_code": "hi-IN",
-  "tone": "smart, playful and credible - like a friend who reads the news for you",
+  "tone": "fun, soft, encouraging and 100% truthful - teach, don't lecture",
   "examples": "everyday Indian life: kirana hisaab, cricket, UPI, chai, IRCTC tatkal, WhatsApp forwards, shaadi",
-  "duration_seconds": 30,
+  "duration_seconds": 40,
   "voice": "Puck",
   "series_hashtag": "",
   "fallback_footage": [
@@ -20,6 +20,8 @@
     "highlight": "#FFE600",
     "ink": "#111111"
   },
-  "voice_style": "a popular Indian Hindi explainer creator in their late 20s - warm, quick-witted, genuinely excited",
-  "accent": "natural North Indian Hindi; English words said the Indian way"
+  "voice_style": "a fun, warm Indian teacher in their late 20s - smiling while talking, patient, playful, genuinely excited to teach",
+  "accent": "natural North Indian Hindi; English words said the Indian way",
+  "location": "India",
+  "persona": "a fun, warm, patient teacher - like everyone's favourite school teacher who makes hard things feel easy, smiles a lot, uses everyday examples and never makes anyone feel dumb"
 }

@@ -39,7 +39,7 @@ OUT, SERIES = Path("out"), Path("series")
 C = {"niche": "AI and technology, explained simply", "audience": "a general audience", "region": "India",
      "spoken_language": "natural spoken Hindi in Devanagari, English tech words in English", "caption_language": "Roman-script Hinglish",
      "tts_language_code": "hi-IN", "tone": "smart, playful and credible", "examples": "everyday life", "duration_seconds": 30,
-     "voice": "Puck", "voice_style": "a popular creator in their late 20s - warm, quick-witted, genuinely excited",
+     "voice": "Puck", "location": "India", "persona": "a fun, warm, patient teacher", "voice_style": "a popular creator in their late 20s - warm, quick-witted, genuinely excited",
      "accent": "natural North Indian Hindi; English words said the Indian way", "series_hashtag": "", "fallback_footage": ["city street", "people using smartphone"],
      "theme": {"highlight": "#FFE600", "ink": "#111111"}} | (json.loads(Path("config.json").read_text()) if Path("config.json").exists() else {})
 TARGET = float(E("TARGET_SECONDS", C["duration_seconds"]))
@@ -61,21 +61,24 @@ PSYCH = """AUDIENCE PSYCHOLOGY (use deliberately):
 - In a series, end on an open loop to the next episode (Zeigarnik effect).
 - Why now: link it to something people are seeing in the news or on their feed right now."""
 
-BEAT = ("brief = a timed beat sheet for a ~30s reel, one line per beat, e.g. '0-2s HOOK: ...', '2-8s ...', ..., "
-        "'26-30s PAYOFF + TEASER: ...', then 'EXAMPLE: <the central desi analogy>', 'PSYCH: <levers used>', "
-        "'WHY NOW: <the current news/trend it hooks into>'")
+BEAT = ("brief = a timed teaching beat sheet, one line per beat: HOOK (a moment from the viewer's own life), CONCEPT IN ONE "
+        "SENTENCE, REAL-LIFE ANALOGY, HOW IT WORKS (2-4 steps, drawn on screen), LOCAL NEWS EXAMPLE (with source + date), "
+        "MYTH vs TRUTH, YAAD RAKHO (one line to remember), SIGN-OFF; then 'EXAMPLE:', 'VISUALS:' (what is drawn/shown), "
+        "'WHY NOW:'")
 
 RESEARCH = f"""You are the researcher for a {TARGET:.0f}-second Instagram Reel. The reel is about EXACTLY what the USER PROMPT
 (at the end) asks - whatever the subject is. ({CHANNEL}.)
 Use Google Search. Be concise, bullet points, every fact with its date and source name. Sections:
 0. UNDERSTANDING: in 2 lines, what the user wants - the topic, the angle, and the one takeaway the viewer should leave with.
-1. LATEST NEWS: what happened in the last 60 days ({C['region']} first) that makes this topic matter right now.
+1. LATEST NEWS: what happened in the last 60 days, {C['location']} first, that shows this concept in action - real,
+   relatable examples a beginner would recognise (with source + date).
 2. TRENDING: how this topic is trending - search interest, viral posts, memes, the angles other creators are using
    on Instagram / YouTube Shorts / X right now, and any hashtag or audio trend attached to it.
 3. WHAT PEOPLE ARE SAYING: real questions, opinions, myths, complaints, jokes and slang from comments, Reddit, X,
    Quora, YouTube - quote short real phrasings where you can.
 4. FACTS: 3-5 surprising, verified facts or numbers with source + date. Flag numbers that disagree between sources.
-5. ANALOGIES: 2 everyday analogies from {C['examples']} that would make it click instantly.
+5. BEGINNER TEACHING: the concept in one plain sentence; 3 everyday analogies from {C['examples']} that make it click;
+   the most common beginner confusion or myth and the truth; simple real data for a chart if any (years + values).
 6. SEO: 8 search phrases people actually type about this, 5 relevant hashtags in active use now, and current
    Instagram Reels discovery guidance (captions, keywords, hashtags, on-screen text).
 EXTRA: """
@@ -99,45 +102,72 @@ For each episode return: title (catchy Hinglish), era (year or period), and {BEA
 The series is about exactly this subject - never drift to a different one.
 SUBJECT: """
 
-BRIEF = f"""You write a fast, credible ~{TARGET:.0f}-second Instagram Reel about EXACTLY the topic in the user's prompt / beat sheet
-below - whatever it is; never switch to a different topic. ({CHANNEL}.)
-Build it from the RESEARCH NOTES: use what is trending, the real questions and phrasings people use, and the latest news.
-FORMAT: ONE narrator voice-over over full-screen REAL stock footage (no presenters, no characters, no faces talking to
-camera), bold burned-in captions, and a clean data card only where a number, process or comparison needs it.
-It must feel like a real creator's news-explainer edit - nothing that looks AI-generated.
-If the beat sheet below mentions characters or presenters, turn their lines into the narrator's voice.
+BRIEF = f"""You are {C['persona']}.
+You make a ~{TARGET:.0f}-second Instagram Reel that TEACHES exactly the concept in the user's prompt / beat sheet below to
+{C['audience']}. Assume the viewer knows NOTHING - not even the basic words. After one watch they must be able to explain
+the idea to someone else and remember one line by heart. Never switch to a different topic. ({CHANNEL}.)
 
-CRAFT
-- Tone: {C['tone']}.
-- text: what the voice says, in {C['spoken_language']}. caption: the SAME words in {C['caption_language']}.
-- One genuinely correct insight, made concrete with an everyday example ({C['examples']}).
-- 8-11 short lines, total spoken words <= {int(TARGET * 2.3)}. Punchy and conversational.
-- hook: <= 6 words shown big during line 1 - the main keyword + the surprising part.
-- Line 1 = the hook (a claim that sounds wrong-but-true, or a question they can't ignore). Last line: payoff +
-  tease the next episode if one is given (open loop), else a save/follow CTA.
-- If a timed beat sheet is given below, follow its timings, example and psychology.
-- delivery: the emotion for this line, 1-4 words, as a voice director would mark it ("shocked", "leaning in, secretive",
-  "playful, smiling", "short laugh", "serious, slower", "excited"). Vary it line to line like a real person telling a story.
-- footage: 3 STOCK VIDEO search options for this line (2-3 English words each), most specific first, then broader,
-  then a simpler scene that still clearly relates - e.g. ["gold jewellery shop", "gold jewellery", "jewellery"].
-  Describe what a camera would see (people, places, objects) - never abstract words like AI, algorithm, data.
-  A different scene every line. A stock library is generic, so prefer common, filmable subjects.
-- visual: an optional clean data card for this line. type "none" for most lines; otherwise
-  counter (number + suffix + title; only numbers from the research), flow (title + 2-4 steps),
-  compare (title + items [left, right]), stamp (title + good: true = FACT, false = MYTH), list (title + 2-3 items),
-  quote (title = the quotable punchline). Use 2-4 cards per reel, never more. Card text max 6 words per item.
-- source: if the line states a news fact or number, "Publication · date" from the research notes, else "".
-- music_mood: background music style (e.g. "minimal news beat", "warm curious lo-fi", "tense pulse").
-- Use the RESEARCH NOTES for facts, numbers and the "why now"; never invent numbers.
+FORMAT: one narrator (you, the teacher) over real stock footage that truly matches each line, plus simple animated
+teaching visuals drawn on screen (definition card, step diagram, chart, comparison, myth/truth stamp, recap). No
+presenters or characters on camera. It must feel like a real, warm creator - nothing that looks AI-generated.
 
-SEO (Instagram search + recommendations read captions, on-screen text and the spoken audio):
-- Pick ONE main search keyword from the research. Say it in the first spoken line, put it in the hook, and start
-  caption_ig with it.
-- caption_ig: line 1 = keyword-rich hook, under 125 characters (visible before "more"); then 2-3 short lines of
-  value with 2-3 more search phrases worked in naturally; end with a save/share CTA. NO hashtags in caption_ig.
+WHAT WINS (from analysing the most-viewed Indian AI explainer shorts vs ones stuck at 10-20 views):
+- Winners keep a clear PROMISE on screen ("40 second mein samjho") and pay it off; they SHOW the idea (clean drawings that
+  build step by step, side-by-side comparisons, a real demo on a phone) instead of describing it; they give a personal
+  benefit ("ye aapke kaam aayega kyunki..."); and they use everyday analogies.
+- Flops open with a generic question ("Kabhi socha hai AI kaise kaam karta hai?"), use vague futuristic visuals, and
+  explain without proof. Never do that: the hook must be specific and concrete to the viewer's life or today's news.
+
+TEACHING ARC (in this order, one idea per line, 9-12 short lines, total spoken words <= {int(TARGET * 2.3)}):
+1. HOOK - a specific moment from the viewer's own life (or today's news) where they already met this concept, plus the
+   promise: e.g. "Aapka phone aapki photo mein chehra kaise pehchaanta hai? 40 second mein samjho."
+2. CONCEPT - say what it is in ONE simple sentence, zero jargon. Show a define card: TERM = meaning in 3-6 everyday words.
+3. ANALOGY - an everyday analogy from {C['examples']} that makes it click. Footage of that real-life scene.
+4. HOW IT WORKS - 2-4 tiny steps, drawn on screen (diagram or flow). Each step = one simple action.
+5. REAL EXAMPLE - a real, recent news example from {C['location']} (from the research, with source + date) showing it in action.
+6. TRUTH CHECK - one common myth or fear about it, and the honest truth (stamp card). Be 100% truthful; no hype, no scare.
+7. YAAD RAKHO - one short, catchy line to remember by heart (rhythm or rhyme helps). Show it on the recap card.
+8. SIGN-OFF - warm and fun: tease the next lesson if given, else invite them to save and share with someone who'd love it.
+Any technical word must be explained the moment it appears. Speak like a fun teacher: warm, soft, a little playful, smiling.
+
+FIELDS
+- text: what you say, in {C['spoken_language']}. caption: the SAME words in {C['caption_language']}.
+- delivery: the emotion for this line, 1-4 words ("curious", "warm, smiling", "playful", "excited", "gentle, slower",
+  "proud"). Vary it like a real teacher telling a story.
+- hook: <= 6 words shown big during line 1 - the concept's name + the curious part.
+- footage: 3 STOCK VIDEO search options (2-3 English words each), most specific first, then broader, then a simpler
+  scene that still clearly relates - e.g. ["woman shopping vegetables", "vegetable market", "market"]. Describe what a
+  camera would see (people, places, objects). Relatable everyday scenes. A different scene every line.
+- visual: the teaching visual for this line - type "none" when the footage alone teaches it; otherwise:
+  define  - title = the term, items = [the meaning in 3-6 everyday words]
+  diagram - title + items = 2-4 nodes left-to-right with an emoji each, e.g. ["📩 Message", "🧮 Words gino", "🚫 Spam"]
+  flow    - title + items = 2-4 steps top-to-bottom
+  chart   - title + items = 3-6 labels + values = numbers (same count) + chart: "line" or "bar" + suffix; only real
+            numbers from the research, labels like years
+  counter - number + suffix + title (only real numbers from the research, and the SAME number must be in the spoken text)
+  compare - title + items [left, right]
+  stamp   - title (the myth or the truth in <= 6 words) + good (true = TRUTH ✅, false = MYTH ❌)
+  list    - title + 2-3 items
+  chat    - title = app name (e.g. "ChatGPT") + items = [what a person types, the AI's short reply] - a phone demo that
+            SHOWS the concept in action (great for anything you can ask an AI). Keep both under 12 words.
+  recap   - title = the YAAD RAKHO line
+  Lines with a visual are shown on a bright whiteboard (no footage); lines with type "none" get real footage.
+  Use a visual on about half the lines; always use define (line 2), a diagram/flow/chart (how it works), and recap.
+  Line 1 (hook) is always type "none" so it opens on real footage.
+  On-screen text: max 6 words per item, in {C['caption_language']}.
+- source: for a news fact or number, "Publication · date" from the research notes, else "".
+- music_mood: light background music (e.g. "soft playful ukulele", "warm curious lo-fi").
+- Use the RESEARCH NOTES for every fact, number and the news example; never invent numbers or events.
+- Numbers the Indian way, so beginners feel them: lakh/crore, never million/billion (22.9 billion -> "2,290 crore"),
+  rounded and said simply ("lagbhag 2,300 crore"), and the same number + unit on the card as in the spoken line.
+
+SEO (Instagram reads captions, on-screen text and the spoken audio):
+- Pick ONE main search keyword (usually the concept's name). Say it in line 1 or 2, put it in the hook, and start caption_ig with it.
+- caption_ig: line 1 = "<concept> kya hai? <one-line answer>" style hook, under 125 characters; then the YAAD RAKHO line and
+  2 short lines of value with 2-3 more search phrases; end with a save/share CTA. NO hashtags in caption_ig.
 - seo.keywords: 5-8 search phrases people type. seo.hashtags: 3-5 tightly relevant hashtags, each starting with #.
 - seo.alt_text: one plain sentence describing the reel, containing the main keyword.
-- seo.first_comment: a question that makes people reply.
+- seo.first_comment: a fun question that makes people reply with what they learned or a doubt.
 
 {PSYCH}
 
@@ -148,12 +178,14 @@ TOPIC / BEAT SHEET: """
 
 
 class Visual(BaseModel):
-    type: Literal["none", "counter", "flow", "compare", "stamp", "list", "quote"]
+    type: Literal["none", "define", "diagram", "flow", "chart", "counter", "compare", "stamp", "list", "recap", "quote", "chat"]
     title: str = ""
     items: list[str] = []
     number: float = 0
     suffix: str = ""
     good: bool = True
+    values: list[float] = []
+    chart: Literal["line", "bar"] = "bar"
 
 
 class Line(BaseModel):
@@ -180,6 +212,23 @@ class Reel(BaseModel):
     caption_ig: str
     seo: Seo
     lines: list[Line]
+
+
+def check_script(reel):
+    """Mechanical checks before paying for voice/footage: card numbers must be spoken, charts complete, teaching beats present."""
+    issues, types = [], [l.visual.type for l in reel.lines]
+    for i, l in enumerate(reel.lines, 1):
+        v, spoken = l.visual, re.sub(r"[,\s]", "", l.text + l.caption)
+        if v.type == "counter" and not re.search(rf"(?<!\d){re.escape(f'{v.number:g}')}(?!\d)", spoken):
+            issues.append(f"line {i}: the card shows {v.number:g}{v.suffix} but the narrator does not say that number")
+        if v.type == "chart" and (len(v.values) != len(v.items) or len(v.items) < 3):
+            issues.append(f"line {i}: chart needs 3-6 labels and the same number of values")
+        if v.type in ("define", "diagram", "flow", "list", "compare") and not v.items:
+            issues.append(f"line {i}: {v.type} card has no items")
+    for need, why in (("define", "a define card for the concept"), ("recap", "a recap (YAAD RAKHO) card")):
+        if need not in types: issues.append(f"missing {why}")
+    if not set(types) & {"diagram", "flow", "chart"}: issues.append("missing a diagram/flow/chart showing how it works")
+    return issues
 
 
 def migrate(d):
@@ -518,7 +567,9 @@ def shots_for(lines, pub, topic):
         secs = l["end"] - l["start"] + 0.15
         f = pub / "clip" / f"{i}.mp4"
         say = " ".join(w for w, _ in l["words"])
-        if str(i) not in plan or (plan[str(i)].get("coverr_id") and not valid_clip(f)):
+        if l["v"]["type"] != "none":  # teaching visual -> whiteboard, no footage needed
+            plan[str(i)] = {"coverr_id": None, "why": "whiteboard teaching visual"}
+        elif str(i) not in plan or (plan[str(i)].get("coverr_id") and not valid_clip(f)):
             hit, score, why = None, 0, ""
             try: hit, score, why = pick_footage(topic, say, l["footage"], used)
             except Exception as e: why = f"judge failed: {e}"
@@ -530,9 +581,9 @@ def shots_for(lines, pub, topic):
                 except Exception as e: plan[str(i)] = {"coverr_id": None, "why": f"clip failed: {e}"}
             else: plan[str(i)] = {"coverr_id": None, "score": score, "why": why or "no relevant clip"}
             print(f"  line {i + 1}: " + (f"Coverr '{plan[str(i)].get('title')}' ({score:.0f}/10)" if plan[str(i)].get("coverr_id") else f"text scene ({plan[str(i)]['why']})"))
-            plan_f.write_text(json.dumps(plan, ensure_ascii=False, indent=1))
+        plan_f.write_text(json.dumps(plan, ensure_ascii=False, indent=1))
         if not plan[str(i)].get("coverr_id"):
-            l["text_scene"] = True
+            l["text_scene"] = l["v"]["type"] == "none"
             shots.append({"src": None, "start": l["start"], "end": round(l["end"] + 0.15, 2)}); continue
         cuts = [l["start"], round((l["start"] + l["end"]) / 2, 2)] if secs > 3.4 else [l["start"]]
         for k, c in enumerate(cuts):
@@ -550,14 +601,19 @@ SFX = {  # synthesised once into assets/sfx - no downloads needed
 }
 
 
+SEQ = ("flow", "list", "diagram", "chart")  # cards whose items appear one by one, spread over the line
+
+
 def visual_times(v, t, dur):
     n = max(len(v["items"]), 1)
-    return ([round(t + 0.1 + k * dur * 0.85 / n, 2) for k in range(n)] if v["type"] in ("flow", "list")
-            else [round(t + 0.1, 2), round(t + dur * 0.45, 2)] if v["type"] == "compare" else [round(t + dur * 0.5, 2)])
+    return ([round(t + 0.15 + k * dur * 0.8 / n, 2) for k in range(n)] if v["type"] in SEQ
+            else [round(t + 0.1, 2), round(t + dur * 0.45, 2)] if v["type"] in ("compare", "chat")
+            else [round(t + min(0.6, dur * 0.25), 2)] if v["type"] in ("define", "recap") else [round(t + dur * 0.5, 2)])
 
 
 def card_sfx(v, t, dur):
-    return ([[x, "pop"] for x in v["times"]] * (v["type"] in ("flow", "list", "compare"))
+    return ([[x, "pop"] for x in v["times"]] * (v["type"] in SEQ + ("compare", "define"))
+            + [[v["times"][0], "ding"]] * (v["type"] == "recap")
             + [[v["times"][0], "ding" if v["good"] else "boom"]] * (v["type"] == "stamp")
             + [[round(t + k * 0.2, 2), "tick"] for k in range(int(dur * 0.6 / 0.2))] * (v["type"] == "counter"))
 
@@ -601,8 +657,7 @@ def timeline(reel, d):
         dur, words = len(data) / 48000, l.caption.split()
         wt = [len(x) + 3 for x in words]
         v, n = l.visual.model_dump(), max(len(l.visual.items), 1)
-        v["times"] = ([round(t + 0.1 + k * dur * 0.85 / n, 2) for k in range(n)] if v["type"] in ("flow", "list")
-                      else [round(t + 0.1, 2), round(t + dur * 0.45, 2)] if v["type"] == "compare" else [round(t + dur * 0.5, 2)])
+        v["times"] = visual_times(v, t, dur)
         sfx += [[x, "pop"] for x in v["times"]] * (v["type"] in ("flow", "list", "compare")) \
             + [[v["times"][0], "ding" if v["good"] else "boom"]] * (v["type"] == "stamp") \
             + [[round(t + k * 0.2, 2), "tick"] for k in range(int(dur * 0.6 / 0.2))] * (v["type"] == "counter")
@@ -612,6 +667,39 @@ def timeline(reel, d):
     save_wav(d / "voice.wav", b"\0\0" * 7200 + pcm)
     dur = round(t + 1.5, 2)
     return lines, sfx, dur
+
+
+REVIEW = f"""You are a complete beginner: {C['audience']}. You know NOTHING about tech. Watch this whole reel carefully
+(picture AND sound), exactly as you would on Instagram. Then answer honestly as JSON:
+- learned: in one simple sentence, explain the concept back in your own words (if you can't, say so)
+- remember: the one line you'd remember tomorrow
+- scores 1-10: hook (would you stop scrolling?), clarity (did you understand it?), teaching (could you explain it to a friend?),
+  fun, visual_match (do the visuals show what is being said at that moment?), looks_real (feels like a real creator, not AI),
+  pacing, accuracy (anything that sounds false, exaggerated or confusing?)
+- problems: list of {{"time": "m:ss", "issue": "...", "fix": "a concrete change to the script or visuals"}} - be strict
+- verdict: "post" if you'd watch to the end and share it, else "fix"
+The concept being taught: CONCEPT. The script lines: SCRIPT"""
+
+
+def review(d, reel):
+    """Gemini watches the finished reel as a beginner viewer: what it learned, scores, timestamped problems."""
+    small = d / "review.mp4"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(d / "reel.mp4"), "-vf", "scale=360:-2", "-r", "15", "-c:v", "libx264",
+                    "-crf", "32", "-c:a", "aac", "-b:a", "64k", str(small)], check=True)
+    prompt = REVIEW.replace("CONCEPT", reel.title).replace("SCRIPT", " | ".join(l.caption for l in reel.lines))
+    r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=600, json={"contents": [{"parts": [
+        {"inlineData": {"mimeType": "video/mp4", "data": base64.b64encode(small.read_bytes()).decode()}}, {"text": prompt}]}],
+        "generationConfig": {"responseMimeType": "application/json"}}).json()
+    j = json.loads(r["candidates"][0]["content"]["parts"][0]["text"]); small.unlink()
+    (d / "review.json").write_text(json.dumps(j, ensure_ascii=False, indent=2), encoding="utf-8")
+    sc = j.get("scores", {})
+    print(f"  review: {j.get('verdict')} | " + " ".join(f"{k} {v}" for k, v in sc.items()) + f"\n  learned: {j.get('learned')}")
+    return j
+
+
+def needs_fix(j):
+    sc = j.get("scores", {})
+    return j.get("verdict") != "post" or min(sc.get(k, 10) for k in ("hook", "clarity", "teaching", "visual_match", "accuracy")) < 7
 
 
 def make(brief, meta=None, d=None):
@@ -632,7 +720,11 @@ def _make(brief, meta, d):
         try: notes = research(brief[:1500])
         except Exception as e: notes = "(research unavailable)"; print(f"  research skipped: {e}")
         (d / "research.txt").write_text(notes, encoding="utf-8"); print(f"  {time.time() - t0:.0f}s")
-        t0 = time.time(); print("writing (Claude)..."); reel = retry(ask, BRIEF.replace("RESEARCH_NOTES", notes) + brief, Reel, tries=2)
+        t0 = time.time(); print("writing (Claude)..."); prompt = BRIEF.replace("RESEARCH_NOTES", notes) + brief
+        reel = retry(ask, prompt, Reel, tries=2)
+        if (issues := check_script(reel)):  # one repair pass for mechanical problems (numbers, charts, missing teaching beats)
+            print("  fixing:", "; ".join(issues)); reel = retry(ask, prompt + "\n\nYOUR PREVIOUS DRAFT HAD THESE PROBLEMS - fix them:\n- "
+                                                             + "\n- ".join(issues) + "\nPREVIOUS DRAFT:\n" + reel.model_dump_json(), Reel, tries=2)
         (d / "script.json").write_text(reel.model_dump_json(indent=2), encoding="utf-8"); print(f"  {time.time() - t0:.0f}s")
     print(f"  {reel.title} | {reel.genre}")
     t0 = time.time()
@@ -671,6 +763,23 @@ def _make(brief, meta, d):
             "footage": [{"line": i + 1, "searches": l["footage"]} | footage_plan.get(str(i), {}) for i, l in enumerate(lines)],
             "first_comment": reel.seo.first_comment, "keywords": reel.seo.keywords, "alt_text": reel.seo.alt_text} | (meta or {})
     (d / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
+    try: rv = review(d, reel)
+    except Exception as e: rv = None; print(f"  review skipped: {e}")
+    job = json.loads((d / "job.json").read_text()) if (d / "job.json").exists() else {}
+    if rv and needs_fix(rv) and not job.get("revised") and int(E("REVIEW_FIXES", "1")):
+        print("  revising the script from the review and re-rendering once...")
+        fix = "\n".join(f"- {p.get('time', '')}: {p.get('issue', '')} -> {p.get('fix', '')}" for p in rv.get("problems", []))
+        notes = (d / "research.txt").read_text() if (d / "research.txt").exists() else ""
+        new = retry(ask, BRIEF.replace("RESEARCH_NOTES", notes) + brief + "\n\nA BEGINNER WATCHED YOUR LAST VERSION. They learned: "
+                    f"{rv.get('learned')}. Scores: {rv.get('scores')}. Fix every problem below, keep what worked:\n{fix}\n"
+                    "LAST VERSION:\n" + reel.model_dump_json(), Reel, tries=2)
+        for f in [*d.glob("line*.wav"), *d.glob("narration*.wav"), d / "voice.wav", d / "props.json", pub / "footage.json", *(pub / "clip").glob("*.mp4")]:
+            f.unlink(missing_ok=True)
+        (d / "script.v1.json").write_text((d / "script.json").read_text()); (d / "review.v1.json").write_text((d / "review.json").read_text())
+        (d / "script.json").write_text(new.model_dump_json(indent=2), encoding="utf-8")
+        (d / "job.json").write_text(json.dumps(job | {"revised": True}))
+        return _make(brief, meta, d)
+    if rv: meta = json.loads((d / "meta.json").read_text()) | {"review": {k: rv.get(k) for k in ("verdict", "scores", "learned", "remember")}}; (d / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     print("done:", d / "reel.mp4")
     return str(d / "reel.mp4"), caption
 

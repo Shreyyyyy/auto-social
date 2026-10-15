@@ -1,88 +1,150 @@
-// News-explainer reel: full-screen real footage, burned-in creator captions, clean data cards, source chips.
-// Every reel = this component + a props.json from reel.py. Colours come from config.json -> props.theme.
+// Teaching reel with two rhythms: real-world moments on full-screen footage, teaching moments on a bright whiteboard
+// (big hand-drawn-style diagrams, define card, charts, phone demo, recap). Every reel = this component + props.json
+// from reel.py. Colours come from config.json -> props.theme.
 import React from "react";
 import {AbsoluteFill, Audio, Easing, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame} from "remotion";
 import {loadFont} from "@remotion/google-fonts/Poppins";
 import {loadFont as loadDeva} from "@remotion/google-fonts/Mukta";
+import {loadFont as loadHand} from "@remotion/google-fonts/Kalam";
 
 const FONT = `${loadFont("normal", {weights: ["700", "800", "900"]}).fontFamily}, ${loadDeva("normal", {weights: ["800"]}).fontFamily}, sans-serif`;
-const FPS = 30;
-const pop = (t: number, at: number, damping = 14) => (t < at ? 0 : spring({frame: (t - at) * FPS, fps: FPS, config: {damping, stiffness: 200}}));
+const HAND = `${loadHand("normal", {weights: ["700"]}).fontFamily}, ${FONT}`;
+const FPS = 30, PAPER = "#FBF6EC", BLUE = "#3D6CF0", CORAL = "#FF6B5B", GREEN = "#1FA971";
+const pop = (t: number, at: number, damping = 13) => (t < at ? 0 : spring({frame: (t - at) * FPS, fps: FPS, config: {damping, stiffness: 190}}));
 const clamp = {extrapolateLeft: "clamp", extrapolateRight: "clamp"} as const;
-const font = (size: number, color: string, weight = 800): React.CSSProperties => ({fontFamily: FONT, fontWeight: weight, fontSize: size, color, lineHeight: 1.12, textAlign: "center"});
-const card: React.CSSProperties = {background: "#fff", borderRadius: 20, padding: "20px 30px", boxShadow: "0 16px 44px rgba(0,0,0,.45)", boxSizing: "border-box"};
-const col: React.CSSProperties = {display: "flex", flexDirection: "column", alignItems: "center", gap: 14};
+const font = (size: number, color: string, weight = 800, family = FONT): React.CSSProperties => ({fontFamily: family, fontWeight: weight, fontSize: size, color, lineHeight: 1.12, textAlign: "center"});
+const col: React.CSSProperties = {display: "flex", flexDirection: "column", alignItems: "center"};
+const BOARD = ["define", "diagram", "flow", "chart", "counter", "compare", "stamp", "list", "recap", "quote", "chat"];
 
-// Clean white data cards - only on the few lines that need a number, steps, a comparison or a verdict.
-const Card: React.FC<{v: any; t: number; s: number; e: number; HI: string; INK: string}> = ({v, t, s, e, HI, INK}) => {
-  const k = pop(t, s), at = (i: number) => v.times?.[i] ?? s, fade = interpolate(t, [e - 0.05, e + 0.2], [1, 0], clamp);
-  const head = v.title && v.type !== "quote" ? <div style={{...font(42, "#fff", 900), background: INK, borderRadius: 12, padding: "8px 20px", transform: `scale(${k})`}}>{v.title}</div> : null;
+// A "sticker" box: ink outline + offset shadow, like a teacher's marker drawing.
+const box = (INK: string, bg = "#fff", extra: React.CSSProperties = {}): React.CSSProperties =>
+  ({background: bg, border: `5px solid ${INK}`, borderRadius: 26, boxShadow: `8px 8px 0 ${INK}`, padding: "22px 30px", boxSizing: "border-box", ...extra});
+
+const Board: React.FC<{v: any; t: number; s: number; e: number; HI: string; INK: string}> = ({v, t, s, e, HI, INK}) => {
+  const k = pop(t, s), at = (i: number) => v.times?.[i] ?? s, n = (v.items || []).length;
+  const swipe = (from: number, to: number) => ({backgroundImage: `linear-gradient(${HI}, ${HI})`, backgroundRepeat: "no-repeat",
+    backgroundSize: `${interpolate(t, [from, to], [0, 100], clamp)}% 40%`, backgroundPosition: "0 88%"});
+  const title = v.title && !["define", "recap", "quote", "stamp"].includes(v.type)
+    ? <div style={{...font(64, INK, 700, HAND), marginBottom: 34, transform: `scale(${k})`}}><span style={swipe(s + 0.15, s + 0.7)}>{v.title}</span></div> : null;
+  const arrowDown = (i: number) => <svg width={60} height={70} style={{margin: "6px 0"}}>
+    <line x1={30} y1={4} x2={30} y2={4 + 46 * interpolate(t, [at(i) - 0.3, at(i)], [0, 1], clamp)} stroke={INK} strokeWidth={8} strokeLinecap="round" />
+    <polygon points="14,50 46,50 30,68" fill={INK} opacity={pop(t, at(i))} /></svg>;
   let body: React.ReactNode = null;
-  if (v.type === "counter") {
-    const n = (v.number || 0) * Easing.out(Easing.cubic)(interpolate(t, [s, s + (e - s) * 0.6], [0, 1], clamp));
-    body = <div style={{...card, transform: `scale(${k})`}}><div style={font(140, INK, 900)}>{n.toLocaleString("en-IN", {maximumFractionDigits: n < 10 ? 1 : 0})}{v.suffix}</div></div>;
-  } else if (v.type === "flow") {
-    body = <div style={{...col, gap: 8}}>{(v.items || []).map((it: string, i: number) => <React.Fragment key={i}>
-      {i > 0 && <div style={{...font(40, "#fff"), opacity: pop(t, at(i)), textShadow: "0 2px 8px #000"}}>↓</div>}
-      <div style={{...card, ...font(42, INK), padding: "12px 26px", background: i === v.items.length - 1 ? HI : "#fff", opacity: pop(t, at(i)), transform: `translateY(${(1 - pop(t, at(i))) * 30}px)`}}>{it}</div>
+  if (v.type === "define") {
+    const m = String(v.items?.[0] || ""), shown = Math.round(m.length * interpolate(t, [at(0), at(0) + 1.1], [0, 1], clamp));
+    body = <div style={{...col, gap: 26}}>
+      <div style={{...box(INK, HI), ...font(96, INK, 900), transform: `scale(${k}) rotate(-2deg)`}}>{v.title}</div>
+      <div style={{...font(46, "#777", 700, HAND), opacity: pop(t, s + 0.3)}}>matlab...</div>
+      <div style={{...font(70, INK, 800), maxWidth: 900, minHeight: 170}}>{m.slice(0, shown)}<span style={{opacity: shown < m.length ? 1 : 0, color: BLUE}}>|</span></div></div>;
+  } else if (v.type === "diagram" || v.type === "flow") {
+    const colors = [BLUE, CORAL, GREEN, HI];
+    body = <div style={col}>{(v.items || []).map((it: string, i: number) => <React.Fragment key={i}>
+      {i > 0 && arrowDown(i)}
+      <div style={{...box(INK, i === n - 1 ? HI : "#fff", {width: 820, padding: "20px 28px", borderLeft: `22px solid ${colors[i % 4]}`}), ...font(n > 3 ? 54 : 62, INK, 800),
+        opacity: pop(t, at(i)), transform: `scale(${0.6 + 0.4 * pop(t, at(i))}) rotate(${i % 2 ? 1 : -1}deg)`}}>{it}</div>
     </React.Fragment>)}</div>;
+  } else if (v.type === "chart") {
+    // a real chart drawn on screen: bars grow / the line draws point to point, values pop in
+    const vals: number[] = v.values || [], max = Math.max(...vals, 1), W = 900, H = 620, m = vals.length;
+    const x = (i: number) => 90 + (i * (W - 180)) / Math.max(m - 1, 1), y = (val: number) => H - 80 - (val / max) * (H - 190);
+    const g = (i: number) => Easing.out(Easing.cubic)(interpolate(t, [at(i) - 0.15, at(i) + 0.4], [0, 1], clamp));
+    const pts = vals.map((val, i) => i === 0 ? (g(0) > 0 ? `${x(0)},${y(val)}` : "")
+      : g(i) > 0 ? `${x(i - 1) + (x(i) - x(i - 1)) * g(i)},${y(vals[i - 1] + (val - vals[i - 1]) * g(i))}` : "").filter(Boolean).join(" ");
+    body = <svg width={W} height={H}>
+      <line x1={40} y1={H - 80} x2={W - 20} y2={H - 80} stroke={INK} strokeWidth={6} strokeLinecap="round" />
+      <line x1={40} y1={40} x2={40} y2={H - 80} stroke={INK} strokeWidth={6} strokeLinecap="round" />
+      {v.chart === "line" ? <>
+        <polyline fill="none" stroke={BLUE} strokeWidth={12} strokeLinejoin="round" strokeLinecap="round" points={pts} />
+        {vals.map((val, i) => <circle key={i} cx={x(i)} cy={y(val)} r={18 * pop(t, at(i))} fill={i === m - 1 ? HI : "#fff"} stroke={INK} strokeWidth={6} />)}
+      </> : vals.map((val, i) => { const bw = Math.min(150, (W - 200) / m - 24), h = (H - 190) * (val / max) * g(i);
+        return <rect key={i} x={x(i) - bw / 2} y={H - 80 - h} width={bw} height={h} rx={14} fill={i === m - 1 ? HI : [BLUE, CORAL, GREEN][i % 3]} stroke={INK} strokeWidth={5} />; })}
+      {vals.map((val, i) => <React.Fragment key={i}>
+        <text x={x(i)} y={y(val) - 34} textAnchor="middle" style={{fontFamily: FONT, fontWeight: 900, fontSize: 44}} fill={INK} opacity={pop(t, at(i) + 0.25)}>{val.toLocaleString("en-IN")}{v.suffix}</text>
+        <text x={x(i)} y={H - 26} textAnchor="middle" style={{fontFamily: HAND, fontWeight: 700, fontSize: 42}} fill={INK} opacity={pop(t, at(i))}>{v.items?.[i]}</text>
+      </React.Fragment>)}
+    </svg>;
+  } else if (v.type === "counter") {
+    const num = (v.number || 0) * Easing.out(Easing.cubic)(interpolate(t, [s, s + (e - s) * 0.6], [0, 1], clamp));
+    body = <div style={{...box(INK, HI), ...font(170, INK, 900), transform: `scale(${k}) rotate(-2deg)`}}>{num.toLocaleString("en-IN", {maximumFractionDigits: num < 10 ? 1 : 0})}{v.suffix}</div>;
   } else if (v.type === "compare") {
-    body = <div style={{display: "flex", gap: 16, alignItems: "center"}}>{[0, 1].map((i) => <React.Fragment key={i}>
-      {i === 1 && <div style={{...font(40, INK, 900), background: HI, borderRadius: 40, padding: "8px 16px", transform: `scale(${pop(t, at(1), 9)})`}}>VS</div>}
-      <div style={{...card, ...font(42, INK), width: 400, minHeight: 180, display: "flex", alignItems: "center", justifyContent: "center", opacity: pop(t, at(i)), transform: `scale(${pop(t, at(i))})`}}>{v.items?.[i]}</div>
+    body = <div style={{...col, gap: 18}}>{[0, 1].map((i) => <React.Fragment key={i}>
+      {i === 1 && <div style={{...font(64, "#fff", 900), background: CORAL, borderRadius: 50, padding: "6px 30px", transform: `scale(${pop(t, at(1), 9)}) rotate(-4deg)`}}>VS</div>}
+      <div style={{...box(INK, i ? "#EAF0FF" : "#FFF1E6", {width: 860, minHeight: 210, display: "flex", alignItems: "center", justifyContent: "center"}), ...font(64, INK, 800),
+        opacity: pop(t, at(i)), transform: `translateX(${(1 - pop(t, at(i))) * (i ? 400 : -400)}px)`}}>{v.items?.[i]}</div>
     </React.Fragment>)}</div>;
   } else if (v.type === "stamp") {
-    const p = pop(t, at(0), 10);
-    body = <div style={{...card, ...font(58, INK, 900), display: "flex", alignItems: "center", gap: 18, opacity: p, transform: `scale(${interpolate(p, [0, 1], [1.6, 1])}) rotate(-3deg)`}}>
-      <span style={{fontSize: 80}}>{v.good === false ? "❌" : "✅"}</span>{v.good === false ? "MYTH" : "FACT"}</div>;
+    const p = pop(t, at(0), 10), good = v.good !== false;
+    body = <div style={{...col, gap: 30}}>
+      <div style={{...font(72, INK, 800), maxWidth: 900, opacity: pop(t, s)}}>{v.title}</div>
+      <div style={{...font(120, good ? GREEN : CORAL, 900), border: `12px solid ${good ? GREEN : CORAL}`, borderRadius: 30, padding: "6px 40px",
+        opacity: p, transform: `scale(${interpolate(p, [0, 1], [2.2, 1])}) rotate(-8deg)`}}>{good ? "✅ SACH" : "❌ MYTH"}</div></div>;
   } else if (v.type === "list") {
-    body = <div style={{...col, alignItems: "stretch", gap: 10}}>{(v.items || []).map((it: string, i: number) =>
-      <div key={i} style={{...card, ...font(42, INK), textAlign: "left", width: 820, padding: "12px 24px", opacity: pop(t, at(i)), transform: `translateX(${(1 - pop(t, at(i))) * -100}px)`}}>✔ {it}</div>)}</div>;
-  } else if (v.type === "quote") {
-    body = <div style={{...card, ...font(56, INK, 900), maxWidth: 900, transform: `scale(${k})`}}>
-      <span style={{backgroundImage: `linear-gradient(${HI}, ${HI})`, backgroundRepeat: "no-repeat", backgroundSize: `${interpolate(t, [s + 0.2, s + 0.9], [0, 100], clamp)}% 45%`, backgroundPosition: "0 90%"}}>{v.title}</span></div>;
+    body = <div style={{...col, gap: 22, alignItems: "stretch"}}>{(v.items || []).map((it: string, i: number) =>
+      <div key={i} style={{...box(INK, "#fff", {width: 860}), ...font(58, INK, 800), textAlign: "left", opacity: pop(t, at(i)),
+        transform: `translateX(${(1 - pop(t, at(i))) * -300}px)`}}><span style={{color: GREEN}}>✔</span> {it}</div>)}</div>;
+  } else if (v.type === "chat") {
+    // phone demo: the question types itself, then the answer appears - show, don't tell
+    const q = String(v.items?.[0] || ""), a = String(v.items?.[1] || ""), at1 = at(1);
+    const qs = Math.round(q.length * interpolate(t, [s + 0.2, s + 1.2], [0, 1], clamp)), as = Math.round(a.length * interpolate(t, [at1, at1 + 1.4], [0, 1], clamp));
+    body = <div style={{width: 760, height: 860, background: "#fff", border: `14px solid ${INK}`, borderRadius: 70, padding: "60px 34px", boxSizing: "border-box", boxShadow: `14px 14px 0 ${INK}`,
+      display: "flex", flexDirection: "column", gap: 26, transform: `translateY(${(1 - k) * 300}px)`}}>
+      <div style={font(34, "#888", 700)}>{v.title || "AI Chat"}</div>
+      <div style={{alignSelf: "flex-end", maxWidth: 560, background: BLUE, borderRadius: "34px 34px 6px 34px", padding: "20px 26px", ...font(40, "#fff", 700), textAlign: "left"}}>{q.slice(0, qs) || "…"}</div>
+      {t > at1 - 0.5 && <div style={{alignSelf: "flex-start", maxWidth: 600, background: "#F0F0F3", borderRadius: "34px 34px 34px 6px", padding: "20px 26px", ...font(40, INK, 700), textAlign: "left"}}>
+        {t < at1 ? "• • •" : a.slice(0, as)}</div>}
+    </div>;
+  } else if (v.type === "recap" || v.type === "quote") {
+    body = <div style={{...col, gap: 30}}>
+      {v.type === "recap" && <div style={{...font(54, "#fff", 900), background: INK, borderRadius: 18, padding: "10px 30px", transform: `scale(${k}) rotate(-3deg)`}}>📌 YAAD RAKHO</div>}
+      <div style={{...box(INK, "#fff", {maxWidth: 940}), ...font(76, INK, 900), transform: `scale(${interpolate(pop(t, at(0)), [0, 1], [0.6, 1])})`}}>
+        <span style={swipe(at(0) + 0.2, at(0) + 1)}>{v.title}</span></div></div>;
   } else return null;
-  return <div style={{...col, opacity: fade}}>{head}{body}</div>;
+  return <div style={col}>{title}{body}</div>;
 };
 
 export const Reel: React.FC<any> = (p) => {
-  const t = useCurrentFrame() / FPS, L = p.lines, HI = p.theme?.highlight || "#FFE600", INK = p.theme?.ink || "#111";
+  const t = useCurrentFrame() / FPS, L = p.lines, HI = p.theme?.highlight || "#FFD43B", INK = p.theme?.ink || "#1D1D1F";
   const i = Math.max(0, L.findLastIndex((l: any) => l.start <= t)), line = L[i];
   const ws = line?.words || [], cur = ws.findLastIndex((w: any) => w[1] <= t), c0 = Math.floor(Math.max(cur, 0) / 3) * 3;
-  const stroke = {WebkitTextStroke: "10px #000", paintOrder: "stroke"} as React.CSSProperties;
+  const board = (l: any) => !!l && (BOARD.includes(l.v?.type) || !!l.text_scene);
+  const onBoard = board(line), bigWords = onBoard && !BOARD.includes(line.v?.type), left = Math.max(0, Math.ceil(p.duration - t));
   return <AbsoluteFill style={{background: "#000", overflow: "hidden"}}>
-    {/* full-screen real footage: hard cuts, slow push-in like a handheld edit */}
-    {(p.shots || []).map((sh: any, j: number) => <Sequence key={j} from={Math.round(sh.start * FPS)} durationInFrames={Math.max(1, Math.round((sh.end - sh.start) * FPS))}>
-      {sh.src ? <AbsoluteFill style={{transform: `scale(${1.02 + 0.05 * interpolate(t, [sh.start, sh.end], [0, 1], clamp)})`}}>
+    {/* real-world moments: full-screen footage with a slow push-in */}
+    {(p.shots || []).map((sh: any, j: number) => sh.src && <Sequence key={j} from={Math.round(sh.start * FPS)} durationInFrames={Math.max(1, Math.round((sh.end - sh.start) * FPS))}>
+      <AbsoluteFill style={{transform: `scale(${1.02 + 0.05 * interpolate(t, [sh.start, sh.end], [0, 1], clamp)})`}}>
         <OffthreadVideo src={staticFile(sh.src)} muted startFrom={Math.round((sh.offset || 0) * FPS)} style={{width: "100%", height: "100%", objectFit: "cover"}} />
-      </AbsoluteFill>
-      /* text scene: no relevant footage -> clean dark background with a slow glow (never unrelated footage) */
-      : <AbsoluteFill style={{background: `radial-gradient(circle at ${50 + 20 * Math.sin(t * 0.7)}% ${40 + 15 * Math.cos(t * 0.5)}%, ${HI}26 0%, #101014 55%, #08080a 100%)`}} />}
-    </Sequence>)}
-    <AbsoluteFill style={{background: "linear-gradient(180deg, rgba(0,0,0,.42) 0%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 52%, rgba(0,0,0,.5) 100%)"}} />
-    {/* hook headline while line 1 is spoken (the keyword on screen + in audio) */}
-    {i === 0 && p.hook && <div style={{position: "absolute", top: 250, width: "100%", padding: "0 70px", boxSizing: "border-box", ...col}}>
-      <div style={{...font(82, "#fff", 900), ...stroke, opacity: pop(t, 0.05), transform: `scale(${interpolate(pop(t, 0.05, 12), [0, 1], [1.2, 1])})`}}>
-        {String(p.hook).split(" ").map((w: string, j: number, a: string[]) => <span key={j} style={j === a.length - 1 || /\d/.test(w) ? {color: HI} : {}}>{w}{j < a.length - 1 ? " " : ""}</span>)}
+      </AbsoluteFill></Sequence>)}
+    {!onBoard && <AbsoluteFill style={{background: "linear-gradient(180deg, rgba(0,0,0,.4) 0%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%)"}} />}
+    {/* teaching moments: a bright whiteboard slides in */}
+    {L.map((l: any, j: number) => board(l) && t >= l.start - 0.2 && t < (L[j + 1]?.start ?? p.duration) &&
+      <AbsoluteFill key={j} style={{background: PAPER, backgroundImage: "radial-gradient(#00000014 2px, transparent 2px)", backgroundSize: "44px 44px",
+        transform: board(L[j - 1]) ? "none" : `translateX(${(1 - pop(t, l.start - 0.2, 20)) * 1080}px)`}}>
+        <AbsoluteFill style={{top: 250, height: 900, alignItems: "center", justifyContent: "center"}}>
+          {BOARD.includes(l.v?.type) ? <Board v={l.v} t={t} s={l.start} e={l.end} HI={HI} INK={INK} />
+            // no visual and no relevant footage: the spoken words become big hand-written style text
+            : <div style={{width: 940, textAlign: "center", lineHeight: 1.15}}>{(l.words || []).filter((w: any) => w[1] <= t).slice(-7).map(([w]: any, q: number, a: any[]) =>
+                <span key={q} style={{...font(104, q === a.length - 1 ? BLUE : INK, 700, HAND), display: "inline-block", margin: "0 14px"}}>{w}</span>)}</div>}
+        </AbsoluteFill></AbsoluteFill>)}
+    {/* hook headline on line 1 */}
+    {i === 0 && p.hook && <div style={{position: "absolute", top: 240, width: "100%", padding: "0 70px", boxSizing: "border-box", ...col}}>
+      <div style={{...font(84, onBoard ? INK : "#fff", 900), ...(onBoard ? {} : {WebkitTextStroke: "10px #000", paintOrder: "stroke"}), opacity: pop(t, 0.05),
+        transform: `scale(${interpolate(pop(t, 0.05, 12), [0, 1], [1.2, 1])})`}}>
+        {String(p.hook).split(" ").map((w: string, j: number, a: string[]) => <span key={j} style={j === a.length - 1 || /\d/.test(w) ? {color: onBoard ? BLUE : HI} : {}}>{w}{j < a.length - 1 ? " " : ""}</span>)}
       </div></div>}
-    {/* data card for the current line */}
-    {L.map((l: any, j: number) => l.v?.type && l.v.type !== "none" && t >= l.start && t < l.end + 0.25 &&
-      <AbsoluteFill key={j} style={{top: 300, height: 760, alignItems: "center", justifyContent: "center"}}><Card v={l.v} t={t} s={l.start} e={l.end} HI={HI} INK={INK} /></AbsoluteFill>)}
+    {/* countdown chip keeps the "samjho in N sec" promise visible (completion) */}
+    <div style={{position: "absolute", top: 120, right: 50, ...font(36, INK, 900), background: HI, border: `4px solid ${INK}`, borderRadius: 40, padding: "6px 20px",
+      opacity: interpolate(t, [0.3, 0.8], [0, 1], clamp)}}>⏱ {left}s</div>
     {/* source chip whenever a line states a news fact */}
-    {line?.source && <div style={{position: "absolute", top: 1090, left: 60, ...font(30, INK, 700), background: "rgba(255,255,255,.93)", borderRadius: 12, padding: "8px 16px",
-      opacity: pop(t, line.start + 0.2), transform: `translateX(${(1 - pop(t, line.start + 0.2)) * -40}px)`}}>📰 {line.source}</div>}
-    {/* text scene with no card: the spoken words become big centred kinetic type */}
-    {line?.text_scene && line.v?.type === "none" && i > 0 && cur >= 0 && <div style={{position: "absolute", top: 640, width: "100%", padding: "0 70px", boxSizing: "border-box", textAlign: "center"}}>
-      {ws.slice(c0, c0 + 3).map(([w, wt]: any, j: number) => c0 + j <= cur && <div key={j} style={{...font(124, c0 + j === cur ? HI : "#fff", 900), opacity: pop(t, wt, 12),
-        transform: `translateY(${(1 - pop(t, wt, 12)) * 30}px)`}}>{w}</div>)}
-    </div>}
-    {/* creator-style captions: 3 words at a time, white with a black outline, spoken word highlighted */}
-    {cur >= 0 && !(line?.text_scene && line.v?.type === "none" && i > 0) && <div style={{position: "absolute", top: 1170, width: "100%", padding: "0 60px", boxSizing: "border-box", textAlign: "center"}}>
-      {ws.slice(c0, c0 + 3).map(([w, wt]: any, j: number) => c0 + j <= cur && <span key={j} style={{...font(86, c0 + j === cur ? HI : "#fff", 900), ...stroke, display: "inline-block", margin: "0 10px",
-        textShadow: "0 5px 12px rgba(0,0,0,.5)", transform: `scale(${c0 + j === cur ? 0.88 + 0.12 * pop(t, wt, 12) : 1})`}}>{w}</span>)}
+    {line?.source && <div style={{position: "absolute", top: onBoard ? 1180 : 1090, left: 60, ...font(30, INK, 700), background: "rgba(255,255,255,.95)", border: `3px solid ${INK}`, borderRadius: 12, padding: "6px 14px",
+      opacity: pop(t, line.start + 0.2)}}>📰 {line.source}</div>}
+    {/* captions: on footage = white with black outline; on the whiteboard = ink with a highlighter on the spoken word */}
+    {cur >= 0 && !bigWords && <div style={{position: "absolute", top: onBoard ? 1260 : 1170, width: "100%", padding: "0 60px", boxSizing: "border-box", textAlign: "center"}}>
+      {ws.slice(c0, c0 + 3).map(([w, wt]: any, j: number) => c0 + j <= cur && <span key={j} style={{...font(onBoard ? 72 : 86, onBoard ? INK : (c0 + j === cur ? HI : "#fff"), 900),
+        ...(onBoard ? {background: c0 + j === cur ? HI : "transparent", borderRadius: 12, padding: "0 10px"} : {WebkitTextStroke: "10px #000", paintOrder: "stroke"}),
+        display: "inline-block", margin: "0 6px", transform: `scale(${c0 + j === cur ? 0.9 + 0.1 * pop(t, wt, 12) : 1})`}}>{w}</span>)}
     </div>}
     <Audio src={staticFile(p.voice)} />
-    {p.music && <Audio src={staticFile(p.music)} volume={0.08} loop />}
+    {p.music && <Audio src={staticFile(p.music)} volume={0.09} loop />}
     {(p.sfx || []).map(([at, n]: any, j: number) => <Sequence key={j} from={Math.round(at * FPS)} durationInFrames={30}><Audio src={staticFile(`sfx/${n}.wav`)} volume={0.2} /></Sequence>)}
   </AbsoluteFill>;
 };
