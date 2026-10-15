@@ -28,7 +28,8 @@ load_dotenv()
 E = os.getenv
 GEMINI = "https://generativelanguage.googleapis.com/v1beta/models"
 GKEY = lambda: {"x-goog-api-key": E("GEMINI_API_KEY", "")}  # header, so the key never appears in URLs, errors or logs
-TTS_MODEL = E("TTS_MODEL", "gemini-2.5-flash-preview-tts")
+TTS_MODEL = E("TTS_MODEL", "gemini-2.5-pro-preview-tts")  # one emotional take of the whole script
+LINE_TTS_MODEL = E("LINE_TTS_MODEL", "gemini-2.5-flash-preview-tts")  # line-by-line fallback
 MUSIC_MODEL = E("MUSIC_MODEL", "lyria-3-clip-preview")
 RESEARCH_MODEL = E("RESEARCH_MODEL", "gemini-3.8-flash")  # with Google Search grounding
 OUT, SERIES = Path("out"), Path("series")
@@ -37,11 +38,14 @@ OUT, SERIES = Path("out"), Path("series")
 C = {"niche": "AI and technology, explained simply", "audience": "a general audience", "region": "India",
      "spoken_language": "natural spoken Hindi in Devanagari, English tech words in English", "caption_language": "Roman-script Hinglish",
      "tts_language_code": "hi-IN", "tone": "smart, playful and credible", "examples": "everyday life", "duration_seconds": 30,
-     "voice": "Aoede", "series_hashtag": "", "fallback_footage": ["city street", "people using smartphone"],
+     "voice": "Puck", "voice_style": "a popular creator in their late 20s - warm, quick-witted, genuinely excited",
+     "accent": "natural North Indian Hindi; English words said the Indian way", "series_hashtag": "", "fallback_footage": ["city street", "people using smartphone"],
      "theme": {"highlight": "#FFE600", "ink": "#111111"}} | (json.loads(Path("config.json").read_text()) if Path("config.json").exists() else {})
 TARGET = float(E("TARGET_SECONDS", C["duration_seconds"]))
-FORMAT = (f"niche: {C['niche']}; audience: {C['audience']} in {C['region']}; format: one narrator voice-over over full-screen real "
-          "stock footage with burned-in captions - no presenters, characters or faces")
+CHANNEL = (f"channel context, for tone and audience only (never change the user's topic): {C['niche']}; "
+           f"audience: {C['audience']} in {C['region']}")
+FORMAT = (f"{CHANNEL}; format: one narrator voice-over over full-screen real stock footage with burned-in captions - "
+          "no presenters, characters or faces")
 
 PSYCH = """AUDIENCE PSYCHOLOGY (use deliberately):
 - First 1.5s: pattern interrupt + curiosity gap. Open mid-action or with a claim that sounds wrong but is true.
@@ -60,14 +64,19 @@ BEAT = ("brief = a timed beat sheet for a ~30s reel, one line per beat, e.g. '0-
         "'26-30s PAYOFF + TEASER: ...', then 'EXAMPLE: <the central desi analogy>', 'PSYCH: <levers used>', "
         "'WHY NOW: <the current news/trend it hooks into>'")
 
-RESEARCH = f"""You research for a {TARGET:.0f}-second Instagram Reel about {C['niche']} for {C['audience']} in {C['region']}.
-Use Google Search. Be concise: bullet points, every fact with its date and source name.
-1. Latest news (last 60 days), {C['region']} first, that makes this topic feel urgent right now.
-2. 3-5 surprising, verified facts or numbers (with source). Flag numbers that disagree between sources.
-3. What people commonly ask, search or get confused about here (real questions).
-4. 2 everyday analogies from {C['examples']} that would make it click instantly.
-5. SEO: 8 search phrases people actually type, 5 relevant hashtags in active use now,
-   and current Instagram Reels SEO / discovery guidance (captions, keywords, hashtags, on-screen text).
+RESEARCH = f"""You are the researcher for a {TARGET:.0f}-second Instagram Reel. The reel is about EXACTLY what the USER PROMPT
+(at the end) asks - whatever the subject is. ({CHANNEL}.)
+Use Google Search. Be concise, bullet points, every fact with its date and source name. Sections:
+0. UNDERSTANDING: in 2 lines, what the user wants - the topic, the angle, and the one takeaway the viewer should leave with.
+1. LATEST NEWS: what happened in the last 60 days ({C['region']} first) that makes this topic matter right now.
+2. TRENDING: how this topic is trending - search interest, viral posts, memes, the angles other creators are using
+   on Instagram / YouTube Shorts / X right now, and any hashtag or audio trend attached to it.
+3. WHAT PEOPLE ARE SAYING: real questions, opinions, myths, complaints, jokes and slang from comments, Reddit, X,
+   Quora, YouTube - quote short real phrasings where you can.
+4. FACTS: 3-5 surprising, verified facts or numbers with source + date. Flag numbers that disagree between sources.
+5. ANALOGIES: 2 everyday analogies from {C['examples']} that would make it click instantly.
+6. SEO: 8 search phrases people actually type about this, 5 relevant hashtags in active use now, and current
+   Instagram Reels discovery guidance (captions, keywords, hashtags, on-screen text).
 EXTRA: """
 
 PLAN_ONE = f"""You plan viral Instagram Reels ({FORMAT}).
@@ -75,6 +84,7 @@ Use the RESEARCH NOTES (fresh, from Google Search) for news, facts and keywords 
 the idea into ONE reel plan with a very smart, engaging example.
 {PSYCH}
 Return title and {BEAT}.
+Plan exactly what this idea asks - never switch to a different topic.
 IDEA: """
 
 PLAN_SERIES = f"""You are the showrunner of a daily Instagram Reels series ({FORMAT}).
@@ -85,9 +95,12 @@ key breakthroughs, today, what comes next. Group them into arcs. One idea per ep
 previous one. Even historical episodes open with a current-news hook that makes the old idea feel urgent.
 {PSYCH}
 For each episode return: title (catchy Hinglish), era (year or period), and {BEAT}.
+The series is about exactly this subject - never drift to a different one.
 SUBJECT: """
 
-BRIEF = f"""You write a fast, credible ~{TARGET:.0f}-second Instagram Reel about {C['niche']} for {C['audience']} in {C['region']}.
+BRIEF = f"""You write a fast, credible ~{TARGET:.0f}-second Instagram Reel about EXACTLY the topic in the user's prompt / beat sheet
+below - whatever it is; never switch to a different topic. ({CHANNEL}.)
+Build it from the RESEARCH NOTES: use what is trending, the real questions and phrasings people use, and the latest news.
 FORMAT: ONE narrator voice-over over full-screen REAL stock footage (no presenters, no characters, no faces talking to
 camera), bold burned-in captions, and a clean data card only where a number, process or comparison needs it.
 It must feel like a real creator's news-explainer edit - nothing that looks AI-generated.
@@ -102,7 +115,8 @@ CRAFT
 - Line 1 = the hook (a claim that sounds wrong-but-true, or a question they can't ignore). Last line: payoff +
   tease the next episode if one is given (open loop), else a save/follow CTA.
 - If a timed beat sheet is given below, follow its timings, example and psychology.
-- delivery: a short acting note ("surprised", "confident", "slow and serious").
+- delivery: the emotion for this line, 1-4 words, as a voice director would mark it ("shocked", "leaning in, secretive",
+  "playful, smiling", "short laugh", "serious, slower", "excited"). Vary it line to line like a real person telling a story.
 - footage: 2-4 English words for a STOCK VIDEO search: a concrete, filmable real-world scene that matches the line
   (e.g. "woman texting on phone", "busy market", "server room", "hands counting money", "traffic at night").
   Describe what a camera would see - never abstract words like AI, algorithm, data. A different scene every line.
@@ -275,7 +289,46 @@ def google_tts(line, path):
     with wave.open(io.BytesIO(base64.b64decode(r["audioContent"]))) as w: save_wav(path, w.readframes(w.getnframes()))
 
 
-CLOUD_TTS = E("TTS_ENGINE", "google") == "google"
+CLOUD_TTS = E("TTS_ENGINE", "gemini") == "google"  # Chirp 3 HD voices have no emotion control; Gemini one-take is the default
+
+
+def narrate(reel, path):
+    """The whole script in ONE emotional take (natural flow between lines), directed like a real voice session."""
+    script = "\n".join(f"[{l.delivery}] {l.text}" if l.delivery else l.text for l in reel.lines)
+    prompt = f"""# AUDIO PROFILE: {C['voice_style']}.
+## SCENE: Recording a {TARGET:.0f}-second Instagram reel, talking straight to one friend, not to an audience.
+### DIRECTOR'S NOTES
+Style: conversational, real emotion that changes line to line as marked in [brackets]; never say the brackets aloud.
+Pacing: fast and lively, short natural pauses between lines, breathe naturally; slow down only where marked.
+Accent: {C['accent']}.
+#### TRANSCRIPT
+{script}"""
+    _, pcm = gemini(TTS_MODEL, [{"text": prompt}], responseModalities=["AUDIO"],
+                    speechConfig={"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": C["voice"]}}})
+    save_wav(path, pcm)
+
+
+def pauses(path):
+    """Real pauses in the audio (ffmpeg silencedetect) -> [(start, end)] seconds."""
+    err = subprocess.run(["ffmpeg", "-i", str(path), "-af", "silencedetect=n=-35dB:d=0.18", "-f", "null", "-"], capture_output=True, text=True).stderr
+    st = [float(x.split("silence_start: ")[1].split()[0]) for x in err.splitlines() if "silence_start" in x]
+    en = [float(x.split("silence_end: ")[1].split()[0]) for x in err.splitlines() if "silence_end" in x]
+    return list(zip(st, en))
+
+
+def split_take(reel, path):
+    """Line start/end inside the one-take narration: estimate each boundary by text length, snap it to the nearest real pause."""
+    with wave.open(str(path)) as w: total = w.getnframes() / w.getframerate()
+    gaps = [g for g in pauses(path) if 0.05 < g[0] < total - 0.05]
+    chars = [len(l.text) for l in reel.lines]; bounds, used = [], set()
+    for k in range(1, len(chars)):
+        est = total * sum(chars[:k]) / sum(chars)
+        best = min((g for g in gaps if g not in used), key=lambda g: abs((g[0] + g[1]) / 2 - est), default=None)
+        if best and abs((best[0] + best[1]) / 2 - est) < 1.5: used.add(best); bounds.append(best)
+        else: bounds.append((est, est))
+    bounds.sort()
+    starts = [0.0] + [b[1] for b in bounds]; ends = [b[0] for b in bounds] + [total]
+    return [(max(0.0, s - 0.02), e) for s, e in zip(starts, ends)]
 
 
 def voice(line, path):
@@ -298,7 +351,7 @@ def gemini_tts(line, path):
     last_err = None
     for text in attempts:
         try:
-            _, pcm = gemini(TTS_MODEL, [{"text": text}],
+            _, pcm = gemini(LINE_TTS_MODEL, [{"text": text}],
                             responseModalities=["AUDIO"], speechConfig={"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": voice_name}}})
             save_wav(path, pcm)  # raw 24kHz 16-bit mono PCM
             return
@@ -318,32 +371,57 @@ def music(mood, d):
     return name
 
 
+LIB = Path("assets/coverr")  # local library: every Coverr clip ever downloaded (+ its metadata) and every search made
+COVERR_DOWN = []
+
+
 def coverr(query):
-    """Coverr search; Coverr matches all words, so fall back to single words (longest first)."""
-    for q in [query, *sorted(query.split(), key=len, reverse=True)]:
-        hits = requests.get("https://api.coverr.co/videos", timeout=30, headers={"Authorization": f"Bearer {E('COVERR_KEY')}"},
-                            params={"query": q, "page_size": 5, "urls": "true"}).json().get("hits", [])
-        if hits: return hits
-    raise RuntimeError(f"nothing on Coverr for '{query}'")
+    """Coverr search, cached on disk (the demo key has a small query limit). One search per query, 20 results."""
+    cache = LIB / "searches.json"; LIB.mkdir(parents=True, exist_ok=True)
+    seen = json.loads(cache.read_text()) if cache.exists() else {}
+    q = query.lower().strip()
+    if q in seen: return seen[q]
+    if COVERR_DOWN: return []
+    r = requests.get("https://api.coverr.co/videos", timeout=30, headers={"Authorization": f"Bearer {E('COVERR_KEY')}"},
+                     params={"query": q, "page_size": 20, "urls": "true"})
+    if r.status_code != 200:
+        COVERR_DOWN.append(r.status_code); print(f"  Coverr unavailable ({r.status_code}: {r.text[:60]}) -> using the local footage library")
+        return []
+    hits = [{k: h.get(k) for k in ("id", "title", "tags", "poster", "urls", "duration", "is_vertical")} for h in r.json().get("hits", [])]
+    seen[q] = hits; cache.write_text(json.dumps(seen))
+    return hits
 
 
 def coverr_file(hit):
-    """Download a Coverr 1080p clip once (cached by video id)."""
-    f = Path("assets/coverr") / f"{hit['id']}.mp4"
+    """Download a Coverr 1080p clip once (cached by video id, with its metadata for the local library)."""
+    f = LIB / f"{hit['id']}.mp4"
     if not f.exists():
-        f.parent.mkdir(parents=True, exist_ok=True)
+        LIB.mkdir(parents=True, exist_ok=True)
         r = requests.get(hit["urls"]["mp4"], timeout=180)
         if r.status_code != 200 or not r.content[4:8] == b"ftyp": raise RuntimeError(f"Coverr download failed ({r.status_code})")
         f.write_bytes(r.content)
+    if not f.with_suffix(".json").exists(): f.with_suffix(".json").write_text(json.dumps(hit))
     return f
+
+
+def library_pick(query, used):
+    """Best already-downloaded Coverr clip for a query (word overlap with its title/tags), unused first."""
+    words = set(re.findall(r"\w+", query.lower()))
+    clips = []
+    for f in LIB.glob("*.mp4"):
+        meta = json.loads(f.with_suffix(".json").read_text()) if f.with_suffix(".json").exists() else {"id": f.stem}
+        text = set(re.findall(r"\w+", (str(meta.get("title", "")) + " " + " ".join(meta.get("tags") or [])).lower()))
+        clips.append((meta["id"] in used, -len(words & text), meta))
+    return min(clips, key=lambda c: c[:2])[2] if clips else None
 
 
 def stock_video(hit, path, secs):
     """Coverr clip -> full-screen 1080x1920, natural grade (no stylised look)."""
     start = min(1.0, float(hit.get("duration") or 4) / 5)
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", f"{start:.2f}", "-i", str(coverr_file(hit)), "-t", f"{secs:.2f}",
-                    "-vf", "scale=-2:1920,crop=1080:1920,eq=contrast=1.05:saturation=1.06,unsharp=5:5:0.35", "-an", "-r", "30",
-                    "-c:v", "libx264", "-crf", "19", "-pix_fmt", "yuv420p", str(path)], check=True)
+                    "-vf", "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,eq=contrast=1.05:saturation=1.06,unsharp=5:5:0.35", "-an", "-r", "30",
+                    "-c:v", "libx264", "-crf", "19", "-pix_fmt", "yuv420p", str(path.with_suffix(".tmp.mp4"))], check=True)
+    path.with_suffix(".tmp.mp4").replace(path)
 
 
 def grade(img, w, h):
@@ -368,7 +446,7 @@ def stock_image(hit, path, secs, seed=0):
     base, rng, pan = grade(img, W, H), np.random.default_rng(seed), (-1) ** seed
     grain = rng.normal(0, 3.5, (1920 + 32, 1080 + 32, 1)).astype(np.float32)
     ff = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "bgr24", "-s", "1080x1920", "-r", "30",
-                           "-i", "-", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "19", str(path)], stdin=subprocess.PIPE)
+                           "-i", "-", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "19", str(path.with_suffix(".tmp.mp4"))], stdin=subprocess.PIPE)
     for f in range(n):
         e = 1 - (1 - f / max(n - 1, 1)) ** 2
         z = 1.1 * (1 + 0.08 * e); cw, ch = int(W / z), int(H / z)
@@ -377,24 +455,39 @@ def stock_image(hit, path, secs, seed=0):
         oy, ox = rng.integers(0, 32, 2)
         ff.stdin.write(np.clip(fr + grain[oy:oy + 1920, ox:ox + 1080], 0, 255).astype(np.uint8).tobytes())
     ff.stdin.close(); ff.wait()
+    if ff.returncode: raise RuntimeError("cv2 still render failed")
+    path.with_suffix(".tmp.mp4").replace(path)
+
+
+def valid_clip(f, min_secs=0.5):
+    """A clip only counts as done if ffprobe can read a real video stream from it."""
+    if not f.exists() or f.stat().st_size < 10000: return False
+    r = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "format=duration", "-of", "csv=p=0", str(f)],
+                       capture_output=True, text=True)
+    try: return float(r.stdout.strip()) >= min_secs
+    except ValueError: return False
 
 
 def shots_for(lines, pub):
-    """Full-screen Coverr footage for every line: a new scene per line, a jump cut inside long lines,
-    never the same clip twice, config fallbacks if a search finds nothing, a cv2-animated still if a download fails."""
+    """Full-screen Coverr footage for every line: a new scene per line, a jump cut inside long lines, never the same clip
+    twice if avoidable. Search -> shorter search -> config fallbacks -> local library -> animated still. Never crashes a reel."""
     shots, used = [], set()
     for i, l in enumerate(lines):
         secs = l["end"] - l["start"] + 0.15
-        hit = None
-        for q in [l["footage"], *C["fallback_footage"]]:
-            try: hit = next((h for h in sorted(coverr(q), key=lambda h: not h.get("is_vertical")) if h["id"] not in used), None)
-            except Exception: continue
-            if hit: break
-        if not hit: raise RuntimeError(f"no Coverr footage for line {i + 1} ('{l['footage']}')")
-        used.add(hit["id"]); f = pub / "clip" / f"{i}.mp4"
-        if not f.exists():
-            try: stock_video(hit, f, secs + 4)
-            except Exception as e: print(f"  clip {i + 1} -> animated still ({e})"); stock_image(hit, f, secs + 4, i)
+        f = pub / "clip" / f"{i}.mp4"
+        if not valid_clip(f):
+            words = l["footage"].split()
+            queries = [l["footage"], " ".join(words[-2:]), *C["fallback_footage"]] if len(words) > 2 else [l["footage"], *C["fallback_footage"]]
+            hit = next((h for q in dict.fromkeys(queries) for h in sorted(coverr(q), key=lambda h: not h.get("is_vertical")) if h["id"] not in used), None)
+            hit = hit or library_pick(l["footage"], used)
+            if not hit: raise RuntimeError("no footage: Coverr is unavailable and the local library is empty")
+            used.add(hit["id"])
+            try:
+                if (LIB / f"{hit['id']}.mp4").exists() or hit.get("urls"): stock_video(hit, f, secs + 4)
+                else: raise RuntimeError("no clip url")
+            except Exception as e:
+                if not hit.get("poster"): raise RuntimeError(f"footage for line {i + 1} failed: {e}")
+                print(f"  clip {i + 1} -> animated still ({e})"); stock_image(hit, f, secs + 4, i)
         cuts = [l["start"], round((l["start"] + l["end"]) / 2, 2)] if secs > 3.4 else [l["start"]]
         for k, c in enumerate(cuts):
             end = cuts[k + 1] if k + 1 < len(cuts) else l["end"] + 0.15
@@ -411,8 +504,45 @@ SFX = {  # synthesised once into assets/sfx - no downloads needed
 }
 
 
+def visual_times(v, t, dur):
+    n = max(len(v["items"]), 1)
+    return ([round(t + 0.1 + k * dur * 0.85 / n, 2) for k in range(n)] if v["type"] in ("flow", "list")
+            else [round(t + 0.1, 2), round(t + dur * 0.45, 2)] if v["type"] == "compare" else [round(t + dur * 0.5, 2)])
+
+
+def card_sfx(v, t, dur):
+    return ([[x, "pop"] for x in v["times"]] * (v["type"] in ("flow", "list", "compare"))
+            + [[v["times"][0], "ding" if v["good"] else "boom"]] * (v["type"] == "stamp")
+            + [[round(t + k * 0.2, 2), "tick"] for k in range(int(dur * 0.6 / 0.2))] * (v["type"] == "counter"))
+
+
+def word_times(caption, t, dur):
+    words = caption.split(); wt = [len(x) + 3 for x in words]
+    return [[x, round(t + dur * sum(wt[:k]) / sum(wt), 2)] for k, x in enumerate(words)]
+
+
+def timeline_take(reel, d):
+    """One-take narration -> voice.wav (sped up a little if over target), line timings from real pauses."""
+    src = d / "narration.wav"
+    with wave.open(str(src)) as w: total = w.getnframes() / w.getframerate()
+    tempo = min(1.2, max(1.0, total / (TARGET - 1.8)))
+    if tempo > 1.01:
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(src), "-af", f"atempo={tempo:.3f}", "-ar", "24000", "-ac", "1",
+                        str(d / "narration.fast.wav")], check=True); src = d / "narration.fast.wav"
+    lines, sfx, lead = [], [[0.3, "boom"]], 0.3
+    for l, (a, b) in zip(reel.lines, split_take(reel, src)):
+        t, dur = lead + a, b - a
+        v = l.visual.model_dump(); v["times"] = visual_times(v, t, dur); sfx += card_sfx(v, t, dur)
+        lines.append({"start": round(t, 2), "end": round(t + dur, 2), "v": v, "source": l.source, "footage": l.footage,
+                      "words": word_times(l.caption, t, dur)})
+    with wave.open(str(src)) as w: pcm = w.readframes(w.getnframes())
+    save_wav(d / "voice.wav", b"\0\0" * int(24000 * lead) + pcm)
+    return lines, sfx, round(lines[-1]["end"] + 1.5, 2)
+
+
 def timeline(reel, d):
-    """Concatenate line audio -> voice.wav; exact line timings, estimated word timings, visual beat times, SFX cues."""
+    """Line-by-line fallback: concatenate line audio -> voice.wav; exact line timings, estimated word timings, SFX cues."""
+    if (d / "narration.wav").exists(): return timeline_take(reel, d)
     t, pcm, lines, sfx = 0.3, b"", [], [[0.3, "boom"]]
     talk = sum(wave.open(str(d / f"line{i}.wav")).getnframes() for i in range(len(reel.lines))) / 24000
     tempo = min(1.2, max(1.0, talk / (TARGET - 0.15 * len(reel.lines) - 1.8)))  # speed up a little if over target
@@ -439,8 +569,11 @@ def timeline(reel, d):
 
 
 def make(brief, meta=None, d=None):
-    """Script -> voices -> music + stock media -> Remotion render. Pass d=<out dir> to resume a failed run."""
-    _l = lock()
+    """Script -> voice -> music + stock footage -> Remotion render. Pass d=<out dir> to resume a failed run."""
+    with lock(): return _make(brief, meta, d)
+
+
+def _make(brief, meta, d):
     d = Path(d) if d else OUT / time.strftime("%Y%m%d-%H%M%S"); pub = d / "public"
     for sub in ("img", "clip", "sfx"): (pub / sub).mkdir(parents=True, exist_ok=True)
     if (d / "script.json").exists():
@@ -457,9 +590,14 @@ def make(brief, meta=None, d=None):
         (d / "script.json").write_text(reel.model_dump_json(indent=2), encoding="utf-8"); print(f"  {time.time() - t0:.0f}s")
     print(f"  {reel.title} | {reel.genre}")
     t0 = time.time()
-    for i, l in enumerate(reel.lines):
-        print(f"voice {i + 1}/{len(reel.lines)}: {l.caption}")
-        if not (d / f"line{i}.wav").exists(): retry(voice, l, d / f"line{i}.wav")
+    if not (d / "narration.wav").exists() and not (d / "line0.wav").exists() and not CLOUD_TTS:
+        print(f"voice: one emotional take ({TTS_MODEL}, {C['voice']})...")
+        try: retry(narrate, reel, d / "narration.wav", tries=3)
+        except Exception as e: print(f"  one-take failed ({e}) -> line by line")
+    if not (d / "narration.wav").exists():
+        for i, l in enumerate(reel.lines):
+            print(f"voice {i + 1}/{len(reel.lines)}: {l.caption}")
+            if not (d / f"line{i}.wav").exists(): retry(voice, l, d / f"line{i}.wav")
     lines, sfx, dur = timeline(reel, d)
     shutil.copy(d / "voice.wav", pub / "voice.wav")
     shots = shots_for(lines, pub)
@@ -621,23 +759,28 @@ _LOCK = []
 
 
 class lock:
-    """One job at a time across processes (cron vs UI vs CLI); re-entrant within a process."""
-    def __init__(self):
+    """One job at a time across processes (cron vs UI vs CLI). Use as `with lock():` - always released, even on errors.
+    Re-entrant within a process."""
+    def __enter__(self):
         self.f = None
-        if _LOCK: return
+        if _LOCK: return self
         self.f = open(".reel.lock", "w")
         try: fcntl.flock(self.f, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError: self.f.close(); raise RuntimeError("another reel job is running - try again when it finishes")
         _LOCK.append(self)
+        return self
 
-    def __del__(self):
-        if self.f: _LOCK.clear(); self.f.close()
+    def __exit__(self, *exc):
+        if self.f: _LOCK.clear(); fcntl.flock(self.f, fcntl.LOCK_UN); self.f.close()
 
 
 def auto():
     """Cron, approval-gated: posts the next episode ONLY if you approved that exact video in the UI.
     If the next episode isn't made yet, it is generated and left 'awaiting approval' - never posted silently."""
-    _l = lock()
+    with lock(): return _auto()
+
+
+def _auto():
     files = sorted(SERIES.glob("*.json"), key=lambda f: f.stat().st_mtime)
     if not files: return print("No series yet - plan one in the UI first.")
     sr = load(E("SERIES") or files[-1].stem)

@@ -8,8 +8,18 @@
   "tone": "smart, playful and credible - like a friend who reads the news for you",
   "examples": "everyday Indian life: kirana hisaab, cricket, UPI, chai, IRCTC tatkal, WhatsApp forwards, shaadi",
   "duration_seconds": 30,
-  "voice": "Aoede",
+  "voice": "Puck",
   "series_hashtag": "",
-  "fallback_footage": ["city street", "people using smartphone", "office work", "technology"],
-  "theme": {"highlight": "#FFE600", "ink": "#111111"}
+  "fallback_footage": [
+    "city street",
+    "people using smartphone",
+    "office work",
+    "technology"
+  ],
+  "theme": {
+    "highlight": "#FFE600",
+    "ink": "#111111"
+  },
+  "voice_style": "a popular Indian Hindi explainer creator in their late 20s - warm, quick-witted, genuinely excited",
+  "accent": "natural North Indian Hindi; English words said the Indian way"
 }
