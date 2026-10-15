@@ -23,5 +23,14 @@
   "voice_style": "a fun, warm Indian teacher in their late 20s - smiling while talking, patient, playful, genuinely excited to teach",
   "accent": "natural North Indian Hindi; English words said the Indian way",
   "location": "India",
-  "persona": "a fun, warm, patient teacher - like everyone's favourite school teacher who makes hard things feel easy, smiles a lot, uses everyday examples and never makes anyone feel dumb"
+  "persona": "a fun, warm, patient teacher - like everyone's favourite school teacher who makes hard things feel easy, smiles a lot, uses everyday examples and never makes anyone feel dumb",
+  "captions": false,
+  "signature": {
+    "text": "ये है AI की Chai-Break Class — चालीस second, एक concept, ज़िंदगी भर याद!",
+    "caption": "Ye hai AI ki Chai-Break Class — 40 second, ek concept, zindagi bhar yaad!",
+    "title": "AI ki Chai-Break Class",
+    "subtitle": "40 sec · 1 concept · zindagi bhar yaad",
+    "emoji": "☕",
+    "delivery": "bright, warm, signature tone, smiling"
+  }
 }

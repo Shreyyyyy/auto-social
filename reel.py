@@ -143,6 +143,7 @@ FIELDS
 - text: what you say, in {C['spoken_language']}. caption: the SAME words in {C['caption_language']}.
 - Timing: a flow/diagram/list needs about 1.2 seconds per item, so give that line enough words; keep the whole reel
   close to {TARGET:.0f} seconds (never above {TARGET + 10:.0f}).
+- onscreen: the line's key idea in 2-5 words (shown big when the line has no footage or card) - never the full sentence.
 - delivery: the emotion for this line, 1-4 words ("curious", "warm, smiling", "playful", "excited", "gentle, slower",
   "proud"). Vary it like a real teacher telling a story.
 - hook: <= 6 words shown big during line 1 - the concept's name + the curious part.
@@ -167,6 +168,8 @@ FIELDS
   "none" = just real footage + captions. Alternate real footage and whiteboard so it never feels like slides.
   Always use define (line 2), one diagram/flow/chart or chat (how it works), and recap.
   Line 1 (hook) is always type "none" so it opens on real footage.
+- The channel's fixed signature line is inserted automatically right after your hook - do not write any intro or
+  channel greeting yourself; go straight from the hook into the concept.
   On-screen text: max 6 words per item, in {C['caption_language']}.
 - source: for a news fact or number, "Publication · date" from the research notes, else "".
 - music_mood: light background music (e.g. "soft playful ukulele", "warm curious lo-fi").
@@ -193,7 +196,7 @@ TOPIC / BEAT SHEET: """
 
 
 class Visual(BaseModel):
-    type: Literal["none", "define", "diagram", "flow", "chart", "counter", "compare", "stamp", "list", "recap", "quote", "chat"]
+    type: Literal["none", "define", "diagram", "flow", "chart", "counter", "compare", "stamp", "list", "recap", "quote", "chat", "brand"]
     title: str = ""
     items: list[str] = []
     number: float = 0
@@ -206,6 +209,7 @@ class Visual(BaseModel):
 class Line(BaseModel):
     text: str
     caption: str
+    onscreen: str
     delivery: str
     footage: list[str]
     visual: Visual
@@ -229,6 +233,15 @@ class Reel(BaseModel):
     caption_ig: str
     seo: Seo
     lines: list[Line]
+
+
+def add_signature(reel):
+    """Insert the channel's constant signature line (config.json -> signature) right after the hook."""
+    sg = C.get("signature") or {}
+    if not sg.get("text") or any(l.visual.type == "brand" for l in reel.lines): return reel
+    reel.lines.insert(1, Line(text=sg["text"], caption=sg.get("caption", sg["text"]), onscreen=sg.get("title", ""), delivery=sg.get("delivery", ""),
+                              footage=[], source="", visual=Visual(type="brand", title=sg.get("title", ""), items=[sg.get("subtitle", "")], suffix=sg.get("emoji", ""))))
+    return reel
 
 
 def check_script(reel):
@@ -256,6 +269,7 @@ def migrate(d):
         if isinstance(l["footage"], str): l["footage"] = [l["footage"]]
         if v.get("type") not in Visual.model_fields["type"].annotation.__args__: l["visual"] = {"type": "none"}
         l.setdefault("delivery", ""); l.setdefault("source", "")
+        l.setdefault("onscreen", " ".join(l.get("caption", "").split()[:4]))
     d.setdefault("genre", ""); d.setdefault("music_mood", "calm background beat")
     d.setdefault("hook", next((l.get("visual", {}).get("title", "") for l in d.get("lines", [])[:1]), ""))
     d.setdefault("seo", {"keywords": [], "hashtags": [], "alt_text": "", "first_comment": ""})
@@ -515,13 +529,93 @@ def pexels(query):
     return hits
 
 
+def cached(key, fetch):
+    """Disk cache for every footage search (keeps free-tier API limits for new queries)."""
+    cache = LIB / "searches.json"; LIB.mkdir(parents=True, exist_ok=True)
+    seen = json.loads(cache.read_text()) if cache.exists() else {}
+    if key not in seen:
+        try: seen[key] = fetch()
+        except Exception as e: print(f"  {key.split(':')[0]} search failed ({e})"); return []
+        cache.write_text(json.dumps(seen))
+    return seen[key]
+
+
+UA = {"User-Agent": "auto-social/1.0 (educational reels; contact via repo owner)"}
+FREE_LICENSES = ("cc0", "public domain", "pd", "pdm")
+
+
+def openverse(query):
+    """Openverse: CC0 / public-domain photos (no key). Shown as a cv2 camera move over the still."""
+    def go():
+        r = requests.get("https://api.openverse.org/v1/images/", headers=UA, timeout=30,
+                         params={"q": query, "license": "cc0,pdm", "page_size": 12, "size": "large"}).json()
+        return [{"id": f"ov{x['id']}", "title": x.get("title", ""), "tags": [t["name"] for t in (x.get("tags") or [])][:10],
+                 "poster": x["url"], "thumbnail": x.get("thumbnail") or x["url"], "urls": None, "source": "openverse"}
+                for x in r.get("results", []) if (x.get("width") or 0) >= 800]
+    return cached("ov:" + query.lower().strip(), go)
+
+
+def commons(query):
+    """Wikimedia Commons videos, CC0 / public-domain only (no credit needed), under 120 MB (no key)."""
+    def go():
+        r = requests.get("https://commons.wikimedia.org/w/api.php", headers=UA, timeout=30, params={
+            "action": "query", "format": "json", "generator": "search", "gsrsearch": f"filetype:video {query}", "gsrnamespace": 6,
+            "gsrlimit": 20, "prop": "imageinfo", "iiprop": "url|size|extmetadata", "iiurlwidth": 480}).json()
+        out = []
+        for pg in r.get("query", {}).get("pages", {}).values():
+            ii = pg["imageinfo"][0]; lic = ii.get("extmetadata", {}).get("LicenseShortName", {}).get("value", "").lower()
+            if any(lic.startswith(f) for f in FREE_LICENSES) and ii.get("size", 1e12) < 120e6:
+                out.append({"id": f"wm{pg['pageid']}", "title": pg["title"].removeprefix("File:").rsplit(".", 1)[0], "tags": [],
+                            "poster": ii.get("thumburl"), "thumbnail": ii.get("thumburl"), "urls": {"mp4": ii["url"]}, "source": "commons"})
+        return out
+    return cached("wm:" + query.lower().strip(), go)
+
+
+def prelinger(query):
+    """Internet Archive's Prelinger collection: curated public-domain films - great for history (no key)."""
+    def go():
+        r = requests.get("https://archive.org/advancedsearch.php", headers=UA, timeout=30, params={
+            "q": f"({query}) AND collection:prelinger AND mediatype:movies", "fl[]": ["identifier", "title"], "rows": 8, "output": "json"}).json()
+        return [{"id": f"ia{x['identifier']}", "title": x.get("title", ""), "tags": [], "thumbnail": f"https://archive.org/services/img/{x['identifier']}",
+                 "poster": f"https://archive.org/services/img/{x['identifier']}", "urls": {"mp4": f"archive:{x['identifier']}"}, "source": "prelinger"}
+                for x in r.get("response", {}).get("docs", [])]
+    return cached("ia:" + query.lower().strip(), go)
+
+
+def pixabay(query):
+    """Pixabay free videos (needs PIXABAY_KEY)."""
+    if not E("PIXABAY_KEY"): return []
+    def go():
+        r = requests.get("https://pixabay.com/api/videos/", timeout=30, params={"key": E("PIXABAY_KEY"), "q": query, "per_page": 15, "safesearch": "true"}).json()
+        out = []
+        for v in r.get("hits", []):
+            f = (v.get("videos") or {}).get("large") or (v.get("videos") or {}).get("medium") or {}
+            if f.get("url"): out.append({"id": f"pb{v['id']}", "title": v.get("tags", ""), "tags": v.get("tags", "").split(", "),
+                                         "poster": f.get("thumbnail"), "thumbnail": f.get("thumbnail"), "urls": {"mp4": f["url"]},
+                                         "duration": v.get("duration"), "is_vertical": f.get("height", 0) > f.get("width", 1), "source": "pixabay"})
+        return out
+    return cached("pb:" + query.lower().strip(), go)
+
+
+def all_sources(query):
+    """Video sources first, then public-domain stills; capped per source so judging stays fast."""
+    return coverr(query)[:6] + pexels(query)[:6] + pixabay(query)[:5] + commons(query)[:4] + prelinger(query)[:3] + openverse(query)[:6]
+
+
 def coverr_file(hit):
     """Download a Coverr 1080p clip once (cached by video id, with its metadata for the local library)."""
     f = LIB / f"{hit['id']}.mp4"
     if not f.exists():
         LIB.mkdir(parents=True, exist_ok=True)
-        r = requests.get(hit["urls"]["mp4"], timeout=180)
-        if r.status_code != 200 or not r.content[4:8] == b"ftyp": raise RuntimeError(f"Coverr download failed ({r.status_code})")
+        url = hit["urls"]["mp4"]
+        if url.startswith("archive:"):  # pick the smallest MPEG4 derivative of the Archive item
+            ident = url.split(":", 1)[1]; files = requests.get(f"https://archive.org/metadata/{ident}", headers=UA, timeout=30).json().get("files", [])
+            mp4 = sorted((x for x in files if x.get("name", "").endswith(".mp4")), key=lambda x: int(x.get("size", 1e12)))
+            if not mp4 or int(mp4[0].get("size", 1e12)) > 80e6: raise RuntimeError("no small mp4 in Archive item")
+            url = f"https://archive.org/download/{ident}/{mp4[0]['name']}"
+        r = requests.get(url, headers=UA, timeout=300)
+        if r.status_code != 200 or not (r.content[4:8] == b"ftyp" or r.content[:4] in (b"\x1aE\xdf\xa3", b"OggS") or r.content[:3] == b"\x00\x00\x01"):
+            raise RuntimeError(f"footage download failed ({r.status_code})")
         f.write_bytes(r.content)
     if not f.with_suffix(".json").exists(): f.with_suffix(".json").write_text(json.dumps(hit))
     return f
@@ -546,32 +640,41 @@ def thumb(hit):
         if (LIB / f"{hit['id']}.mp4").exists():
             subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", "1", "-i", str(LIB / f"{hit['id']}.mp4"), "-frames:v", "1",
                             "-vf", "scale=480:-1", str(f)], check=True)
-        elif hit.get("thumbnail"): f.write_bytes(requests.get(hit["thumbnail"], timeout=30).content)
-    return f.read_bytes() if f.exists() else None
+        elif hit.get("thumbnail"):
+            try:
+                img = cv2.imdecode(np.frombuffer(requests.get(hit["thumbnail"], headers=UA, timeout=30).content, np.uint8), cv2.IMREAD_COLOR)
+                if img is not None:
+                    s_ = 480 / max(img.shape[:2]); cv2.imwrite(str(f), cv2.resize(img, None, fx=min(1, s_), fy=min(1, s_)), [cv2.IMWRITE_JPEG_QUALITY, 85])
+            except Exception: pass
+    return f.read_bytes() if f.exists() and f.stat().st_size > 1000 else None
 
 
 def pick_footage(topic, say, queries, used):
-    """Gemini looks at the candidate clips and picks the one that really shows what this line is about.
-    Returns (hit, score 0-10, why). Nothing is generated - it only chooses among real Coverr clips."""
+    """Gemini looks at preview frames of real candidate clips/photos and ranks the ones that really show what this
+    line is about. Returns [(hit, score 0-10, why), ...] best first (up to 3). Nothing is generated."""
+    import concurrent.futures as cf
     cands = []
     for q in queries:
-        for h in sorted(coverr(q) + pexels(q), key=lambda h: not h.get("is_vertical")):
+        for h in sorted(all_sources(q), key=lambda h: not h.get("is_vertical")):
             if h["id"] not in used and all(h["id"] != c["id"] for c in cands): cands.append(h)
-        if len(cands) >= 14: break
-    cands = cands[:14] + library_candidates(queries, used | {c["id"] for c in cands}, 6)
-    imgs = [(c, thumb(c)) for c in cands]; imgs = [(c, b) for c, b in imgs if b]
-    if not imgs: return None, 0, "no candidates"
-    parts = [{"text": f"You are the video editor of a news-explainer reel about: {topic}.\nThe narrator is saying: \"{say}\"\n"
-                      f"Search intent: {queries[0]}.\nBelow are {len(imgs)} candidate stock clips (one preview frame each, numbered from 0). "
-                      "Pick the ONE a good editor would put on screen under this line: it must clearly show the subject or a directly related "
+        if len(cands) >= 16: break
+    cands = cands[:16] + library_candidates(queries, used | {c["id"] for c in cands}, 4)
+    with cf.ThreadPoolExecutor(8) as ex: thumbs = list(ex.map(thumb, cands))
+    imgs = [(c, b) for c, b in zip(cands, thumbs) if b]
+    if not imgs: return []
+    parts = [{"text": f"You are the video editor of an explainer reel about: {topic}.\nThe narrator is saying: \"{say}\"\n"
+                      f"Search intent: {queries[0]}.\nBelow are {len(imgs)} candidate stock clips/photos (one preview frame each, numbered from 0). "
+                      "Rank the ones a good editor would put on screen under this line: they must clearly show the subject or a directly related "
                       "real-world scene (matching people, place or object). Generic filler or an unrelated scene must score low. "
-                      'Reply JSON: {"best": index or -1, "score": 0-10, "why": "short"}'}]
+                      'Reply JSON: {"ranked": [{"index": i, "score": 0-10, "why": "short"}] (best first, max 3), "best_reason_if_none": "..."}'}]
     for k, (_, b) in enumerate(imgs): parts += [{"text": f"candidate {k}:"}, {"inlineData": {"mimeType": "image/jpeg", "data": base64.b64encode(b).decode()}}]
-    r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=120,
+    r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=180,
                       json={"contents": [{"parts": parts}], "generationConfig": {"responseMimeType": "application/json"}}).json()
+    if not r.get("candidates"): raise RuntimeError(f"footage judge: {str(r.get('error') or r)[:200]}")
     j = json.loads(r["candidates"][0]["content"]["parts"][0]["text"])
-    best = int(j.get("best", -1))
-    return (imgs[best][0] if 0 <= best < len(imgs) else None), float(j.get("score", 0)), str(j.get("why", ""))[:120]
+    out = [(imgs[x["index"]][0], float(x.get("score", 0)), str(x.get("why", ""))[:120]) for x in j.get("ranked", [])
+           if isinstance(x.get("index"), int) and 0 <= x["index"] < len(imgs)]
+    return out or [(None, 0.0, str(j.get("best_reason_if_none", "no relevant clip"))[:120])]
 
 
 def stock_video(hit, path, secs):
@@ -599,8 +702,8 @@ def grade(img, w, h):
 def stock_image(hit, path, secs, seed=0):
     """Coverr still (the clip's poster frame) -> cv2 camera move: slow eased push-in + drift, light film grain.
     Used when a clip can't be downloaded, so a shot is never empty."""
-    img = cv2.imdecode(np.frombuffer(requests.get(hit["poster"], timeout=60).content, np.uint8), cv2.IMREAD_COLOR)
-    if img is None: raise RuntimeError("bad Coverr still")
+    img = cv2.imdecode(np.frombuffer(requests.get(hit["poster"], headers=UA, timeout=60).content, np.uint8), cv2.IMREAD_COLOR)
+    if img is None: raise RuntimeError("still image could not be downloaded")
     W, H, n = 1188, 2112, int(secs * 30) + 1
     base, rng, pan = grade(img, W, H), np.random.default_rng(seed), (-1) ** seed
     grain = rng.normal(0, 3.5, (1920 + 32, 1080 + 32, 1)).astype(np.float32)
@@ -627,36 +730,47 @@ def valid_clip(f, min_secs=0.5):
     except ValueError: return False
 
 
-BOARD = ("define", "diagram", "flow", "chart", "chat", "recap")  # drawn on the whiteboard; other cards float over footage
+BOARD = ("define", "diagram", "flow", "chart", "chat", "recap", "brand")  # drawn on the whiteboard; other cards float over footage
 
 
 def shots_for(lines, pub, topic):
-    """Full-screen footage for every line that has a RELEVANT Coverr clip (judged by Gemini from preview frames);
-    otherwise a bold text scene - never unrelated footage. A jump cut inside long lines, never the same clip twice.
+    """Full-screen footage for every line that has a RELEVANT real clip/photo (judged by Gemini from preview frames);
+    otherwise a key-idea text scene - never unrelated footage. All lines are judged in parallel, then clips are assigned
+    in order (never the same clip twice), falling back to the next-ranked candidate if a download fails.
     Decisions are saved in public/footage.json so a resume doesn't re-judge."""
+    import concurrent.futures as cf
     plan_f = pub / "footage.json"
     plan = json.loads(plan_f.read_text()) if plan_f.exists() else {}
-    shots, used = [], {p["coverr_id"] for p in plan.values() if p.get("coverr_id")}
+    need = [i for i, l in enumerate(lines) if l["v"]["type"] not in BOARD
+            and (str(i) not in plan or (plan[str(i)].get("coverr_id") and not valid_clip(pub / "clip" / f"{i}.mp4")))]
+    taken = {p["coverr_id"] for k, p in plan.items() if p.get("coverr_id") and int(k) not in need}
+
+    def judge(i):
+        try: return i, retry(pick_footage, topic, " ".join(w for w, _ in lines[i]["words"]), lines[i]["footage"], taken, tries=3)
+        except Exception as e: return i, [(None, 0.0, f"judge failed: {e}")]
+    with cf.ThreadPoolExecutor(4) as ex: ranked = dict(ex.map(judge, need))
+    used = set(taken)
+    for i in need:  # assign in order: no clip twice, next-ranked candidate if a download fails
+        l, f = lines[i], pub / "clip" / f"{i}.mp4"; secs = l["end"] - l["start"] + 0.15
+        plan[str(i)] = {"coverr_id": None, "why": (ranked[i][0][2] if ranked[i] else "no candidates") or "no relevant clip",
+                        "score": ranked[i][0][1] if ranked[i] else 0}
+        for hit, score, why in ranked[i]:
+            if not hit or score < FOOTAGE_MIN_SCORE or hit["id"] in used: continue
+            try:
+                stock_video(hit, f, secs + 4) if ((LIB / f"{hit['id']}.mp4").exists() or hit.get("urls")) else stock_image(hit, f, secs + 4, i)
+                if not valid_clip(f): raise RuntimeError("clip did not render")
+                used.add(hit["id"]); plan[str(i)] = {"coverr_id": hit["id"], "title": hit.get("title", ""), "score": score, "why": why,
+                                                     "source": hit.get("source", "coverr"), "credit": hit.get("credit", "")}
+                break
+            except Exception as e: plan[str(i)]["why"] = f"download failed ({e})"
+        p_ = plan[str(i)]
+        print(f"  line {i + 1}: " + (f"{p_['source']} '{p_['title'][:50]}' ({p_['score']:.0f}/10)" if p_.get("coverr_id") else f"text scene ({p_['why'][:100]})"))
+    for i, l in enumerate(lines):
+        if l["v"]["type"] in BOARD: plan[str(i)] = {"coverr_id": None, "why": "whiteboard teaching visual"}
+    plan_f.write_text(json.dumps(plan, ensure_ascii=False, indent=1))
+    shots = []
     for i, l in enumerate(lines):
         secs = l["end"] - l["start"] + 0.15
-        f = pub / "clip" / f"{i}.mp4"
-        say = " ".join(w for w, _ in l["words"])
-        if l["v"]["type"] in BOARD:  # teaching visual -> whiteboard, no footage needed
-            plan[str(i)] = {"coverr_id": None, "why": "whiteboard teaching visual"}
-        elif str(i) not in plan or (plan[str(i)].get("coverr_id") and not valid_clip(f)):
-            hit, score, why = None, 0, ""
-            try: hit, score, why = pick_footage(topic, say, l["footage"], used)
-            except Exception as e: why = f"judge failed: {e}"
-            if hit and score >= FOOTAGE_MIN_SCORE:
-                used.add(hit["id"])
-                try:
-                    stock_video(hit, f, secs + 4) if ((LIB / f"{hit['id']}.mp4").exists() or hit.get("urls")) else stock_image(hit, f, secs + 4, i)
-                    plan[str(i)] = {"coverr_id": hit["id"], "title": hit.get("title", ""), "score": score, "why": why,
-                                    "source": hit.get("source", "coverr"), "credit": hit.get("credit", "")}
-                except Exception as e: plan[str(i)] = {"coverr_id": None, "why": f"clip failed: {e}"}
-            else: plan[str(i)] = {"coverr_id": None, "score": score, "why": why or "no relevant clip"}
-            print(f"  line {i + 1}: " + (f"Coverr '{plan[str(i)].get('title')}' ({score:.0f}/10)" if plan[str(i)].get("coverr_id") else f"text scene ({plan[str(i)]['why']})"))
-        plan_f.write_text(json.dumps(plan, ensure_ascii=False, indent=1))
         if not plan[str(i)].get("coverr_id"):
             l["text_scene"] = l["v"]["type"] not in BOARD
             shots.append({"src": None, "start": l["start"], "end": round(l["end"] + 0.15, 2)}); continue
@@ -683,12 +797,12 @@ def visual_times(v, t, dur):
     n = max(len(v["items"]), 1)
     return ([round(t + 0.15 + k * dur * 0.8 / n, 2) for k in range(n)] if v["type"] in SEQ
             else [round(t + 0.1, 2), round(t + dur * 0.45, 2)] if v["type"] in ("compare", "chat")
-            else [round(t + min(0.6, dur * 0.25), 2)] if v["type"] in ("define", "recap") else [round(t + dur * 0.5, 2)])
+            else [round(t + min(0.6, dur * 0.25), 2)] if v["type"] in ("define", "recap", "brand") else [round(t + dur * 0.5, 2)])
 
 
 def card_sfx(v, t, dur):
     return ([[x, "pop"] for x in v["times"]] * (v["type"] in SEQ + ("compare", "define"))
-            + [[v["times"][0], "ding"]] * (v["type"] == "recap")
+            + [[v["times"][0], "ding"]] * (v["type"] in ("recap", "brand"))
             + [[v["times"][0], "ding" if v["good"] else "boom"]] * (v["type"] == "stamp")
             + [[round(t + k * 0.2, 2), "tick"] for k in range(int(dur * 0.6 / 0.2))] * (v["type"] == "counter"))
 
@@ -711,7 +825,7 @@ def timeline_take(reel, d):
         t, dur = lead + a, b - a
         v = l.visual.model_dump(); v["times"] = visual_times(v, t, dur); sfx += card_sfx(v, t, dur)
         lines.append({"start": round(t, 2), "end": round(t + dur, 2), "v": v, "source": l.source, "footage": l.footage,
-                      "words": word_times(l.caption, t, dur)})
+                      "onscreen": l.onscreen, "words": word_times(l.caption, t, dur)})
     with wave.open(str(src)) as w: pcm = w.readframes(w.getnframes())
     save_wav(d / "voice.wav", b"\0\0" * int(24000 * lead) + pcm)
     return lines, sfx, round(lines[-1]["end"] + 1.5, 2)
@@ -737,7 +851,7 @@ def timeline(reel, d):
             + [[v["times"][0], "ding" if v["good"] else "boom"]] * (v["type"] == "stamp") \
             + [[round(t + k * 0.2, 2), "tick"] for k in range(int(dur * 0.6 / 0.2))] * (v["type"] == "counter")
         lines.append({"start": round(t, 2), "end": round(t + dur, 2), "v": v, "source": l.source, "footage": l.footage,
-                      "words": [[x, round(t + dur * sum(wt[:k]) / sum(wt), 2)] for k, x in enumerate(words)]})
+                      "onscreen": l.onscreen, "words": [[x, round(t + dur * sum(wt[:k]) / sum(wt), 2)] for k, x in enumerate(words)]})
         pcm += data + b"\0\0" * int(24000 * 0.15); t += dur + 0.15
     save_wav(d / "voice.wav", b"\0\0" * 7200 + pcm)
     dur = round(t + 1.5, 2)
@@ -844,9 +958,11 @@ def _make(brief, meta, d):
         (d / "research.txt").write_text(notes, encoding="utf-8"); print(f"  {time.time() - t0:.0f}s")
         t0 = time.time(); print("writing (Claude)..."); prompt = BRIEF.replace("RESEARCH_NOTES", notes) + brief
         reel = retry(ask, prompt, Reel, tries=2)
+        reel = add_signature(reel)
         if (issues := check_script(reel)):  # one repair pass for mechanical problems (numbers, charts, missing teaching beats)
             print("  fixing:", "; ".join(issues)); reel = retry(ask, prompt + "\n\nYOUR PREVIOUS DRAFT HAD THESE PROBLEMS - fix them:\n- "
                                                              + "\n- ".join(issues) + "\nPREVIOUS DRAFT:\n" + reel.model_dump_json(), Reel, tries=2)
+            reel = add_signature(reel)
         (d / "script.json").write_text(reel.model_dump_json(indent=2), encoding="utf-8"); print(f"  {time.time() - t0:.0f}s")
     print(f"  {reel.title} | {reel.genre}")
     t0 = time.time()
@@ -872,7 +988,7 @@ def _make(brief, meta, d):
         shutil.copy(f, pub / "sfx" / f"{k}.wav")
     print(f"  assets {time.time() - t0:.0f}s")
     props = {"duration": dur, "lines": lines, "shots": shots, "sfx": sfx, "voice": "voice.wav", "music": mus, "hook": reel.hook,
-             "theme": C["theme"]}
+             "theme": C["theme"], "captions": bool(C.get("captions", False))}
     (d / "props.json").write_text(json.dumps(props, ensure_ascii=False), encoding="utf-8")
     t0 = time.time(); print(f"rendering {dur}s (Remotion)...")
     subprocess.run(["npx", "remotion", "render", "src/index.tsx", "Reel", str((d / "reel.mp4").resolve()), "--log=error",
@@ -901,6 +1017,7 @@ def _make(brief, meta, d):
         new = retry(ask, BRIEF.replace("RESEARCH_NOTES", notes) + brief + "\n\nA BEGINNER WATCHED YOUR LAST VERSION. They learned: "
                     f"{rv.get('learned')}. Scores: {rv.get('scores')}. Fix every problem below, keep what worked:\n{fix}\n"
                     "LAST VERSION:\n" + reel.model_dump_json(), Reel, tries=2)
+        new = add_signature(new)
         v1 = d / "v1"; v1.mkdir(exist_ok=True)  # keep the first version; restored if the revision scores lower
         for f in [d / "reel.mp4", d / "cover.jpg", d / "meta.json", d / "marketing.md", d / "props.json"]:
             if f.exists(): shutil.copy(f, v1 / f.name)

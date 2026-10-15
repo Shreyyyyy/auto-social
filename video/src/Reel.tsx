@@ -14,7 +14,7 @@ const pop = (t: number, at: number, damping = 13) => (t < at ? 0 : spring({frame
 const clamp = {extrapolateLeft: "clamp", extrapolateRight: "clamp"} as const;
 const font = (size: number, color: string, weight = 800, family = FONT): React.CSSProperties => ({fontFamily: family, fontWeight: weight, fontSize: size, color, lineHeight: 1.12, textAlign: "center"});
 const col: React.CSSProperties = {display: "flex", flexDirection: "column", alignItems: "center"};
-const BOARD = ["define", "diagram", "flow", "chart", "chat", "recap"];          // full whiteboard scenes
+const BOARD = ["define", "diagram", "flow", "chart", "chat", "recap", "brand"];          // full whiteboard scenes
 const STICKER = ["counter", "compare", "stamp", "list", "quote"];                 // float over real footage
 
 // A "sticker" box: ink outline + offset shadow, like a teacher's marker drawing.
@@ -25,7 +25,7 @@ const Board: React.FC<{v: any; t: number; s: number; e: number; HI: string; INK:
   const k = pop(t, s), at = (i: number) => v.times?.[i] ?? s, n = (v.items || []).length;
   const swipe = (from: number, to: number) => ({backgroundImage: `linear-gradient(${HI}, ${HI})`, backgroundRepeat: "no-repeat",
     backgroundSize: `${interpolate(t, [from, to], [0, 100], clamp)}% 40%`, backgroundPosition: "0 88%"});
-  const title = v.title && !["define", "recap", "quote", "stamp"].includes(v.type)
+  const title = v.title && !["define", "recap", "quote", "stamp", "brand"].includes(v.type)
     ? <div style={{...font(64, INK, 700, HAND), marginBottom: 34, transform: `scale(${k})`}}><span style={swipe(s + 0.15, s + 0.7)}>{v.title}</span></div> : null;
   const arrowDown = (i: number) => <svg width={60} height={70} style={{margin: "6px 0"}}>
     <line x1={30} y1={4} x2={30} y2={4 + 46 * interpolate(t, [at(i) - 0.3, at(i)], [0, 1], clamp)} stroke={INK} strokeWidth={8} strokeLinecap="round" />
@@ -94,6 +94,15 @@ const Board: React.FC<{v: any; t: number; s: number; e: number; HI: string; INK:
       {t > at1 - 0.5 && <div style={{alignSelf: "flex-start", maxWidth: 600, background: "#F0F0F3", borderRadius: "34px 34px 34px 6px", padding: "20px 26px", ...font(40, INK, 700), textAlign: "left"}}>
         {t < at1 ? "• • •" : a.slice(0, as)}</div>}
     </div>;
+  } else if (v.type === "brand") {
+    // the channel's signature sting: same every reel, so viewers recognise it
+    const steam = (o: number) => <div style={{position: "absolute", top: -70 - 20 * Math.sin(t * 3 + o), left: 70 + o * 40, width: 14, height: 60, borderRadius: 10,
+      background: "#00000022", transform: `scaleY(${0.8 + 0.3 * Math.sin(t * 4 + o)})`}} />;
+    body = <div style={{...col, gap: 26}}>
+      <div style={{position: "relative", fontSize: 200, transform: `scale(${pop(t, s, 9)}) rotate(${6 * Math.sin(t * 2)}deg)`}}>{steam(0)}{steam(1)}{steam(2)}{v.suffix || "☕"}</div>
+      <div style={{...font(96, INK, 700, HAND), transform: `scale(${pop(t, s + 0.15)})`}}><span style={swipe(s + 0.3, s + 0.9)}>{v.title}</span></div>
+      <div style={{...font(44, "#fff", 800), background: INK, borderRadius: 40, padding: "10px 28px", opacity: pop(t, at(0)), transform: `translateY(${(1 - pop(t, at(0))) * 40}px)`}}>{v.items?.[0]}</div>
+    </div>;
   } else if (v.type === "recap" || v.type === "quote") {
     body = <div style={{...col, gap: 30}}>
       {v.type === "recap" && <div style={{...font(54, "#fff", 900), background: INK, borderRadius: 18, padding: "10px 30px", transform: `scale(${k}) rotate(-3deg)`}}>📌 YAAD RAKHO</div>}
@@ -122,7 +131,7 @@ export const Reel: React.FC<any> = (p) => {
   const i = Math.max(0, L.findLastIndex((l: any) => l.start <= t)), line = L[i];
   const ws = line?.words || [], cur = ws.findLastIndex((w: any) => w[1] <= t), c0 = Math.floor(Math.max(cur, 0) / 3) * 3;
   const board = (l: any) => !!l && (BOARD.includes(l.v?.type) || !!l.text_scene);
-  const onBoard = board(line), bigWords = onBoard && !BOARD.includes(line.v?.type) && !STICKER.includes(line.v?.type), left = Math.max(0, Math.ceil(p.duration - t));
+  const onBoard = board(line), bigWords = !p.captions || (onBoard && !BOARD.includes(line.v?.type) && !STICKER.includes(line.v?.type)), left = Math.max(0, Math.ceil(p.duration - t));
   return <AbsoluteFill style={{background: "#000", overflow: "hidden"}}>
     {/* real-world moments: full-screen footage with a slow push-in */}
     {(p.shots || []).map((sh: any, j: number) => sh.src && <Sequence key={j} from={Math.round(sh.start * FPS)} durationInFrames={Math.max(1, Math.round((sh.end - sh.start) * FPS))}>
@@ -136,9 +145,11 @@ export const Reel: React.FC<any> = (p) => {
         transform: board(L[j - 1]) ? "none" : `translateX(${(1 - pop(t, l.start - 0.2, 20)) * 1080}px)`}}>
         <AbsoluteFill style={{top: 250, height: 900, alignItems: "center", justifyContent: "center"}}>
           {STICKER.includes(l.v?.type) ? null : BOARD.includes(l.v?.type) ? <Board v={l.v} t={t} s={l.start} e={l.end} HI={HI} INK={INK} />
-            // no visual and no relevant footage: the spoken words become big hand-written style text
-            : <div style={{width: 940, textAlign: "center", lineHeight: 1.15}}>{(l.words || []).filter((w: any) => w[1] <= t).slice(-7).map(([w]: any, q: number, a: any[]) =>
-                <span key={q} style={{...font(104, q === a.length - 1 ? BLUE : INK, 700, HAND), display: "inline-block", margin: "0 14px"}}>{w}</span>)}</div>}
+            // no visual and no relevant footage: the line's key idea (2-5 words), hand-written with a marker swipe
+            : j === 0 && p.hook ? null  // line 1 already shows the hook headline
+            : <div style={{...font(118, INK, 700, HAND), maxWidth: 920, transform: `scale(${0.7 + 0.3 * pop(t, l.start)}) rotate(-1.5deg)`, opacity: pop(t, l.start)}}>
+                <span style={{backgroundImage: `linear-gradient(${HI}, ${HI})`, backgroundRepeat: "no-repeat", backgroundPosition: "0 88%",
+                  backgroundSize: `${interpolate(t, [l.start + 0.25, l.start + 0.9], [0, 100], clamp)}% 38%`}}>{l.onscreen || (l.words || []).slice(0, 4).map((w: any) => w[0]).join(" ")}</span></div>}
         </AbsoluteFill></AbsoluteFill>)}
     {/* sticker cards over real footage (or over the plain board if no footage matched) */}
     {L.map((l: any, j: number) => STICKER.includes(l.v?.type) && t >= l.start && t < l.end + 0.25 &&
