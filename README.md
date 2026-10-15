@@ -20,7 +20,7 @@ cp .env.example .env      # add GEMINI_API_KEY (+ BUFFER_TOKEN to post)
 
 ## Run
 `./start.sh` → **AI Reels Studio** at http://127.0.0.1:7860
-- **⚡ Single reel**: one-line idea → *Research & plan* (Claude searches current news, writes a timed 30s beat sheet + example + psychology) → edit → *Generate* → *Post*.
+- **⚡ Single reel**: one-line idea → *Research & plan* (Gemini + Google Search researches, Claude writes a timed beat sheet + example + psychology) → edit → *Generate* → *Post*.
 - **📚 Series / playlist**: subject + episodes (5-100) → *Research & plan series* (history → today → future, each with a news hook + teaser) → *Generate next X* when you want.
 - **🗂 History**: every reel with its status (awaiting approval / approved / queued / failed). *Approve for scheduled post* or *Post now*.
 
@@ -35,7 +35,7 @@ No Instagram/Meta token needed - Buffer handles Instagram.
 1. In Buffer, connect your Instagram as a **Business/Creator** account (needed for auto-publishing reels).
 2. Buffer → Settings → API → create an API key → `BUFFER_TOKEN` in `.env`.
 3. `./start.sh channels` → copy the instagram line's `BUFFER_CHANNEL_ID` into `.env`.
-4. Nothing else: Buffer only accepts a public video URL, so each reel is auto-uploaded to catbox.moe (free, no account).
+4. Buffer needs a public video URL: each reel is uploaded to Cloudinary if `CLOUDINARY_URL` is set (recommended), else catbox.moe.
 5. `BUFFER_MODE=addToQueue` drops reels into your Buffer time slots; `shareNow` posts immediately.
 
 ## Tweak
