@@ -1,0 +1,15 @@
+{
+  "niche": "AI and technology, explained simply",
+  "audience": "non-tech Indians - parents, shopkeepers, students, homemakers",
+  "region": "India",
+  "spoken_language": "natural spoken Hindi in Devanagari script, with English tech words kept in English",
+  "caption_language": "Roman-script Hinglish",
+  "tts_language_code": "hi-IN",
+  "tone": "smart, playful and credible - like a friend who reads the news for you",
+  "examples": "everyday Indian life: kirana hisaab, cricket, UPI, chai, IRCTC tatkal, WhatsApp forwards, shaadi",
+  "duration_seconds": 30,
+  "voice": "Aoede",
+  "series_hashtag": "",
+  "fallback_footage": ["city street", "people using smartphone", "office work", "technology"],
+  "theme": {"highlight": "#FFE600", "ink": "#111111"}
+}

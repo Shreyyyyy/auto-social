@@ -1,12 +1,16 @@
-# auto-social — Hindi AI explainer Reels
+# auto-social — universal news-explainer Reels
 
-`reel.py` (pipeline + UI) + `video/` (one Remotion template). ~30s Gen-Z motion-graphics reels in ~2 min:
-1. **Claude** (your Claude Code login) researches + writes: hook, Priya ↔ Sharma Uncle Hindi dialogue, and a typed visual per line (hook, flow, counter, compare, stamp, list, video, image, emoji, quote).
-2. **Gemini TTS** (your `GEMINI_API_KEY`) voices each line; auto speed-up to fit 30s.
-3. **Lyria 3** (same Gemini key) makes background music (or drop your own `music.mp3` in the folder).
-4. **Coverr** stock video (B-roll, credited in the caption) + **Openverse** CC0 photos styled with **cv2** (contrast, neon duotone, glow, vignette, grain). No AI image generation.
-5. **Remotion** (`video/src/Reel.tsx`) animates it all: word-by-word karaoke captions, self-building flowcharts, counters, VS cards, stamps, facecam bubbles, progress bar, open-loop sticker, end card, synced SFX.
-6. catbox.moe upload → Buffer → Instagram.
+`reel.py` (pipeline + UI) + `video/` (Remotion template) + `config.json` (what your channel is about).
+~30s reels that look like a real creator's edit:
+1. **Gemini + Google Search** researches the topic: fresh news, verified numbers, real questions, SEO keywords.
+2. **Claude** (your Claude Code login; Gemini fallback) writes one narrator script: hook, lines, a filmable stock-footage scene per line, 2-4 data cards, source per fact, SEO pack.
+3. **Gemini TTS** narrates (Google Cloud TTS Chirp 3 HD is used automatically if enabled for your key). **Lyria 3** makes the music.
+4. **Coverr** real footage, full screen, a new scene every line (cv2-animated Coverr still only if a clip fails). No generated images, no presenters or characters.
+5. **Remotion** edits: hard cuts, hook headline, creator-style captions, white data cards, 📰 source chips, subtle SFX.
+6. **You approve** each reel; only then Buffer posts it (cloudinary/catbox hosting). Duplicates are refused.
+
+## Make it about anything
+Edit `config.json`: `niche`, `audience`, `region`, `spoken_language`, `caption_language`, `tts_language_code`, `tone`, `examples`, `duration_seconds`, `voice` (Gemini voice name), `series_hashtag`, `fallback_footage`, `theme` colours.
 
 ## Setup (once)
 ```
@@ -18,9 +22,9 @@ cp .env.example .env      # add GEMINI_API_KEY (+ BUFFER_TOKEN to post)
 `./start.sh` → **AI Reels Studio** at http://127.0.0.1:7860
 - **⚡ Single reel**: one-line idea → *Research & plan* (Claude searches current news, writes a timed 30s beat sheet + example + psychology) → edit → *Generate* → *Post*.
 - **📚 Series / playlist**: subject + episodes (5-100) → *Research & plan series* (history → today → future, each with a news hook + teaser) → *Generate next X* when you want.
-- **🗂 History**: every reel ever made, play it, edit caption, post; posted status is tracked.
+- **🗂 History**: every reel with its status (awaiting approval / approved / queued / failed). *Approve for scheduled post* or *Post now*.
 
-Daily auto-post (`crontab -e`) - posts the next unposted episode of the latest series (or `SERIES=<id>` in .env):
+Daily job (`crontab -e`) - approval-gated: posts the next episode only if you approved that exact video; otherwise it generates it and waits for you (series = latest, or `SERIES=<id>` in .env):
 ```
 0 19 * * * ~/coding/personal/auto-social/start.sh auto >> ~/coding/personal/auto-social/auto.log 2>&1
 ```
@@ -35,6 +39,5 @@ No Instagram/Meta token needed - Buffer handles Instagram.
 5. `BUFFER_MODE=addToQueue` drops reels into your Buffer time slots; `shareNow` posts immediately.
 
 ## Tweak
-- Writing rules → `BRIEF`. Animation/look → `video/src/Reel.tsx` (colours at the top). Photo grade → `stock_image()`. Hosts & voices → `CAST`; facecam photos → `assets/priya.png`, `assets/uncle.png`.
-- Curriculum → `topics.txt` (Bag of Words → Transformers → ChatGPT → Agents → future).
-- Every run saves `script.json`, images and audio in `out/<time>/` so you can fix one scene and re-render it.
+- Channel identity → `config.json`. Writing rules → `BRIEF` in reel.py. Look → `video/src/Reel.tsx` (colours from `config.json` → `theme`).
+- Every run keeps `research.txt`, `script.json`, voice lines, clips and `meta.json` in `out/<time>/`; `./start.sh resume out/<time>` re-renders without paying again.
