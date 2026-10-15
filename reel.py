@@ -885,8 +885,7 @@ def _make(brief, meta, d):
                         f"--props={(d / 'cover_props.json').resolve()}", f"--public-dir={pub.resolve()}"], cwd="video", check=True)
     except Exception as e: print(f"  cover skipped: {e}")
     tags = [h if h.startswith("#") else "#" + h for h in reel.seo.hashtags[:5]] + ([C["series_hashtag"]] if C["series_hashtag"] else [])
-    sources = sorted({{"coverr": "coverr.co", "pexels": "pexels.com"}[p.get("source", "coverr")] for p in footage_plan.values() if p.get("coverr_id")})
-    caption = reel.caption_ig.strip() + "\n\n" + " ".join(dict.fromkeys(tags)) + ("\n🎥 Footage: " + " + ".join(sources) if sources else "")
+    caption = reel.caption_ig.strip() + "\n\n" + " ".join(dict.fromkeys(tags))
     meta = {"title": reel.title, "genre": reel.genre, "brief": brief, "caption": caption, "posted": False, "status": "awaiting approval",
             "footage": [{"line": i + 1, "searches": l["footage"]} | footage_plan.get(str(i), {}) for i, l in enumerate(lines)],
             "first_comment": reel.seo.first_comment, "keywords": reel.seo.keywords, "alt_text": reel.seo.alt_text} | (meta or {})
