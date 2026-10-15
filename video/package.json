@@ -1,1 +1,1 @@
-{"name":"reel-video","private":true,"type":"module","dependencies":{"@remotion/cli":"^4.0.535","@remotion/google-fonts":"^4.0.535","react":"^19.3.1","react-dom":"^19.3.1","remotion":"^4.0.535"}}
+{"name":"reel-video","private":true,"type":"module","dependencies":{"@remotion/cli":"^4.0.535","@remotion/google-fonts":"^4.0.535","@remotion/lottie":"^4.0.535","lottie-web":"^5.13.0","react":"^19.3.1","react-dom":"^19.3.1","remotion":"^4.0.535"}}

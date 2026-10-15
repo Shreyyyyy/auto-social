@@ -6,6 +6,7 @@ import {AbsoluteFill, Audio, Easing, OffthreadVideo, Sequence, interpolate, spri
 import {loadFont} from "@remotion/google-fonts/Poppins";
 import {loadFont as loadDeva} from "@remotion/google-fonts/Mukta";
 import {loadFont as loadHand} from "@remotion/google-fonts/Kalam";
+import {Lottie} from "@remotion/lottie";
 
 const FONT = `${loadFont("normal", {weights: ["700", "800", "900"]}).fontFamily}, ${loadDeva("normal", {weights: ["800"]}).fontFamily}, sans-serif`;
 const HAND = `${loadHand("normal", {weights: ["700"]}).fontFamily}, ${FONT}`;
@@ -20,6 +21,11 @@ const STICKER = ["counter", "compare", "stamp", "list", "quote"];               
 // A "sticker" box: ink outline + offset shadow, like a teacher's marker drawing.
 const box = (INK: string, bg = "#fff", extra: React.CSSProperties = {}): React.CSSProperties =>
   ({background: bg, border: `5px solid ${INK}`, borderRadius: 26, boxShadow: `8px 8px 0 ${INK}`, padding: "22px 30px", boxSizing: "border-box", ...extra});
+
+// Google Noto Animated Emoji (Lottie): real, professionally animated characters/objects - they never stand still.
+const Anim: React.FC<{data: any; size: number; t: number; at: number; bob?: number}> = ({data, size, t, at, bob = 12}) => !data ? null :
+  <div style={{width: size, height: size, opacity: pop(t, at), transform: `translateY(${bob * Math.sin(t * 2.4 + at)}px) scale(${0.5 + 0.5 * pop(t, at, 10)})`}}>
+    <Lottie animationData={data} loop style={{width: size, height: size}} /></div>;
 
 const Board: React.FC<{v: any; t: number; s: number; e: number; HI: string; INK: string}> = ({v, t, s, e, HI, INK}) => {
   const k = pop(t, s), at = (i: number) => v.times?.[i] ?? s, n = (v.items || []).length;
@@ -99,7 +105,8 @@ const Board: React.FC<{v: any; t: number; s: number; e: number; HI: string; INK:
     const steam = (o: number) => <div style={{position: "absolute", top: -70 - 20 * Math.sin(t * 3 + o), left: 70 + o * 40, width: 14, height: 60, borderRadius: 10,
       background: "#00000022", transform: `scaleY(${0.8 + 0.3 * Math.sin(t * 4 + o)})`}} />;
     body = <div style={{...col, gap: 26}}>
-      <div style={{position: "relative", fontSize: 200, transform: `scale(${pop(t, s, 9)}) rotate(${6 * Math.sin(t * 2)}deg)`}}>{steam(0)}{steam(1)}{steam(2)}{v.suffix || "☕"}</div>
+      {v.anim ? <Anim data={v.anim} size={300} t={t} at={s} bob={8} />
+        : <div style={{position: "relative", fontSize: 200, transform: `scale(${pop(t, s, 9)}) rotate(${6 * Math.sin(t * 2)}deg)`}}>{steam(0)}{steam(1)}{steam(2)}{v.suffix || "☕"}</div>}
       <div style={{...font(96, INK, 700, HAND), transform: `scale(${pop(t, s + 0.15)})`}}><span style={swipe(s + 0.3, s + 0.9)}>{v.title}</span></div>
       <div style={{...font(44, "#fff", 800), background: INK, borderRadius: 40, padding: "10px 28px", opacity: pop(t, at(0)), transform: `translateY(${(1 - pop(t, at(0))) * 40}px)`}}>{v.items?.[0]}</div>
     </div>;
@@ -140,17 +147,28 @@ export const Reel: React.FC<any> = (p) => {
       </AbsoluteFill></Sequence>)}
     {!onBoard && <AbsoluteFill style={{background: "linear-gradient(180deg, rgba(0,0,0,.4) 0%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%)"}} />}
     {/* teaching moments: a bright whiteboard slides in */}
-    {L.map((l: any, j: number) => board(l) && t >= l.start - 0.2 && t < (L[j + 1]?.start ?? p.duration) &&
-      <AbsoluteFill key={j} style={{background: PAPER, backgroundImage: "radial-gradient(#00000014 2px, transparent 2px)", backgroundSize: "44px 44px",
+    {L.map((l: any, j: number) => { if (!(board(l) && t >= l.start - 0.2 && t < (L[j + 1]?.start ?? p.duration))) return null;
+      const end = L[j + 1]?.start ?? p.duration, prog = interpolate(t, [l.start, end], [0, 1], clamp), an = (l.anim || []).map((c: string) => p.lottie?.[c]).filter(Boolean);
+      const teach = BOARD.includes(l.v?.type), textScene = !teach && !STICKER.includes(l.v?.type);
+      return <AbsoluteFill key={j} style={{background: PAPER, backgroundImage: "radial-gradient(#00000014 2px, transparent 2px)", backgroundSize: "44px 44px",
+        backgroundPosition: `${t * 14}px ${t * 9}px`,  // the paper itself drifts: nothing on screen is ever frozen
         transform: board(L[j - 1]) ? "none" : `translateX(${(1 - pop(t, l.start - 0.2, 20)) * 1080}px)`}}>
-        <AbsoluteFill style={{top: 250, height: 900, alignItems: "center", justifyContent: "center"}}>
-          {STICKER.includes(l.v?.type) ? null : BOARD.includes(l.v?.type) ? <Board v={l.v} t={t} s={l.start} e={l.end} HI={HI} INK={INK} />
-            // no visual and no relevant footage: the line's key idea (2-5 words), hand-written with a marker swipe
-            : j === 0 && p.hook ? null  // line 1 already shows the hook headline
-            : <div style={{...font(118, INK, 700, HAND), maxWidth: 920, transform: `scale(${0.7 + 0.3 * pop(t, l.start)}) rotate(-1.5deg)`, opacity: pop(t, l.start)}}>
-                <span style={{backgroundImage: `linear-gradient(${HI}, ${HI})`, backgroundRepeat: "no-repeat", backgroundPosition: "0 88%",
-                  backgroundSize: `${interpolate(t, [l.start + 0.25, l.start + 0.9], [0, 100], clamp)}% 38%`}}>{l.onscreen || (l.words || []).slice(0, 4).map((w: any) => w[0]).join(" ")}</span></div>}
-        </AbsoluteFill></AbsoluteFill>)}
+        {/* slow camera push on every board scene */}
+        <AbsoluteFill style={{transform: `scale(${1 + 0.045 * prog}) translateY(${-12 * prog}px)`}}>
+        {textScene ? <AbsoluteFill style={{top: j === 0 && p.hook ? 560 : 230, height: j === 0 && p.hook ? 860 : 1150, alignItems: "center", justifyContent: "center", gap: 20}}>
+            {/* the animated emoji act out the line, the key idea is written underneath */}
+            <div style={{display: "flex", gap: 30}}>{an.map((d: any, q: number) => <Anim key={q} data={d} size={an.length > 1 ? 380 : 500} t={t} at={l.start + q * 0.45} />)}</div>
+            {!(j === 0 && p.hook) && <div style={{...font(an.length ? 96 : 118, INK, 700, HAND), maxWidth: 920, transform: `scale(${0.7 + 0.3 * pop(t, l.start + 0.2)}) rotate(-1.5deg)`, opacity: pop(t, l.start + 0.2)}}>
+              <span style={{backgroundImage: `linear-gradient(${HI}, ${HI})`, backgroundRepeat: "no-repeat", backgroundPosition: "0 88%",
+                backgroundSize: `${interpolate(t, [l.start + 0.45, l.start + 1.1], [0, 100], clamp)}% 38%`}}>{l.onscreen || (l.words || []).slice(0, 4).map((w: any) => w[0]).join(" ")}</span></div>}
+          </AbsoluteFill>
+        : teach ? <>
+            <AbsoluteFill style={{top: 250, height: 900, alignItems: "center", justifyContent: "center"}}>
+              <Board v={l.v?.type === "brand" ? {...l.v, anim: an[0]} : l.v} t={t} s={l.start} e={l.end} HI={HI} INK={INK} /></AbsoluteFill>
+            {l.v?.type !== "brand" && an[0] && <div style={{position: "absolute", top: 1170, width: "100%", display: "flex", justifyContent: "center", gap: 40}}>
+              {an.map((d: any, q: number) => <Anim key={q} data={d} size={250} t={t} at={l.start + 0.3 + q * 0.4} />)}</div>}
+          </> : null}
+        </AbsoluteFill></AbsoluteFill>; })}
     {/* sticker cards over real footage (or over the plain board if no footage matched) */}
     {L.map((l: any, j: number) => STICKER.includes(l.v?.type) && t >= l.start && t < l.end + 0.25 &&
       <AbsoluteFill key={`s${j}`} style={{top: 330, height: 760, alignItems: "center", justifyContent: "center",
@@ -168,8 +186,8 @@ export const Reel: React.FC<any> = (p) => {
     <div style={{position: "absolute", top: 240, right: 60, ...font(34, INK, 900), background: HI, border: `4px solid ${INK}`, borderRadius: 40, padding: "6px 20px",
       opacity: interpolate(t, [0.3, 0.8], [0, 1], clamp)}}>⏱ {left}s</div>
     {/* source chip whenever a line states a news fact */}
-    {line?.source && <div style={{position: "absolute", top: onBoard ? 1180 : 1090, left: 60, ...font(30, INK, 700), background: "rgba(255,255,255,.95)", border: `3px solid ${INK}`, borderRadius: 12, padding: "6px 14px",
-      opacity: pop(t, line.start + 0.2)}}>📰 {line.source}</div>}
+    {line?.source && <div style={{position: "absolute", top: onBoard ? 1180 : 1090, left: 60, ...font(30, INK, 700), background: "rgba(255,255,255,.95)", border: `3px solid ${INK}`, borderRadius: 12, padding: "6px 14px", maxWidth: 760,
+      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", opacity: pop(t, line.start + 0.2)}}>📰 {line.source}</div>}
     {/* captions: on footage = white with black outline; on the whiteboard = ink with a highlighter on the spoken word */}
     {cur >= 0 && !bigWords && <div style={{position: "absolute", top: onBoard ? 1260 : 1170, width: "100%", padding: "0 60px", boxSizing: "border-box", textAlign: "center"}}>
       {ws.slice(c0, c0 + 3).map(([w, wt]: any, j: number) => c0 + j <= cur && <span key={j} style={{...font(onBoard ? 72 : 86, onBoard ? INK : (c0 + j === cur ? HI : "#fff"), 900),

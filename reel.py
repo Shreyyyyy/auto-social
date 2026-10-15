@@ -143,6 +143,8 @@ FIELDS
 - text: what you say, in {C['spoken_language']}. caption: the SAME words in {C['caption_language']}.
 - Timing: a flow/diagram/list needs about 1.2 seconds per item, so give that line enough words; keep the whole reel
   close to {TARGET:.0f} seconds (never above {TARGET + 10:.0f}).
+- emoji: 1-2 emoji that act out this line as ANIMATED characters/objects (e.g. "🤖", "🧠💡", "📚", "🤔", "🚀", "💸").
+  Pick only from this animated set: ANIM_SET
 - onscreen: the line's key idea in 2-5 words (shown big when the line has no footage or card) - never the full sentence.
 - delivery: the emotion for this line, 1-4 words ("curious", "warm, smiling", "playful", "excited", "gentle, slower",
   "proud"). Vary it like a real teacher telling a story.
@@ -156,7 +158,8 @@ FIELDS
   flow    - title + items = 2-4 steps top-to-bottom
   chart   - title + items = 3-6 labels + values = numbers (same count) + chart: "line" or "bar" + suffix; only real
             numbers from the research, labels like years
-  counter - number + suffix + title (only real numbers from the research, and the SAME number must be in the spoken text)
+  counter - number + suffix + title for a QUANTITY (only real numbers from the research, and the SAME number must be in the
+            spoken text). Never for phone numbers, helplines, years or codes - put those in a quote or list card.
   compare - title + items [left, right]
   stamp   - title (the myth or the truth in <= 6 words) + good (true = TRUTH ✅, false = MYTH ❌)
   list    - title + 2-3 items
@@ -171,7 +174,7 @@ FIELDS
 - The channel's fixed signature line is inserted automatically right after your hook - do not write any intro or
   channel greeting yourself; go straight from the hook into the concept.
   On-screen text: max 6 words per item, in {C['caption_language']}.
-- source: for a news fact or number, "Publication · date" from the research notes, else "".
+- source: for a news fact or number, "Publication · date" from the research notes (max 35 characters, e.g. "PIB · Aug 2026"), else "".
 - music_mood: light background music (e.g. "soft playful ukulele", "warm curious lo-fi").
 - Use the RESEARCH NOTES for every fact, number and the news example; never invent numbers or events.
 - Numbers the Indian way, so beginners feel them: lakh/crore, never million/billion (22.9 billion -> "2,290 crore"),
@@ -210,6 +213,7 @@ class Line(BaseModel):
     text: str
     caption: str
     onscreen: str
+    emoji: str
     delivery: str
     footage: list[str]
     visual: Visual
@@ -239,7 +243,7 @@ def add_signature(reel):
     """Insert the channel's constant signature line (config.json -> signature) right after the hook."""
     sg = C.get("signature") or {}
     if not sg.get("text") or any(l.visual.type == "brand" for l in reel.lines): return reel
-    reel.lines.insert(1, Line(text=sg["text"], caption=sg.get("caption", sg["text"]), onscreen=sg.get("title", ""), delivery=sg.get("delivery", ""),
+    reel.lines.insert(1, Line(text=sg["text"], caption=sg.get("caption", sg["text"]), onscreen=sg.get("title", ""), delivery=sg.get("delivery", ""), emoji=sg.get("emoji", "☕"),
                               footage=[], source="", visual=Visual(type="brand", title=sg.get("title", ""), items=[sg.get("subtitle", "")], suffix=sg.get("emoji", ""))))
     return reel
 
@@ -269,7 +273,7 @@ def migrate(d):
         if isinstance(l["footage"], str): l["footage"] = [l["footage"]]
         if v.get("type") not in Visual.model_fields["type"].annotation.__args__: l["visual"] = {"type": "none"}
         l.setdefault("delivery", ""); l.setdefault("source", "")
-        l.setdefault("onscreen", " ".join(l.get("caption", "").split()[:4]))
+        l.setdefault("onscreen", " ".join(l.get("caption", "").split()[:4])); l.setdefault("emoji", "")
     d.setdefault("genre", ""); d.setdefault("music_mood", "calm background beat")
     d.setdefault("hook", next((l.get("visual", {}).get("title", "") for l in d.get("lines", [])[:1]), ""))
     d.setdefault("seo", {"keywords": [], "hashtags": [], "alt_text": "", "first_comment": ""})
@@ -487,16 +491,54 @@ def music(mood, d):
     return name
 
 
+def _anim_catalogue():
+    """Google Noto Animated Emoji (Apache-2.0 Lottie): emoji character -> codepoint, skin-tone variants skipped."""
+    f = Path("assets/lottie/api.json")
+    if not f.exists():
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text(requests.get("https://googlefonts.github.io/noto-emoji-animation/data/api.json", timeout=30).text)
+    out = {}
+    for x in json.loads(f.read_text())["icons"]:
+        cp = x["codepoint"]
+        if any(t in cp for t in ("1f3fb", "1f3fc", "1f3fd", "1f3fe", "1f3ff")): continue
+        out["".join(chr(int(h, 16)) for h in cp.split("_"))] = cp
+    return out
+
+
+try: ANIM = _anim_catalogue()
+except Exception: ANIM = {}
+BRIEF = BRIEF.replace("ANIM_SET", " ".join(e for e in ANIM if len(e) <= 2) or "any emoji")
+
+
+def anim_cps(emoji):
+    """Map the writer's emoji string to available animated-emoji codepoints (max 2)."""
+    out, rest = [], emoji or ""
+    for ch in sorted(ANIM, key=len, reverse=True):
+        if ch in rest: out.append(ANIM[ch]); rest = rest.replace(ch, " ")
+        if len(out) == 2: break
+    if not out:
+        stripped = rest.replace("\ufe0f", "")
+        out = [ANIM[c] for c in stripped if c in ANIM][:2]
+    return out
+
+
+def lottie(cp):
+    f = Path("assets/lottie") / f"{cp}.json"
+    if not f.exists():
+        r = requests.get(f"https://fonts.gstatic.com/s/e/notoemoji/latest/{cp}/lottie.json", timeout=30)
+        if r.status_code != 200: return None
+        f.write_text(r.text)
+    return json.loads(f.read_text())
+
+
 LIB = Path("assets/coverr")  # local library: every Coverr clip ever downloaded (+ its metadata) and every search made
 COVERR_DOWN = []
 
 
 def coverr(query):
     """Coverr search, cached on disk (the demo key has a small query limit). One search per query, 20 results."""
-    cache = LIB / "searches.json"; LIB.mkdir(parents=True, exist_ok=True)
-    seen = json.loads(cache.read_text()) if cache.exists() else {}
     q = query.lower().strip()
-    if q in seen: return seen[q]
+    if (hit := cache_get(q)) is not None: return hit
     if COVERR_DOWN: return []
     r = requests.get("https://api.coverr.co/videos", timeout=30, headers={"Authorization": f"Bearer {E('COVERR_KEY')}"},
                      params={"query": q, "page_size": 20, "urls": "true"})
@@ -504,16 +546,15 @@ def coverr(query):
         COVERR_DOWN.append(r.status_code); print(f"  Coverr unavailable ({r.status_code}: {r.text[:60]}) -> using the local footage library")
         return []
     hits = [{k: h.get(k) for k in ("id", "title", "tags", "poster", "urls", "duration", "is_vertical")} for h in r.json().get("hits", [])]
-    seen[q] = hits; cache.write_text(json.dumps(seen))
+    cache_put(q, hits)
     return hits
 
 
 def pexels(query):
     """Pexels free stock video (needs PEXELS_KEY), cached like Coverr; mapped to the same clip format."""
     if not E("PEXELS_KEY"): return []
-    cache = LIB / "searches.json"; seen = json.loads(cache.read_text()) if cache.exists() else {}
     key = "px:" + query.lower().strip()
-    if key in seen: return seen[key]
+    if (hit := cache_get(key)) is not None: return hit
     r = requests.get("https://api.pexels.com/videos/search", timeout=30, headers={"Authorization": E("PEXELS_KEY")},
                      params={"query": query, "per_page": 15, "orientation": "portrait", "size": "medium"})
     if r.status_code != 200: print(f"  Pexels unavailable ({r.status_code})"); return []
@@ -525,19 +566,37 @@ def pexels(query):
                                "poster": v.get("image"), "thumbnail": v.get("image"), "urls": {"mp4": files[0]["link"]},
                                "duration": v.get("duration"), "is_vertical": v.get("height", 0) > v.get("width", 1), "source": "pexels",
                                "credit": (v.get("user") or {}).get("name", "")})
-    seen[key] = hits; cache.write_text(json.dumps(seen))
+    cache_put(key, hits)
     return hits
+
+
+import threading
+_CACHE_LOCK = threading.Lock()
+
+
+def cache_get(key):
+    with _CACHE_LOCK:
+        f = LIB / "searches.json"
+        if not f.exists(): return None
+        try: return json.loads(f.read_text()).get(key)
+        except ValueError: return None
+
+
+def cache_put(key, value):
+    """Thread-safe, atomic write (parallel footage judging used to corrupt the file)."""
+    with _CACHE_LOCK:
+        f = LIB / "searches.json"; LIB.mkdir(parents=True, exist_ok=True)
+        try: seen = json.loads(f.read_text()) if f.exists() else {}
+        except ValueError: seen = {}
+        seen[key] = value; tmp = f.with_suffix(".tmp"); tmp.write_text(json.dumps(seen)); tmp.replace(f)
 
 
 def cached(key, fetch):
     """Disk cache for every footage search (keeps free-tier API limits for new queries)."""
-    cache = LIB / "searches.json"; LIB.mkdir(parents=True, exist_ok=True)
-    seen = json.loads(cache.read_text()) if cache.exists() else {}
-    if key not in seen:
-        try: seen[key] = fetch()
-        except Exception as e: print(f"  {key.split(':')[0]} search failed ({e})"); return []
-        cache.write_text(json.dumps(seen))
-    return seen[key]
+    if (hit := cache_get(key)) is not None: return hit
+    try: value = fetch()
+    except Exception as e: print(f"  {key.split(':')[0]} search failed ({e})"); return []
+    cache_put(key, value); return value
 
 
 UA = {"User-Agent": "auto-social/1.0 (educational reels; contact via repo owner)"}
@@ -599,7 +658,7 @@ def pixabay(query):
 
 def all_sources(query):
     """Video sources first, then public-domain stills; capped per source so judging stays fast."""
-    return coverr(query)[:6] + pexels(query)[:6] + pixabay(query)[:5] + commons(query)[:4] + prelinger(query)[:3] + openverse(query)[:6]
+    return coverr(query)[:6] + pexels(query)[:6] + pixabay(query)[:5] + commons(query)[:4] + prelinger(query)[:3]  # moving video only
 
 
 def coverr_file(hit):
@@ -757,7 +816,8 @@ def shots_for(lines, pub, topic):
         for hit, score, why in ranked[i]:
             if not hit or score < FOOTAGE_MIN_SCORE or hit["id"] in used: continue
             try:
-                stock_video(hit, f, secs + 4) if ((LIB / f"{hit['id']}.mp4").exists() or hit.get("urls")) else stock_image(hit, f, secs + 4, i)
+                if not ((LIB / f"{hit['id']}.mp4").exists() or hit.get("urls")): continue  # no stills - real motion only
+                stock_video(hit, f, secs + 4)
                 if not valid_clip(f): raise RuntimeError("clip did not render")
                 used.add(hit["id"]); plan[str(i)] = {"coverr_id": hit["id"], "title": hit.get("title", ""), "score": score, "why": why,
                                                      "source": hit.get("source", "coverr"), "credit": hit.get("credit", "")}
@@ -825,7 +885,7 @@ def timeline_take(reel, d):
         t, dur = lead + a, b - a
         v = l.visual.model_dump(); v["times"] = visual_times(v, t, dur); sfx += card_sfx(v, t, dur)
         lines.append({"start": round(t, 2), "end": round(t + dur, 2), "v": v, "source": l.source, "footage": l.footage,
-                      "onscreen": l.onscreen, "words": word_times(l.caption, t, dur)})
+                      "onscreen": l.onscreen, "words": word_times(l.caption, t, dur), "anim": anim_cps(l.emoji)})
     with wave.open(str(src)) as w: pcm = w.readframes(w.getnframes())
     save_wav(d / "voice.wav", b"\0\0" * int(24000 * lead) + pcm)
     return lines, sfx, round(lines[-1]["end"] + 1.5, 2)
@@ -851,7 +911,7 @@ def timeline(reel, d):
             + [[v["times"][0], "ding" if v["good"] else "boom"]] * (v["type"] == "stamp") \
             + [[round(t + k * 0.2, 2), "tick"] for k in range(int(dur * 0.6 / 0.2))] * (v["type"] == "counter")
         lines.append({"start": round(t, 2), "end": round(t + dur, 2), "v": v, "source": l.source, "footage": l.footage,
-                      "onscreen": l.onscreen, "words": [[x, round(t + dur * sum(wt[:k]) / sum(wt), 2)] for k, x in enumerate(words)]})
+                      "onscreen": l.onscreen, "words": [[x, round(t + dur * sum(wt[:k]) / sum(wt), 2)] for k, x in enumerate(words)], "anim": anim_cps(l.emoji)})
         pcm += data + b"\0\0" * int(24000 * 0.15); t += dur + 0.15
     save_wav(d / "voice.wav", b"\0\0" * 7200 + pcm)
     dur = round(t + 1.5, 2)
@@ -987,7 +1047,9 @@ def _make(brief, meta, d):
             subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi", "-i", src, "-ar", "44100", "-ac", "1", str(f)], check=True)
         shutil.copy(f, pub / "sfx" / f"{k}.wav")
     print(f"  assets {time.time() - t0:.0f}s")
-    props = {"duration": dur, "lines": lines, "shots": shots, "sfx": sfx, "voice": "voice.wav", "music": mus, "hook": reel.hook,
+    anims = {cp: data for cp in {c for l in lines for c in l.get("anim", [])} if (data := lottie(cp))}
+    for l in lines: l["anim"] = [c for c in l.get("anim", []) if c in anims]
+    props = {"lottie": anims, "duration": dur, "lines": lines, "shots": shots, "sfx": sfx, "voice": "voice.wav", "music": mus, "hook": reel.hook,
              "theme": C["theme"], "captions": bool(C.get("captions", False))}
     (d / "props.json").write_text(json.dumps(props, ensure_ascii=False), encoding="utf-8")
     t0 = time.time(); print(f"rendering {dur}s (Remotion)...")
