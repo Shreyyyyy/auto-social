@@ -1,0 +1,7 @@
+.env
+out/
+auto.log
+__pycache__/
+video/node_modules/
+assets/coverr/
+.reel.lock
