@@ -31,7 +31,8 @@ GKEY = lambda: {"x-goog-api-key": E("GEMINI_API_KEY", "")}  # header, so the key
 TTS_MODEL = E("TTS_MODEL", "gemini-2.5-pro-preview-tts")  # one emotional take of the whole script
 LINE_TTS_MODEL = E("LINE_TTS_MODEL", "gemini-2.5-flash-preview-tts")  # line-by-line fallback
 MUSIC_MODEL = E("MUSIC_MODEL", "lyria-3-clip-preview")
-RESEARCH_MODEL = E("RESEARCH_MODEL", "gemini-3.8-flash")  # with Google Search grounding
+RESEARCH_MODEL = E("RESEARCH_MODEL", "gemini-3.8-flash")  # with Google Search grounding; also judges footage relevance
+FOOTAGE_MIN_SCORE = float(E("FOOTAGE_MIN_SCORE", "6"))  # below this, a line gets a text scene instead of unrelated footage
 OUT, SERIES = Path("out"), Path("series")
 
 # Everything about WHAT the channel is lives in config.json (niche, audience, language, voice, theme...).
@@ -117,9 +118,10 @@ CRAFT
 - If a timed beat sheet is given below, follow its timings, example and psychology.
 - delivery: the emotion for this line, 1-4 words, as a voice director would mark it ("shocked", "leaning in, secretive",
   "playful, smiling", "short laugh", "serious, slower", "excited"). Vary it line to line like a real person telling a story.
-- footage: 2-4 English words for a STOCK VIDEO search: a concrete, filmable real-world scene that matches the line
-  (e.g. "woman texting on phone", "busy market", "server room", "hands counting money", "traffic at night").
-  Describe what a camera would see - never abstract words like AI, algorithm, data. A different scene every line.
+- footage: 3 STOCK VIDEO search options for this line (2-3 English words each), most specific first, then broader,
+  then a simpler scene that still clearly relates - e.g. ["gold jewellery shop", "gold jewellery", "jewellery"].
+  Describe what a camera would see (people, places, objects) - never abstract words like AI, algorithm, data.
+  A different scene every line. A stock library is generic, so prefer common, filmable subjects.
 - visual: an optional clean data card for this line. type "none" for most lines; otherwise
   counter (number + suffix + title; only numbers from the research), flow (title + 2-4 steps),
   compare (title + items [left, right]), stamp (title + good: true = FACT, false = MYTH), list (title + 2-3 items),
@@ -158,7 +160,7 @@ class Line(BaseModel):
     text: str
     caption: str
     delivery: str
-    footage: str
+    footage: list[str]
     visual: Visual
     source: str
 
@@ -185,6 +187,7 @@ def migrate(d):
     for l in d.get("lines", []):
         v = l.get("visual") or {}
         l.setdefault("footage", v.get("query", ""))
+        if isinstance(l["footage"], str): l["footage"] = [l["footage"]]
         if v.get("type") not in Visual.model_fields["type"].annotation.__args__: l["visual"] = {"type": "none"}
         l.setdefault("delivery", ""); l.setdefault("source", "")
     d.setdefault("genre", ""); d.setdefault("music_mood", "calm background beat")
@@ -404,15 +407,51 @@ def coverr_file(hit):
     return f
 
 
-def library_pick(query, used):
-    """Best already-downloaded Coverr clip for a query (word overlap with its title/tags), unused first."""
-    words = set(re.findall(r"\w+", query.lower()))
-    clips = []
+def library_candidates(queries, used, k=8):
+    """Already-downloaded Coverr clips ranked by word overlap with the line's searches."""
+    words = set(re.findall(r"\w+", " ".join(queries).lower())); out = []
     for f in LIB.glob("*.mp4"):
         meta = json.loads(f.with_suffix(".json").read_text()) if f.with_suffix(".json").exists() else {"id": f.stem}
+        if meta["id"] in used: continue
         text = set(re.findall(r"\w+", (str(meta.get("title", "")) + " " + " ".join(meta.get("tags") or [])).lower()))
-        clips.append((meta["id"] in used, -len(words & text), meta))
-    return min(clips, key=lambda c: c[:2])[2] if clips else None
+        out.append((-len(words & text), meta))
+    return [m for _, m in sorted(out, key=lambda x: x[0])[:k]]
+
+
+def thumb(hit):
+    """Small preview image of a candidate clip: Coverr's thumbnail, or a frame from a downloaded library clip."""
+    f = LIB / f"{hit['id']}.thumb.jpg"
+    if not f.exists():
+        LIB.mkdir(parents=True, exist_ok=True)
+        if (LIB / f"{hit['id']}.mp4").exists():
+            subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", "1", "-i", str(LIB / f"{hit['id']}.mp4"), "-frames:v", "1",
+                            "-vf", "scale=480:-1", str(f)], check=True)
+        elif hit.get("thumbnail"): f.write_bytes(requests.get(hit["thumbnail"], timeout=30).content)
+    return f.read_bytes() if f.exists() else None
+
+
+def pick_footage(topic, say, queries, used):
+    """Gemini looks at the candidate clips and picks the one that really shows what this line is about.
+    Returns (hit, score 0-10, why). Nothing is generated - it only chooses among real Coverr clips."""
+    cands = []
+    for q in queries:
+        for h in sorted(coverr(q), key=lambda h: not h.get("is_vertical")):
+            if h["id"] not in used and all(h["id"] != c["id"] for c in cands): cands.append(h)
+        if len(cands) >= 10: break
+    cands = cands[:10] + library_candidates(queries, used | {c["id"] for c in cands}, 6)
+    imgs = [(c, thumb(c)) for c in cands]; imgs = [(c, b) for c, b in imgs if b]
+    if not imgs: return None, 0, "no candidates"
+    parts = [{"text": f"You are the video editor of a news-explainer reel about: {topic}.\nThe narrator is saying: \"{say}\"\n"
+                      f"Search intent: {queries[0]}.\nBelow are {len(imgs)} candidate stock clips (one preview frame each, numbered from 0). "
+                      "Pick the ONE a good editor would put on screen under this line: it must clearly show the subject or a directly related "
+                      "real-world scene (matching people, place or object). Generic filler or an unrelated scene must score low. "
+                      'Reply JSON: {"best": index or -1, "score": 0-10, "why": "short"}'}]
+    for k, (_, b) in enumerate(imgs): parts += [{"text": f"candidate {k}:"}, {"inlineData": {"mimeType": "image/jpeg", "data": base64.b64encode(b).decode()}}]
+    r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=120,
+                      json={"contents": [{"parts": parts}], "generationConfig": {"responseMimeType": "application/json"}}).json()
+    j = json.loads(r["candidates"][0]["content"]["parts"][0]["text"])
+    best = int(j.get("best", -1))
+    return (imgs[best][0] if 0 <= best < len(imgs) else None), float(j.get("score", 0)), str(j.get("why", ""))[:120]
 
 
 def stock_video(hit, path, secs):
@@ -468,31 +507,38 @@ def valid_clip(f, min_secs=0.5):
     except ValueError: return False
 
 
-def shots_for(lines, pub):
-    """Full-screen Coverr footage for every line: a new scene per line, a jump cut inside long lines, never the same clip
-    twice if avoidable. Search -> shorter search -> config fallbacks -> local library -> animated still. Never crashes a reel."""
-    shots, used = [], set()
+def shots_for(lines, pub, topic):
+    """Full-screen footage for every line that has a RELEVANT Coverr clip (judged by Gemini from preview frames);
+    otherwise a bold text scene - never unrelated footage. A jump cut inside long lines, never the same clip twice.
+    Decisions are saved in public/footage.json so a resume doesn't re-judge."""
+    plan_f = pub / "footage.json"
+    plan = json.loads(plan_f.read_text()) if plan_f.exists() else {}
+    shots, used = [], {p["coverr_id"] for p in plan.values() if p.get("coverr_id")}
     for i, l in enumerate(lines):
         secs = l["end"] - l["start"] + 0.15
         f = pub / "clip" / f"{i}.mp4"
-        if not valid_clip(f):
-            words = l["footage"].split()
-            queries = [l["footage"], " ".join(words[-2:]), *C["fallback_footage"]] if len(words) > 2 else [l["footage"], *C["fallback_footage"]]
-            hit = next((h for q in dict.fromkeys(queries) for h in sorted(coverr(q), key=lambda h: not h.get("is_vertical")) if h["id"] not in used), None)
-            hit = hit or library_pick(l["footage"], used)
-            if not hit: raise RuntimeError("no footage: Coverr is unavailable and the local library is empty")
-            used.add(hit["id"])
-            try:
-                if (LIB / f"{hit['id']}.mp4").exists() or hit.get("urls"): stock_video(hit, f, secs + 4)
-                else: raise RuntimeError("no clip url")
-            except Exception as e:
-                if not hit.get("poster"): raise RuntimeError(f"footage for line {i + 1} failed: {e}")
-                print(f"  clip {i + 1} -> animated still ({e})"); stock_image(hit, f, secs + 4, i)
+        say = " ".join(w for w, _ in l["words"])
+        if str(i) not in plan or (plan[str(i)].get("coverr_id") and not valid_clip(f)):
+            hit, score, why = None, 0, ""
+            try: hit, score, why = pick_footage(topic, say, l["footage"], used)
+            except Exception as e: why = f"judge failed: {e}"
+            if hit and score >= FOOTAGE_MIN_SCORE:
+                used.add(hit["id"])
+                try:
+                    stock_video(hit, f, secs + 4) if ((LIB / f"{hit['id']}.mp4").exists() or hit.get("urls")) else stock_image(hit, f, secs + 4, i)
+                    plan[str(i)] = {"coverr_id": hit["id"], "title": hit.get("title", ""), "score": score, "why": why}
+                except Exception as e: plan[str(i)] = {"coverr_id": None, "why": f"clip failed: {e}"}
+            else: plan[str(i)] = {"coverr_id": None, "score": score, "why": why or "no relevant clip"}
+            print(f"  line {i + 1}: " + (f"Coverr '{plan[str(i)].get('title')}' ({score:.0f}/10)" if plan[str(i)].get("coverr_id") else f"text scene ({plan[str(i)]['why']})"))
+            plan_f.write_text(json.dumps(plan, ensure_ascii=False, indent=1))
+        if not plan[str(i)].get("coverr_id"):
+            l["text_scene"] = True
+            shots.append({"src": None, "start": l["start"], "end": round(l["end"] + 0.15, 2)}); continue
         cuts = [l["start"], round((l["start"] + l["end"]) / 2, 2)] if secs > 3.4 else [l["start"]]
         for k, c in enumerate(cuts):
             end = cuts[k + 1] if k + 1 < len(cuts) else l["end"] + 0.15
             shots.append({"src": f"clip/{i}.mp4", "start": round(c, 2), "end": round(end, 2), "offset": round((c - l["start"]) + 1.2 * k, 2)})
-    return shots
+    return shots, plan
 
 
 SFX = {  # synthesised once into assets/sfx - no downloads needed
@@ -600,7 +646,7 @@ def _make(brief, meta, d):
             if not (d / f"line{i}.wav").exists(): retry(voice, l, d / f"line{i}.wav")
     lines, sfx, dur = timeline(reel, d)
     shutil.copy(d / "voice.wav", pub / "voice.wav")
-    shots = shots_for(lines, pub)
+    shots, footage_plan = shots_for(lines, pub, reel.title)
     shots[-1]["end"] = dur  # last shot runs to the very end (no black tail)
     sfx += [[sh["start"], "whoosh"] for sh in shots[1:]]
     try: mus = (pub / "music.mp3").exists() and "music.mp3" or (pub / "music.wav").exists() and "music.wav" or music(reel.music_mood, pub)
@@ -620,9 +666,9 @@ def _make(brief, meta, d):
                    cwd="video", check=True)
     print(f"  render {time.time() - t0:.0f}s")
     tags = [h if h.startswith("#") else "#" + h for h in reel.seo.hashtags[:5]] + ([C["series_hashtag"]] if C["series_hashtag"] else [])
-    caption = reel.caption_ig.strip() + "\n\n" + " ".join(dict.fromkeys(tags)) + "\n🎥 Footage: coverr.co"
+    caption = reel.caption_ig.strip() + "\n\n" + " ".join(dict.fromkeys(tags)) + ("\n🎥 Footage: coverr.co" if any(sh["src"] for sh in shots) else "")
     meta = {"title": reel.title, "genre": reel.genre, "brief": brief, "caption": caption, "posted": False, "status": "awaiting approval",
-            "footage": [{"line": i + 1, "coverr_query": l["footage"]} for i, l in enumerate(lines)],
+            "footage": [{"line": i + 1, "searches": l["footage"]} | footage_plan.get(str(i), {}) for i, l in enumerate(lines)],
             "first_comment": reel.seo.first_comment, "keywords": reel.seo.keywords, "alt_text": reel.seo.alt_text} | (meta or {})
     (d / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     print("done:", d / "reel.mp4")

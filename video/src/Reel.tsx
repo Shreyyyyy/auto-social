@@ -53,9 +53,12 @@ export const Reel: React.FC<any> = (p) => {
   return <AbsoluteFill style={{background: "#000", overflow: "hidden"}}>
     {/* full-screen real footage: hard cuts, slow push-in like a handheld edit */}
     {(p.shots || []).map((sh: any, j: number) => <Sequence key={j} from={Math.round(sh.start * FPS)} durationInFrames={Math.max(1, Math.round((sh.end - sh.start) * FPS))}>
-      <AbsoluteFill style={{transform: `scale(${1.02 + 0.05 * interpolate(t, [sh.start, sh.end], [0, 1], clamp)})`}}>
+      {sh.src ? <AbsoluteFill style={{transform: `scale(${1.02 + 0.05 * interpolate(t, [sh.start, sh.end], [0, 1], clamp)})`}}>
         <OffthreadVideo src={staticFile(sh.src)} muted startFrom={Math.round((sh.offset || 0) * FPS)} style={{width: "100%", height: "100%", objectFit: "cover"}} />
-      </AbsoluteFill></Sequence>)}
+      </AbsoluteFill>
+      /* text scene: no relevant footage -> clean dark background with a slow glow (never unrelated footage) */
+      : <AbsoluteFill style={{background: `radial-gradient(circle at ${50 + 20 * Math.sin(t * 0.7)}% ${40 + 15 * Math.cos(t * 0.5)}%, ${HI}26 0%, #101014 55%, #08080a 100%)`}} />}
+    </Sequence>)}
     <AbsoluteFill style={{background: "linear-gradient(180deg, rgba(0,0,0,.42) 0%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 52%, rgba(0,0,0,.5) 100%)"}} />
     {/* hook headline while line 1 is spoken (the keyword on screen + in audio) */}
     {i === 0 && p.hook && <div style={{position: "absolute", top: 250, width: "100%", padding: "0 70px", boxSizing: "border-box", ...col}}>
@@ -68,8 +71,13 @@ export const Reel: React.FC<any> = (p) => {
     {/* source chip whenever a line states a news fact */}
     {line?.source && <div style={{position: "absolute", top: 1090, left: 60, ...font(30, INK, 700), background: "rgba(255,255,255,.93)", borderRadius: 12, padding: "8px 16px",
       opacity: pop(t, line.start + 0.2), transform: `translateX(${(1 - pop(t, line.start + 0.2)) * -40}px)`}}>📰 {line.source}</div>}
+    {/* text scene with no card: the spoken words become big centred kinetic type */}
+    {line?.text_scene && line.v?.type === "none" && i > 0 && cur >= 0 && <div style={{position: "absolute", top: 640, width: "100%", padding: "0 70px", boxSizing: "border-box", textAlign: "center"}}>
+      {ws.slice(c0, c0 + 3).map(([w, wt]: any, j: number) => c0 + j <= cur && <div key={j} style={{...font(124, c0 + j === cur ? HI : "#fff", 900), opacity: pop(t, wt, 12),
+        transform: `translateY(${(1 - pop(t, wt, 12)) * 30}px)`}}>{w}</div>)}
+    </div>}
     {/* creator-style captions: 3 words at a time, white with a black outline, spoken word highlighted */}
-    {cur >= 0 && <div style={{position: "absolute", top: 1170, width: "100%", padding: "0 60px", boxSizing: "border-box", textAlign: "center"}}>
+    {cur >= 0 && !(line?.text_scene && line.v?.type === "none" && i > 0) && <div style={{position: "absolute", top: 1170, width: "100%", padding: "0 60px", boxSizing: "border-box", textAlign: "center"}}>
       {ws.slice(c0, c0 + 3).map(([w, wt]: any, j: number) => c0 + j <= cur && <span key={j} style={{...font(86, c0 + j === cur ? HI : "#fff", 900), ...stroke, display: "inline-block", margin: "0 10px",
         textShadow: "0 5px 12px rgba(0,0,0,.5)", transform: `scale(${c0 + j === cur ? 0.88 + 0.12 * pop(t, wt, 12) : 1})`}}>{w}</span>)}
     </div>}
