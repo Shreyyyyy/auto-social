@@ -14,9 +14,9 @@ export type RunDetail = RunSummary & {
 export type Job = {id: string; kind: string; label: string; status: "running" | "done" | "error"; log: string; error?: string;
   started: number; ended?: number; result?: {run?: string; playlist?: string} | null};
 export type PlaylistSummary = {id: string; name: string; subject?: string; created?: string; episodes: number; scripted: number; made: number};
-export type Episode = {n: number; title: string; era?: string; brief?: string; status: string; run?: string | null; cover?: string | null;
+export type Episode = {n: number; arc: number; builds_on: number[]; title: string; era?: string; brief?: string; status: string; run?: string | null; cover?: string | null;
   hook?: string; script: {say: string; visual: string; onscreen: string}[]};
-export type Playlist = Omit<PlaylistSummary, "episodes"> & {episodes: Episode[]};
+export type Playlist = Omit<PlaylistSummary, "episodes"> & {episodes: Episode[]; arcs: {title: string; summary: string}[]};
 
 async function call<T>(path: string, init?: RequestInit): Promise<T> {
   const r = await fetch(path, {cache: "no-store", ...init, headers: {"Content-Type": "application/json", ...(init?.headers || {})}});

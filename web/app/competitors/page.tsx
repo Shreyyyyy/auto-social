@@ -6,7 +6,7 @@ import {Job} from "@/lib/api";
 
 type Video = {id: string; title: string; channel: string; views: number; duration: number; why_competitor?: string;
   analysis?: {hook_words?: string; hook_type?: string; why_it_worked?: string[] | string; steal?: string[] | string; avoid?: string} | null};
-type Data = {updated?: string; source?: string; min_views?: number; videos: Video[]; playbook?: string | null; api_key: boolean};
+type Data = {updated?: string; source?: string; min_views?: number; videos: Video[]; playbook?: string | null; api_key: boolean; youtube_connected?: boolean};
 
 const fmt = (n: number) => n >= 1e7 ? `${(n / 1e7).toFixed(1)} Cr` : n >= 1e5 ? `${(n / 1e5).toFixed(1)} L` : n.toLocaleString("en-IN");
 const list = (x?: string[] | string) => (Array.isArray(x) ? x : x ? [x] : []);
@@ -32,9 +32,13 @@ export default function Competitors() {
           <p className="mt-2 max-w-2xl text-sm text-zinc-400">
             Most-viewed Hindi/Hinglish AI & tech explainer Shorts ({(d?.min_views ?? 1e6).toLocaleString("en-IN")}+ views), filtered to real competitors,
             watched by Gemini. The playbook below is used by every new script.</p>
-          <p className="mt-1 text-xs text-zinc-500">{d?.updated ? `Updated ${d.updated} · ${d.source}` : "Not researched yet"}{d && !d.api_key && " · add YOUTUBE_API_KEY for official YouTube data"}</p>
+          <p className="mt-1 text-xs text-zinc-500">{d?.updated ? `Updated ${d.updated} · ${d.source}` : "Not researched yet"}{d && !d.api_key && " · connect YouTube for official data"}</p>
         </div>
-        <button className="btn-primary" onClick={refresh}>🔎 Refresh research</button>
+        <div className="flex gap-2">
+          <button className="btn-ghost" onClick={async () => { setErr(""); await fetch("/api/youtube/connect", {method: "POST"}); setErr("A Google sign-in page opened in your browser - choose your account and click Allow (read-only)."); }}>
+            {d?.youtube_connected ? "✅ YouTube connected (read-only)" : "▶ Connect YouTube (read-only)"}</button>
+          <button className="btn-primary" onClick={refresh}>🔎 Refresh research</button>
+        </div>
       </header>
       {err && <p className="rounded-xl bg-red-500/10 p-3 text-sm text-red-300">{err}</p>}
       <JobPanel onDone={onDone} kind="competitors" />

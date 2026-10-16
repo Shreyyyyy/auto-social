@@ -97,11 +97,14 @@ IDEA: """
 PLAN_SERIES = f"""You are the showrunner of a daily Instagram Reels series ({FORMAT}).
 Use the RESEARCH NOTES (fresh, from Google Search): the subject's milestones, current news, launches and
 controversies, and what Indians are talking about right now. Never invent numbers.
-Then plan exactly N_EPISODES daily episodes that tell the story end to end in chronological order: origins,
-key breakthroughs, today, what comes next. Group them into arcs. One idea per episode, each building on the
-previous one. Even historical episodes open with a current-news hook that makes the old idea feel urgent.
+Then plan a LEARNING TREE of exactly N_EPISODES daily episodes in total: 3-5 arcs (chapters) that go from the roots
+to today and what comes next (e.g. Basics -> Breakthroughs -> Today -> Future). Inside each arc, order episodes so each
+one needs only what came before. For every episode set builds_on = the numbers (1-based, counted across the whole
+playlist) of the 1-2 earlier episodes it directly builds on ([] for the very first). One idea per episode. Even
+historical episodes open with a current-news hook that makes the old idea feel urgent.
 {PSYCH}
-For each episode return: title (catchy Hinglish), era (year or period), and {BEAT}.
+For each arc return: title, summary (one line). For each episode: title (catchy Hinglish), era (year or period),
+builds_on, and {BEAT}. The total number of episodes across all arcs MUST be exactly N_EPISODES.
 The series is about exactly this subject - never drift to a different one.
 SUBJECT: """
 
@@ -315,11 +318,18 @@ class Episode(BaseModel):
     title: str
     era: str
     brief: str
+    builds_on: list[int] = []  # numbers of earlier episodes this one needs (the learning tree)
+
+
+class Arc(BaseModel):
+    title: str
+    summary: str
+    episodes: list[Episode]
 
 
 class Series(BaseModel):
     name: str
-    episodes: list[Episode]
+    arcs: list[Arc]
 
 
 def retry(fn, *a, tries=4, **k):
@@ -1367,7 +1377,9 @@ def write_episode_script(sr, i, notes):
     """Full script for one episode, written up front so you can read all of them before making any video."""
     eps, e = sr["episodes"], sr["episodes"][i]
     nxt = f"\nNEXT EPISODE (tease it at the end): {eps[i + 1]['title']}" if i + 1 < len(eps) else "\nThis is the series finale."
-    prev = f"\nPREVIOUS CASE: #{i} {eps[i - 1]['title']} - open with a one-line callback to it." if i else ""
+    parents = [b for b in e.get("builds_on") or ([i] if i else []) if 0 < b <= i]
+    prev = "".join(f"\nBUILDS ON CASE #{b}: {eps[b - 1]['title']} - open with a one-line callback to it." for b in parents[:1]) + \
+        (f"\nAlso connected to: " + ", ".join(f"#{b} {eps[b - 1]['title']}" for b in parents[1:]) if len(parents) > 1 else "")
     brief = f"Series '{sr['name']}', CASE #{i + 1}/{len(eps)}: {e['title']} ({e['era']})\n{e['brief']}{prev}{nxt}"
     return write_checked(BRIEF.replace("RESEARCH_NOTES", notes) + brief).model_dump()
 
@@ -1379,10 +1391,23 @@ def plan_series(subject, n=10):
     print("researching the whole story (Gemini + Google Search)...")
     notes = retry(research, subject, "8. Key milestones from the origins to today and what is coming next: year, who, what changed, "
                               f"why it mattered - enough for {int(n)} daily episodes.\n")
-    print("planning episodes (Claude)...")
-    sr = ask(PLAN_SERIES.replace("N_EPISODES", str(int(n))) + "\nRESEARCH NOTES:\n" + notes + "\n\n" + subject, Series)
-    sr = {"id": slug(sr.name), "name": sr.name, "subject": subject, "notes": notes, "created": time.strftime("%Y-%m-%d %H:%M"),
-          "episodes": [e.model_dump() | {"status": "planned"} for e in sr.episodes]}
+    print(f"planning a learning tree of {int(n)} episodes (Claude)...")
+    prompt = PLAN_SERIES.replace("N_EPISODES", str(int(n))) + "\nRESEARCH NOTES:\n" + notes + "\n\n" + subject
+    plan = ask(prompt, Series)
+    for _ in range(2):  # the planner must deliver exactly the number of episodes asked for
+        got = sum(len(a.episodes) for a in plan.arcs)
+        if got == int(n): break
+        print(f"  planner gave {got} episodes, asked for {int(n)} - re-planning")
+        plan = ask(prompt + f"\n\nYOUR LAST PLAN HAD {got} EPISODES. It must have EXACTLY {int(n)} in total. Fix it:\n" + plan.model_dump_json(), Series)
+    eps, arcs = [], []
+    for a_i, a in enumerate(plan.arcs):
+        arcs.append({"title": a.title, "summary": a.summary})
+        for e in a.episodes:
+            k = len(eps) + 1
+            eps.append(e.model_dump() | {"arc": a_i, "status": "planned", "builds_on": [b for b in e.builds_on if 0 < b < k] or ([k - 1] if k > 1 else [])})
+    eps = eps[:int(n)]
+    sr = {"id": slug(plan.name), "name": plan.name, "subject": subject, "notes": notes, "created": time.strftime("%Y-%m-%d %H:%M"),
+          "arcs": arcs, "episodes": eps}
     save(sr)
     print(f"writing {len(sr['episodes'])} scripts...")
 
@@ -1397,10 +1422,16 @@ def plan_series(subject, n=10):
 
 
 def episode_context(sr, i):
-    """What the previous episode taught us: its script, what the beginner viewers learned, scores and problems."""
+    """What the episodes this one builds on taught us (the tree's parents; else the previous one): their scripts, what the
+    beginner viewers learned, scores and problems."""
     if i == 0: return ""
-    p = sr["episodes"][i - 1]
-    out = f"\nPREVIOUS CASE #{i}: {p['title']}."
+    parents = [b - 1 for b in sr["episodes"][i].get("builds_on") or [i] if 0 <= b - 1 < i]
+    return "".join(_parent_context(sr, j) for j in parents or [i - 1])
+
+
+def _parent_context(sr, j):
+    p = sr["episodes"][j]
+    out = f"\nTHIS CASE BUILDS ON CASE #{j + 1}: {p['title']}."
     if p.get("video") and (Path(p["video"]).parent / "review.json").exists():
         rv = json.loads((Path(p["video"]).parent / "review.json").read_text())
         out += (f"\nViewers of the previous video learned: {rv.get('learned')}. Scores: {rv.get('scores')}."

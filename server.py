@@ -154,12 +154,14 @@ def playlist(sid: str):
     eps = []
     for i, e in enumerate(sr["episodes"]):
         rid = Path(e["video"]).parent.name if e.get("video") else None
-        eps.append({"n": i + 1, "title": e["title"], "era": e.get("era"), "brief": e.get("brief"), "status": e["status"], "run": rid,
+        eps.append({"n": i + 1, "arc": e.get("arc", 0), "builds_on": e.get("builds_on") or ([i] if i else []),
+                    "title": e["title"], "era": e.get("era"), "brief": e.get("brief"), "status": e["status"], "run": rid,
                     "cover": f"/media/{rid}/cover.jpg" if rid and (reel.OUT / rid / "cover.jpg").exists() else None,
                     "script": [{"say": l["caption"], "visual": l["visual"]["type"], "onscreen": l.get("onscreen", "")}
                                for l in (e.get("script") or {}).get("lines", [])],
                     "hook": (e.get("script") or {}).get("hook")})
-    return playlist_summary(sr) | {"episodes": eps}
+    arcs = sr.get("arcs") or [{"title": "All episodes", "summary": sr.get("subject", "")}]
+    return playlist_summary(sr) | {"episodes": eps, "arcs": arcs}
 
 
 @app.post("/api/playlists/{sid}/episodes/{n}/run")
@@ -184,7 +186,32 @@ def write_script(sid: str, n: int):
 def competitors_data():
     f, pb = Path("research/competitors.json"), Path("research/playbook.md")
     data = json.loads(f.read_text()) if f.exists() else {"videos": []}
-    return data | {"playbook": pb.read_text() if pb.exists() else None, "api_key": bool(reel.E("YOUTUBE_API_KEY"))}
+    import competitors
+    return data | {"playbook": pb.read_text() if pb.exists() else None, "api_key": competitors.official_api(),
+                   "youtube_connected": competitors.TOKEN.exists()}
+
+
+YT = {"status": "idle", "error": None}
+
+
+@app.post("/api/youtube/connect")
+def youtube_connect():
+    """Opens Google's consent page (read-only YouTube scope, research only) in this computer's browser.
+    Runs on its own - it never blocks reel or playlist jobs."""
+    import competitors
+    if YT["status"] == "waiting": return YT
+    def go():
+        YT.update(status="waiting", error=None)
+        try: competitors.youtube_auth(); YT["status"] = "connected"
+        except Exception as e: YT.update(status="failed", error=str(e))
+    threading.Thread(target=go, daemon=True).start()
+    return {"status": "waiting", "error": None}
+
+
+@app.get("/api/youtube/status")
+def youtube_status():
+    import competitors
+    return YT | {"connected": competitors.TOKEN.exists()}
 
 
 @app.post("/api/competitors/refresh")
