@@ -5,7 +5,7 @@ export type RunSummary = {
   verdict?: string; scores?: Scores; cover?: string | null; video: string;
 };
 export type RunDetail = RunSummary & {
-  caption: string; marketing?: string; research?: string; meta: Record<string, any>;
+  caption: string; marketing?: string; research?: string; meta: Record<string, any>; contact?: string | null;
   review?: {learned?: string; remember?: string; verdict?: string; scores?: Scores; problems?: {time: string; issue: string; fix: string}[]};
   usage?: {gemini_usd: number; claude_usd_equivalent: number; calls: number; minutes?: number;
     steps: Record<string, {calls: number; in: number; out: number; usd: number; model: string}>};

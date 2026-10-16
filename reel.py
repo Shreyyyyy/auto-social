@@ -591,6 +591,9 @@ def _anim_catalogue():
 try: ANIM = _anim_catalogue()
 except Exception: ANIM = {}
 BRIEF = BRIEF.replace("ANIM_SET", " ".join(e for e in ANIM if len(e) <= 2) or "any emoji")
+if Path("research/playbook.md").exists():  # fresh niche competitor research (Competitors page -> Refresh)
+    BRIEF = BRIEF.replace("TEACHING ARC (in this order", "NICHE PLAYBOOK - from the latest analysis of the most-viewed competitor Shorts in this "
+                          "niche; apply it:\n" + Path("research/playbook.md").read_text()[:5000] + "\n\nTEACHING ARC (in this order", 1)
 
 
 def anim_cps(emoji):
@@ -1066,6 +1069,26 @@ MARKETING_CHECKLIST = """## Before posting
 """
 
 
+def contact_sheet(d, cols=5, w=270):
+    """One labelled screenshot per line (time + what is said), in a grid - a quick visual check of the whole reel."""
+    p = json.loads((d / "props.json").read_text()); tiles = []
+    for k, l in enumerate(p["lines"]):
+        t = round(min(l["end"] - 0.1, l["start"] + (l["end"] - l["start"]) * 0.7), 2)
+        raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-ss", str(t), "-i", str(d / "reel.mp4"), "-frames:v", "1", "-vf", f"scale={w}:-2",
+                              "-f", "image2pipe", "-vcodec", "png", "-"], capture_output=True).stdout
+        img = cv2.imdecode(np.frombuffer(raw, np.uint8), cv2.IMREAD_COLOR) if raw else None
+        if img is None: img = np.zeros((w * 16 // 9, w, 3), np.uint8)
+        label = np.full((70, w, 3), 24, np.uint8)
+        cv2.putText(label, f"#{k + 1}  {t:.1f}s  {l['v']['type']}", (8, 24), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (90, 200, 255), 1, cv2.LINE_AA)
+        txt = " ".join(w_ for w_, _ in l.get("words", []))[:42]
+        cv2.putText(label, txt.encode("ascii", "ignore").decode(), (8, 54), cv2.FONT_HERSHEY_SIMPLEX, 0.42, (230, 230, 230), 1, cv2.LINE_AA)
+        tiles.append(np.vstack([img, label]))
+    h = max(t.shape[0] for t in tiles); tiles = [np.vstack([t, np.zeros((h - t.shape[0], w, 3), np.uint8)]) for t in tiles]
+    while len(tiles) % cols: tiles.append(np.zeros_like(tiles[0]))
+    grid = np.vstack([np.hstack(tiles[i:i + cols]) for i in range(0, len(tiles), cols)])
+    cv2.imwrite(str(d / "contact.jpg"), grid, [cv2.IMWRITE_JPEG_QUALITY, 85])
+
+
 def marketing(d, reel, caption):
     """A ready-to-use marketing pack per reel: caption, alt text, comments, story/broadcast lines, cover, timing, checklist."""
     s = reel.seo
@@ -1188,6 +1211,8 @@ def _make(brief, meta, d):
             "first_comment": reel.seo.first_comment, "keywords": reel.seo.keywords, "alt_text": reel.seo.alt_text} | (meta or {})
     (d / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
     marketing(d, reel, caption)
+    try: contact_sheet(d)
+    except Exception as e: print(f"  contact sheet skipped: {e}")
     try: rv = review(d, reel)
     except Exception as e: rv = None; print(f"  review skipped: {e}")
     job = json.loads((d / "job.json").read_text()) if (d / "job.json").exists() else {}

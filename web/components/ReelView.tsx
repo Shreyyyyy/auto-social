@@ -45,6 +45,8 @@ export default function ReelView({id}: {id: string}) {
           </div>
           <h1 className="text-xl font-bold leading-snug">{r.title}</h1>
           {r.cover && <img src={r.cover} alt="cover" className="mt-4 h-40 w-auto rounded-xl border border-white/10" />}
+          {r.contact && <div className="mt-5"><p className="label mb-2">Contact sheet · one frame per line</p>
+            <a href={r.contact} target="_blank"><img src={r.contact} alt="contact sheet" className="w-full rounded-xl border border-white/10 transition hover:opacity-90" /></a></div>}
         </div>
 
         <div className="card p-5">

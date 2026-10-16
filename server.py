@@ -77,7 +77,10 @@ def run_detail(rid: str):
     if not (d / "meta.json").exists(): raise HTTPException(404, "no such reel")
     m = json.loads((d / "meta.json").read_text())
     read = lambda f: (d / f).read_text() if (d / f).exists() else None
-    return run_summary(d) | {"caption": m.get("caption"), "marketing": read("marketing.md"), "research": read("research.txt"),
+    if not (d / "contact.jpg").exists() and (d / "props.json").exists():
+        try: reel.contact_sheet(d)  # older reels get one on first view
+        except Exception: pass
+    return run_summary(d) | {"contact": f"/media/{d.name}/contact.jpg" if (d / "contact.jpg").exists() else None, "caption": m.get("caption"), "marketing": read("marketing.md"), "research": read("research.txt"),
                              "review": json.loads(read("review.json")) if read("review.json") else None,
                              "script": json.loads(read("script.json")) if read("script.json") else None, "meta": m,
                              "usage": json.loads(read("usage.json")) if read("usage.json") else None}
@@ -174,6 +177,20 @@ def write_script(sid: str, n: int):
         sr["episodes"][n - 1].update(script=reel.write_episode_script(sr, n - 1, sr.get("notes", "")), status="scripted"); reel.save(sr)
         print("done"); return {"id": sid}
     return start_job("script", f"Script for episode {n}", go)
+
+
+# ---------------- competitors ----------------
+@app.get("/api/competitors")
+def competitors_data():
+    f, pb = Path("research/competitors.json"), Path("research/playbook.md")
+    data = json.loads(f.read_text()) if f.exists() else {"videos": []}
+    return data | {"playbook": pb.read_text() if pb.exists() else None, "api_key": bool(reel.E("YOUTUBE_API_KEY"))}
+
+
+@app.post("/api/competitors/refresh")
+def competitors_refresh():
+    import competitors
+    return start_job("competitors", "Competitor research + playbook", competitors.refresh)
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ const ITEMS = [
   {href: "/", label: "New reel", icon: "✨"},
   {href: "/playlists", label: "Playlists", icon: "📚"},
   {href: "/library", label: "Library", icon: "🎬"},
+  {href: "/competitors", label: "Competitors", icon: "🔎"},
 ];
 
 export default function Nav() {

@@ -559,22 +559,21 @@
       "brief": "ARC 3 — TODAY & NEXT: Phone ne bachana seekha\n0–1.5s HOOK: (Retention visual in the first 3s) A phone rings and the screen turns red with \"Suspected Spam\". VO: \"Yeh call uthaate toh aapka bank khaata khaali ho sakta tha.\"\n1.5–5s SELF-RELEVANCE + NEWS HOOK: \"TRAI aur Ministry of Communications ke hisaab se ek hi quarter mein AI ne India ke networks pe 22.99 billion calls aur 1.44 billion SMS ko spam ki tarah pakda.\" OPEN LOOP: \"Lekin ab scammer aapke rishtedaar ki AWAAZ copy karke call kar rahe hain. Usse kaun bachayega? Bataunga.\"\n5–10s CONCEPT IN ONE SENTENCE: \"AI ab sirf photo aur keyboard mein nahi hai. Woh aapke phone aur network pe chowkidaar ban gaya hai, jo call uthane se pehle hi khatra pehchaan leta hai.\"\n10–16s REAL-LIFE ANALOGY: Cricket ka third umpire. \"Jaise third umpire Ultra-Edge ki awaaz ka pattern dekhkar turant pakad leta hai ki ball ne bat chhua, waise hi AI calling pattern dekhta hai: ek number se kitni calls, kitni jaldi, kitne logon ko. Phir bol deta hai: 'Suspected Scam!'\"\n16–24s HOW IT WORKS (shown as on-screen text over the footage): 1) Unknown number se call aati hai. 2) Network ka AI uska pattern check karta hai: kya yeh number hazaaron logon ko ek saath call kar raha hai? 3) Shaq hua toh aapki screen pe laal warning. 4) Ab kuch apps call ke dauraan awaaz bhi check karte hain: asli insaan hai ya AI se banayi gayi nakli awaaz?\n24–29s LOOP PAYOFF (around 70%), as LOCAL NEWS EXAMPLE: \"Truecaller ne India mein apna live AI Call Scanner launch kiya hai. Yeh call ke dauraan pehchaanta hai ki bolne wala asli insaan hai ya cloned AI voice\" (Source: Truecaller / GetInfoToYou Tech, Sept 2026). Supporting stat: 721.79 billion calls mein se lagbhag 23 billion spam pakdi gayi, Q1 FY26-27 (Source: DoT / Ministry of Communications, Oct 2026).\n29–33s CONFLICT: \"Aap soch rahe ho, jaise ek user ne likha: 'Mummy sochti hain Truecaller jasoos hai.' Usi user ne aage likha ki usi app ne kal ek nakli bijli bill wala scam block kiya. AI ka kaam aapki baat sunna nahi, khatre ka pattern pakadna hai. Phir bhi permissions khud check karo, yeh aapka haq hai.\"\n33–36s MYTH vs TRUTH: Myth: \"AI matlab sirf ChatGPT, aur woh bhi paise dekar.\" Truth: Aapke phone aur network mein bana AI chupchaap aapke paise bacha raha hai, bina koi subscription liye.\n36–39s WHAT COMES NEXT: \"Agla kadam: AI seedha aapke phone ke chip pe chalega aur bina internet ke local boliyon ka turant anuvaad karega. Aage chalkar shayad tatkal ticket book karne ya doctor ka parcha padhne jaise kaam bhi khud karega. Abhi yeh aane wala kal hai, aaj ka sach nahi.\"\n39–41s YAAD RAKHO: \"Laal screen dikhe toh call mat uthao. Wahan AI chowkidaar khada hai.\"\n41–43s IDENTITY PAYOFF: \"Teen episode mein aapne dekha ki phone ne seekhna, dekhna aur bachana kaise seekha. Ab aap 90% logon se zyada jaante ho ki AI asli mein kahan hai.\"\n43–47s SIGN-OFF + OPEN LOOP: \"Ye video apne mummy-papa ko bhejo, jinke paas roz 3–5 fake bijli-bill aur credit card waali calls aati hain. Aur comment karo: kya kabhi aapke paas kisi jaan-pehchaan wale ki 'awaaz' mein paise maangne wali call aayi hai? Agli series ka topic aapke comments se chunenge.\"\nEXAMPLE: A fake electricity-bill call (\"Aaj raat aapki bijli kat jayegi\") gets flagged with a red \"Suspected Spam\" banner before the parent picks up. It works like the third umpire spotting the edge before anyone else.\nVISUALS: Faces never shown. A phone on a shop counter or kitchen slab ringing with a red \"Suspected Spam\" screen. Cricket stock footage: a bat-ball edge in slow motion and a stadium big screen (no players' faces). An animated map of India with call lines pouring in and a filter catching red ones, plus counters for \"22.99 billion calls\" and \"1.44 billion SMS\". An audio-waveform animation splitting into \"Insaan\" vs \"AI Awaaz\". For what's next: a chip close-up with a \"No internet\" icon, then a railway station and a prescription paper (hands only) with a \"Coming soon\" tag.\nWHY NOW: In October 2026, TRAI and the Ministry of Communications released the 22.99 billion spam-call number. Truecaller rolled out its AI Call Scanner in India in Sept–Oct 2026. Cloned-voice scams and fake electricity-bill calls are in the news and on family WhatsApp groups. Searches for \"Spam call AI blocker\" and \"AI spam call protection India\" are spiking.\n#PhoneAI #DesiTech #TechReelsIndia #LearnAI #SmartphoneHacks",
       "status": "scripted",
       "script": {
-        "title": "2,300 Crore Fraud Calls Kisne Roke? Phone Ka AI Chowkidaar",
-        "genre": "AI explainer - AI Case File (series finale)",
-        "case_title": "AI Chowkidaar Ka Raaz",
+        "title": "Spam Call AI: Aapke Phone Ka Chowkidaar",
+        "genre": "AI explainer · AI Case File · series finale",
+        "case_title": "Laal Screen Ka Raaz",
         "hook": "Spam Call AI: kisne bachaya?",
         "music_mood": "suspenseful detective lo-fi with soft playful plucks",
-        "caption_ig": "Spam call AI kya hai? Aapke phone ka chowkidaar jo call uthane se pehle hi khatra pehchaan leta hai.\n\nYaad rakho: Laal screen dikhe, toh call mat uthao!\n\nSirf 3 mahine mein India ke networks pe lagbhag 2,300 crore spam calls pakdi gayi (TRAI / DoT, Oct 2026). AI spam call protection, cricket ke third umpire jaisa: pattern dekho, edge pakdo.\nAb cloned voice scam bhi aa gaye hain, isliye Truecaller ka AI Call Scanner asli insaan aur nakli AI awaaz ka fark pakadta hai.\n\nPhone mein AI series ka finale! Save karo aur mummy-papa ko bhejo, taaki kisi ka bank khaata khaali na ho.",
+        "caption_ig": "Spam call AI kya hai? Ek chowkidaar jo call uthane se pehle hi khatra pehchaan leta hai.\n\nYaad rakho: laal screen dikhe, call mat uthao!\n\nEk hi quarter mein India ke networks pe AI ne lagbhag 2,300 crore spam calls pakdi (DoT/TRAI, Oct 2026).\nTruecaller ka AI Call Scanner ab call ke dauraan nakli AI awaaz bhi pakadta hai. AI spam call protection India mein aa chuka hai.\n\nSave karo, aur mummy-papa ko zaroor bhejo.",
         "seo": {
           "keywords": [
-            "spam call AI blocker",
+            "spam call AI",
             "AI spam call protection India",
-            "fake call kaise pehchane",
-            "cloned voice scam India",
+            "suspected spam call kya hai",
             "Truecaller AI Call Scanner",
-            "phone mein AI feature",
+            "AI voice clone scam",
             "hidden AI features in Android phone",
-            "suspected spam call kya hai"
+            "fake bijli bill call scam"
           ],
           "hashtags": [
             "#PhoneAI",
@@ -583,22 +582,22 @@
             "#TechReelsIndia",
             "#SmartphoneHacks"
           ],
-          "alt_text": "A detective-style explainer showing how spam call AI on Indian phone networks flags fraud calls with a red warning screen, using a cricket third umpire analogy.",
-          "first_comment": "Kya kabhi aapke paas kisi jaan-pehchaan wale ki 'awaaz' mein paise maangne wali call aayi hai? Ya koi fake bijli-bill call? Apni kahaani batao, agli series ka topic aapke comments se chunenge 👇",
-          "story_text": "Ek laal screen ne crore-crore logon ka bank khaata bachaya... pata hai kaise? 🚨",
-          "broadcast_text": "Series finale aa gaya! 🕵️ Aaj ka case: phone ka AI chowkidaar jo fraud call uthane se pehle hi pakad leta hai."
+          "alt_text": "A detective-style explainer showing how spam call AI flags scam calls with a red Suspected Spam screen, explained with a cricket third umpire analogy.",
+          "first_comment": "Kya aapke ghar mein kabhi kisi jaan-pehchaan wale ki 'awaaz' mein paise maangne wali call aayi hai? Neeche likho, aur bataao aapne kaise pehchaana.",
+          "story_text": "Laal screen wali call ke peeche asli mein kaun khada hai? 🚨",
+          "broadcast_text": "Series finale aa gaya! Case #3: aapke phone ka AI chowkidaar roz spam calls kaise rokta hai, 40 second mein samjho."
         },
         "lines": [
           {
-            "text": "ये कॉल उठाते, तो बैंक खाता खाली हो सकता था!",
-            "caption": "Ye call uthaate, toh bank khaata khaali ho sakta tha!",
-            "onscreen": "Suspected Spam!",
-            "emoji": "🚨",
-            "delivery": "suspense, whispering",
+            "text": "Camera के बाद case तीन: लाल call उठाई, खाता खाली!",
+            "caption": "Camera ke baad case teen: laal call uthaayi, khaata khaali!",
+            "onscreen": "Laal call = khatra!",
+            "emoji": "🚨😱",
+            "delivery": "urgent whisper, then gasp",
             "footage": [
-              "phone ringing kitchen counter",
-              "smartphone incoming call",
-              "phone on table"
+              "phone ringing table",
+              "smartphone on table",
+              "phone screen closeup"
             ],
             "visual": {
               "type": "none",
@@ -634,44 +633,19 @@
             "source": ""
           },
           {
-            "text": "कैमरा के बाद, आज का केस: फ़ोन का AI चौकीदार, जो कॉल उठाने से पहले ही ख़तरा पहचान ले।",
-            "caption": "Camera ke baad, aaj ka case: phone ka AI chowkidaar, jo call uthane se pehle hi khatra pehchaan le.",
-            "onscreen": "Phone ka AI chowkidaar",
-            "emoji": "🤖",
-            "delivery": "warm, curious build",
-            "footage": [
-              "security guard night",
-              "watchman at gate",
-              "gate entrance"
-            ],
-            "visual": {
-              "type": "define",
-              "title": "AI Chowkidaar",
-              "items": [
-                "Call se pehle khatra pehchaane"
-              ],
-              "number": 0,
-              "suffix": "",
-              "good": true,
-              "values": [],
-              "chart": "bar"
-            },
-            "source": ""
-          },
-          {
-            "text": "सिर्फ़ तीन महीने में, India के networks पे लगभग 2,300 करोड़ spam calls पकड़ी गईं!",
-            "caption": "Sirf teen mahine mein, India ke networks pe lagbhag 2,300 crore spam calls pakdi gayi!",
+            "text": "एक quarter, 2,300 करोड़ spam calls, AI ने रोकीं!",
+            "caption": "Ek quarter, 2,300 crore spam calls, AI ne rokin!",
             "onscreen": "2,300 crore spam calls",
             "emoji": "🤯",
-            "delivery": "gasp, shocked",
+            "delivery": "big excited reveal",
             "footage": [
-              "mobile tower city",
-              "telecom tower",
-              "city skyline night"
+              "mobile network tower",
+              "telecom tower sky",
+              "city lights night"
             ],
             "visual": {
               "type": "counter",
-              "title": "Spam calls pakdi, sirf 3 mahine",
+              "title": "Spam calls rokin (1 quarter)",
               "items": [],
               "number": 2300.0,
               "suffix": " crore",
@@ -679,67 +653,17 @@
               "values": [],
               "chart": "bar"
             },
-            "source": "TRAI / DoT · Oct 2026"
+            "source": "DoT / TRAI · Oct 2026"
           },
           {
-            "text": "कैसे? बिल्कुल cricket के third umpire जैसे, जो आवाज़ का pattern सुनकर edge पकड़ लेता है।",
-            "caption": "Kaise? Bilkul cricket ke third umpire jaise, jo awaaz ka pattern sunkar edge pakad leta hai.",
-            "onscreen": "Third umpire jaisa",
-            "emoji": "🏏",
-            "delivery": "teasing, playful",
-            "footage": [
-              "cricket bat ball slow motion",
-              "cricket stadium screen",
-              "cricket ball"
-            ],
-            "visual": {
-              "type": "none",
-              "title": "",
-              "items": [],
-              "number": 0,
-              "suffix": "",
-              "good": true,
-              "values": [],
-              "chart": "bar"
-            },
-            "source": ""
-          },
-          {
-            "text": "Call आई, AI ने pattern देखा: एक number से हज़ारों को एक साथ call? शक हुआ, तो screen लाल!",
-            "caption": "Call aayi, AI ne pattern dekha: ek number se hazaaron ko ek saath call? Shaq hua, toh screen laal!",
-            "onscreen": "Pattern dekho, khatra pakdo",
-            "emoji": "🔎",
-            "delivery": "slow build, then excited",
-            "footage": [
-              "phone screen incoming call",
-              "hand holding smartphone",
-              "smartphone"
-            ],
-            "visual": {
-              "type": "diagram",
-              "title": "AI chowkidaar kaise kaam karta hai",
-              "items": [
-                "📞 Anjaan call aayi",
-                "🔎 Pattern check",
-                "🚨 Laal warning"
-              ],
-              "number": 0,
-              "suffix": "",
-              "good": true,
-              "values": [],
-              "chart": "bar"
-            },
-            "source": ""
-          },
-          {
-            "text": "रुको... twist! अब scammer आपके रिश्तेदार की आवाज़ copy करके call करते हैं।",
-            "caption": "Ruko... twist! Ab scammer aapke rishtedaar ki awaaz copy karke call karte hain.",
-            "onscreen": "Nakli awaaz scam!",
-            "emoji": "😱",
-            "delivery": "dramatic pause, then serious",
+            "text": "अब scammer रिश्तेदार की आवाज़ copy करते हैं...",
+            "caption": "Ab scammer rishtedaar ki awaaz copy karte hain...",
+            "onscreen": "Nakli rishtedaar ki awaaz?",
+            "emoji": "👻🫣",
+            "delivery": "suspense, slow and low",
             "footage": [
               "elderly hands holding phone",
-              "old man phone call",
+              "hands holding smartphone",
               "phone call"
             ],
             "visual": {
@@ -755,22 +679,21 @@
             "source": ""
           },
           {
-            "text": "इसलिए Truecaller का नया AI Call Scanner, call के दौरान पहचानता है: असली इंसान, या नकली AI आवाज़।",
-            "caption": "Isliye Truecaller ka naya AI Call Scanner, call ke dauraan pehchaanta hai: asli insaan, ya nakli AI awaaz.",
-            "onscreen": "Insaan ya AI awaaz?",
-            "emoji": "🕵️",
-            "delivery": "big excited reveal",
+            "text": "Spam call AI: call से पहले खतरा पकड़ने वाला चौकीदार।",
+            "caption": "Spam call AI: call se pehle khatra pakadne wala chowkidaar.",
+            "onscreen": "AI = phone ka chowkidaar",
+            "emoji": "🤖🛟",
+            "delivery": "warm, clear, smiling",
             "footage": [
-              "sound wave screen",
-              "audio waveform",
-              "headphones music"
+              "security guard gate",
+              "night watchman",
+              "locked gate"
             ],
             "visual": {
-              "type": "compare",
-              "title": "AI Call Scanner",
+              "type": "define",
+              "title": "Spam Call AI",
               "items": [
-                "🧑 Asli insaan",
-                "🤖 Nakli AI awaaz"
+                "Call se pehle khatra pakde"
               ],
               "number": 0,
               "suffix": "",
@@ -778,41 +701,18 @@
               "values": [],
               "chart": "bar"
             },
-            "source": "Truecaller · Sept 2026"
-          },
-          {
-            "text": "Myth: AI मतलब सिर्फ़ paid ChatGPT. सच: network का ये चौकीदार बिना subscription आपके पैसे बचा रहा है।",
-            "caption": "Myth: AI matlab sirf paid ChatGPT. Sach: network ka ye chowkidaar bina subscription aapke paise bacha raha hai.",
-            "onscreen": "AI sirf ChatGPT nahi",
-            "emoji": "❌",
-            "delivery": "proud, punchy",
-            "footage": [
-              "indian rupee notes counting",
-              "wallet money",
-              "coins"
-            ],
-            "visual": {
-              "type": "stamp",
-              "title": "AI = sirf paid ChatGPT",
-              "items": [],
-              "number": 0,
-              "suffix": "",
-              "good": false,
-              "values": [],
-              "chart": "bar"
-            },
             "source": ""
           },
           {
-            "text": "आगे? AI बिना internet, सीधे phone के chip पे चलेगा। पर अभी ये आने वाला कल है।",
-            "caption": "Aage? AI bina internet, seedhe phone ke chip pe chalega. Par abhi ye aane wala kal hai.",
-            "onscreen": "Aage: bina internet AI",
-            "emoji": "🚀",
-            "delivery": "dreamy, curious",
+            "text": "Third umpire जैसा: आवाज़ से edge पकड़े!",
+            "caption": "Third umpire jaisa: awaaz se edge pakde!",
+            "onscreen": "Third umpire jaisa!",
+            "emoji": "🏏👂",
+            "delivery": "playful, aha moment",
             "footage": [
-              "microchip close up",
-              "circuit board macro",
-              "computer chip"
+              "cricket bat ball slow motion",
+              "cricket stadium screen",
+              "cricket match"
             ],
             "visual": {
               "type": "none",
@@ -827,15 +727,91 @@
             "source": ""
           },
           {
-            "text": "याद रखो: लाल screen दिखे, तो call मत उठाओ!",
-            "caption": "Yaad rakho: laal screen dikhe, toh call mat uthao!",
-            "onscreen": "Laal screen? Call mat uthao!",
-            "emoji": "✅",
-            "delivery": "firm, rhythmic",
+            "text": "अनजान number, हज़ारों को call? AI पकड़ता, screen लाल!",
+            "caption": "Anjaan number, hazaaron ko call? AI pakadta, screen laal!",
+            "onscreen": "Pattern dekha, screen laal",
+            "emoji": "🔎🚨",
+            "delivery": "slow build, then punchy",
             "footage": [
-              "red phone screen",
-              "phone notification",
-              "smartphone"
+              "phone incoming call",
+              "smartphone notification",
+              "mobile phone hand"
+            ],
+            "visual": {
+              "type": "flow",
+              "title": "AI chowkidaar kaise pakadta",
+              "items": [
+                "📞 Anjaan number aaya",
+                "🔎 Hazaaron ko call? Check",
+                "🚨 Laal warning screen"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Twist: Truecaller का AI Call Scanner नकली आवाज़ पकड़ता!",
+            "caption": "Twist: Truecaller ka AI Call Scanner nakli awaaz pakadta!",
+            "onscreen": "Nakli awaaz bhi pakdi!",
+            "emoji": "🗣️🤖",
+            "delivery": "dramatic pause, then triumphant",
+            "footage": [
+              "audio waveform screen",
+              "sound wave animation",
+              "microphone closeup"
+            ],
+            "visual": {
+              "type": "compare",
+              "title": "Call Scanner pehchaanta hai",
+              "items": [
+                "🗣️ Asli insaan",
+                "🤖 Nakli AI awaaz"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": "Truecaller · Sept 2026"
+          },
+          {
+            "text": "Paid ChatGPT नहीं, ये चौकीदार मुफ़्त!",
+            "caption": "Paid ChatGPT nahi, ye chowkidaar muft!",
+            "onscreen": "Myth: AI = paid ChatGPT",
+            "emoji": "🙄❌",
+            "delivery": "teasing, then firm",
+            "footage": [
+              "hands counting rupees",
+              "indian currency notes",
+              "wallet money"
+            ],
+            "visual": {
+              "type": "stamp",
+              "title": "AI sirf paid ChatGPT hai",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": false,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "याद रखो: लाल screen दिखे, call मत उठाओ!",
+            "caption": "Yaad rakho: laal screen dikhe, call mat uthao!",
+            "onscreen": "Laal screen? Mat uthao!",
+            "emoji": "💡✅",
+            "delivery": "proud, rhythmic verdict",
+            "footage": [
+              "red warning light",
+              "stop sign",
+              "red light"
             ],
             "visual": {
               "type": "recap",
@@ -850,15 +826,15 @@
             "source": ""
           },
           {
-            "text": "तीनों case solved! अब ये video मम्मी-पापा को भेजो, ताकि किसी का बैंक खाता खाली ना हो।",
-            "caption": "Teeno case solved! Ab ye video mummy-papa ko bhejo, taaki kisi ka bank khaata khaali na ho.",
-            "onscreen": "Mummy-papa ko bhejo",
-            "emoji": "🥳❤️",
-            "delivery": "warm, smiling, proud",
+            "text": "Case solved! लाल call? मम्मी-पापा को भेजो!",
+            "caption": "Case solved! Laal call? Mummy-papa ko bhejo!",
+            "onscreen": "Mummy-papa ko bhejo!",
+            "emoji": "🎉❤️",
+            "delivery": "warm laugh, loving nudge",
             "footage": [
-              "family hands sharing phone",
-              "parents with smartphone",
-              "family home"
+              "family living room",
+              "kitchen counter phone",
+              "cozy home interior"
             ],
             "visual": {
               "type": "none",

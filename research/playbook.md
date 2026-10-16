@@ -1,0 +1,19 @@
+# Viral playbook (2026-10-16 12:03, from 11 competitor Shorts)
+
+- **First 1-Second Rule (Cultural Incongruity & Face Presence):** Fill frame 1 with a high-contrast, hyper-local visual paired with direct eye contact—never open with empty slides, tech logos, or greeting fluff (*Aaj Tak; Qaisar Roonjha*).
+- **Hook Type 1 – The Relatable Habit Call-Out:** Call out a subconscious everyday action before hitting them with a shocking consequence (*TV9 Bharatvarsh - ChatGPT*).
+  * *Example:* "Agar aap bhi ChatGPT se 'Bhai' ya 'Please' bolkar baat karte hain, toh yeh aadat aapko bohot mehengi padne wali hai."
+- **Hook Type 2 – The Cultural Paradox:** Pair an ultra-modern AI concept with a deeply rooted, traditional Indian visual or scenario (*Aaj Tak; Bill Gates*).
+  * *Example:* "Saree pehan kar classroom mein padhane wali yeh teacher koi insaan nahi, balki ek AI robot hai."
+- **Hook Type 3 – The Interactive Mental Challenge:** Force instant brain engagement within 3 seconds so the viewer cannot swipe (*Google*).
+  * *Example:* "Apni aankhein band karo aur socho ek kisaan kaisa dikhta hai—AI aapki soch se zyada chalak hai."
+- **Teaching Move – The 'Calculator vs. Brain' Metaphor:** Explain rule-based coding vs. generative AI by contrasting fixed math (calculator always says $2+2=4$) with adaptive thinking (*Qaisar Roonjha*).
+- **Teaching Move – The Upgraded Physical Hardware Bridge:** Demystify intangible tech by grounding it in physical objects non-tech folks already understand—like comparing basic feature phones to smartphones, or ordinary dashcams to AI cruise control (*Worldwide Spoken English; What Is In Hindi*).
+- **Teaching Move – Street-Smart Indian Roleplay:** Replace dry technical definitions with comedic, localized character dialogues (e.g., simulating AI auto-replying to 'Jagmohan') and benchmark AI against relatable Indian milestones like passing or failing UPSC/JEE (*Khan Sir*).
+- **Visuals & Subtitles:** Maintain a split-screen or talking-head anchor with kinetic Devanagari + English typography, cutting to real-world visual proof (B-roll of actual phone UIs, schoolrooms, or hyper-local AI artwork) every 2–3 seconds (*Bill Gates; TV9 Bharatvarsh - ChatGPT; Qaisar Roonjha*).
+- **Pacing & Micro-Chapters:** Group the case file into a clear 3-part framework (e.g., 3 rules, 3 steps) marked by bold high-contrast on-screen chapter markers, ensuring zero cognitive overload for beginners (*Google; TV9 Bharatvarsh - 5 AI Courses*).
+- **Voice Delivery:** Deliver in warm, clear, conversational "Hinglish/Shuddh Hindi" at a measured pedagogical tempo; avoid heavy silicon-valley English jargon without immediately providing its colloquial meaning (e.g., "Masnooi Zahanat" or "मशीनों की बुद्धिमानी") (*Worldwide Spoken English; Qaisar Roonjha*).
+- **Share Triggers – Family Utility & National Pride:** Target high WhatsApp forwardability by highlighting verified zero-cost government initiatives, relatable job-threat warnings, or technological milestones emerging inside India (*Aaj Tak; TV9 Bharatvarsh - 5 AI Courses*).
+- **Endings – The Seamless Question Loop:** End mid-thought or on a sharp provocative challenge that loops directly back to the first second; ask a binary question (e.g., "Kya AI aapki naukri lega?") to flood the comments section (*TV9 Bharatvarsh - ChatGPT; Khan Sir*).
+- **What to Avoid (Technical):** Never use static PowerPoint slides, dry horizontal footage cropped with blur, slow TV broadcast bumpers/credit rolls, or 10-second channel subscribe animations that kill loop-completion rates (*Worldwide Spoken English; What Is In Hindi; Aaj Tak*).
+- **What to Avoid (Content):** Never open with corporate PR, abstract mathematical/algorithmic theory without daily life examples, or slow monologues exceeding 5 seconds before revealing the central case file topic (*Bill Gates; Google; TV9 Bharatvarsh - 5 AI Courses*).
