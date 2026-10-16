@@ -475,9 +475,15 @@ Think of a thrilling storyteller telling kids a mystery: suspense -> surprise ->
 Accent: {C['accent']}.
 #### TRANSCRIPT
 {script}"""
-    _, pcm = gemini(TTS_MODEL, [{"text": prompt}], step="voice takes", responseModalities=["AUDIO"],
-                    speechConfig={"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": voice or C["voice"]}}})
-    save_wav(path, pcm)
+    plain = "Read this like a warm, exciting storyteller, slowly and clearly, with the emotion in [brackets] (never say them):\n" + script
+    last = None
+    for model, text in ((TTS_MODEL, prompt), (LINE_TTS_MODEL, prompt), (LINE_TTS_MODEL, plain)):  # pro refused -> flash, same direction
+        try:
+            _, pcm = gemini(model, [{"text": text}], step="voice takes", responseModalities=["AUDIO"],
+                            speechConfig={"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": voice or C["voice"]}}})
+            return save_wav(path, pcm)
+        except RuntimeError as e: last = e
+    raise last
 
 
 def judge_voice(path):
@@ -496,7 +502,7 @@ def narrate(reel, path):
     for n, v in enumerate(voices):
         f = path.with_name(f"take{n}.wav")
         try:
-            retry(narrate_take, reel, f, n, v, tries=2)
+            narrate_take(reel, f, n, v)
             j = judge_voice(f) | {"voice": v}; takes.append((j["score"], f, j)); print(f"  take {n + 1} ({v}): teacher {j.get('sounds_like_real_teacher')}/10, emotion {j.get('emotion_range')}/10, excitement {j.get('excitement')}/10")
         except Exception as e: print(f"  take {n + 1} failed: {e}")
     if not takes: raise RuntimeError("no voice take succeeded")
@@ -821,7 +827,8 @@ def pick_footage(topic, say, queries, used):
                       'Reply JSON: {"ranked": [{"index": i, "score": 0-10, "why": "short"}] (best first, max 3), "best_reason_if_none": "..."}'}]
     for k, (_, b) in enumerate(imgs): parts += [{"text": f"candidate {k}:"}, {"inlineData": {"mimeType": "image/jpeg", "data": base64.b64encode(b).decode()}}]
     r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=180,
-                      json={"contents": [{"parts": parts}], "generationConfig": {"responseMimeType": "application/json"}}).json()
+                      json={"contents": [{"parts": parts}], "generationConfig": {"responseMimeType": "application/json",
+                                                                                   "mediaResolution": "MEDIA_RESOLUTION_LOW"}}).json()
     track("footage judge", RESEARCH_MODEL, r, note=f"{len(imgs)} preview images")
     if not r.get("candidates"): raise RuntimeError(f"footage judge: {str(r.get('error') or r)[:200]}")
     j = json.loads(r["candidates"][0]["content"]["parts"][0]["text"])
