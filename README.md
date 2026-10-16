@@ -6,9 +6,9 @@ Type what to teach → **Run** → a finished reel + cover + caption + SEO/marke
 Pipeline (per reel, ~6-9 min):
 1. **Research** - Gemini + Google Search: what you asked, latest news (your location first), trends, what people ask, verified facts, analogies, SEO keywords.
 2. **Script** - Claude (Claude Code login; Gemini fallback) as a fun, patient teacher: hook → concept → analogy → how it works → real news → myth vs truth → "Yaad rakho" → loop-back ending. Built on a playbook from 13 Shorts with 10M-38M views (`research/competitors_10M.json`). Mechanical checks (card numbers must be spoken, charts complete).
-3. **Voice** - Gemini TTS directed like a teacher's voice session (emotion per line), 2 takes, Gemini listens and keeps the most human one.
-4. **Visuals** - real footage from Coverr (+ Pexels with `PEXELS_KEY`), Gemini checks every clip actually matches the line; teaching moments on a bright whiteboard (definition, step diagrams, self-drawing charts, phone chat demo, recap); lighter cards float over footage. No generated images.
-5. **Edit** - Remotion: creator captions, countdown promise, source chips, SFX, Lyria music; clean grid-safe cover.
+3. **Voice** - Gemini TTS directed like a storyteller (slow, suspenseful, emotion per line); 2 different voices auditioned per reel (recent ones skipped), the most human one kept.
+4. **Visuals (AI Case File)** - a detective corkboard: every line pins a clue (real footage polaroid from Pixabay/Coverr/Pexels/Wikimedia CC0/Prelinger, an evidence card, or a sticky note with Google's animated emoji), red strings connect them, CASE SOLVED verdict. Gemini checks every clip really matches the line. No generated images.
+5. **Edit** - Remotion: camera glides clue to clue, countdown promise, source chips, risers/impacts/sparkles, Lyria music; clean grid-safe cover.
 6. **Review** - two Gemini "beginner viewers" watch the finished reel (what they learned + scores + timestamped problems); one automatic revision if needed, and the better version is kept.
 7. **Marketing pack** (`marketing.md`) - keyword-first caption, 3-5 hashtags, alt text, first comment, story + broadcast lines, best IST time, first-hour checklist (`research/instagram_reach.md`).
 8. **You approve / post** - Buffer posting only after your approval; duplicates refused.
@@ -23,10 +23,12 @@ cp .env.example .env      # add GEMINI_API_KEY (+ BUFFER_TOKEN to post)
 ```
 
 ## Run
-`./start.sh` → **AI Reels Studio** at http://127.0.0.1:7860
-- **▶️ Make a reel**: type what it should teach → **Run** → reel, cover, caption, SEO pack, review → Approve / Post.
-- **📚 Playlist**: subject + number of episodes → **Run** (plans the whole story, makes the first N); pick it again later to make the next ones.
-- **🗂 History**: every reel with status (awaiting approval / approved / queued / failed).
+`./start.sh` → **Case File Studio** at http://localhost:3737 (web app, Next.js) + API at http://127.0.0.1:8787 (`server.py`)
+- **✨ New reel**: type what it should teach → **Run** → live progress → reel, cover, caption, review, script, SEO pack → Approve / Post.
+- **📚 Playlists**: subject + number of episodes → all scripts are written first (read them any time). Under each episode: **Run case #N**.
+  Make one a day: each run does fresh research, keeps only strong examples, and learns from the previous episode's review.
+- **🎬 Library**: every reel with its status (awaiting approval / approved / queued / failed).
+- Command line still works: `./start.sh make "..."`, `./start.sh resume out/<run>`, `./start.sh auto`, `./start.sh channels`.
 
 Daily job (`crontab -e`) - approval-gated: posts the next episode only if you approved that exact video; otherwise it generates it and waits for you (series = latest, or `SERIES=<id>` in .env):
 ```

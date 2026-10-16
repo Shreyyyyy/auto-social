@@ -201,7 +201,7 @@ export const Reel: React.FC<any> = (p) => {
   const nextOf = (k: number) => L[k + 1]?.start ?? p.duration, left = Math.max(0, Math.ceil(p.duration - t));
   // camera: glide from the previous clue to the current one, a little drift, then pull back to the whole board at the end
   const g = ease((t - line.start) / 0.9), a = slot(Math.max(0, i - 1)), b = slot(i);
-  let cx = a.x + (b.x - a.x) * (i ? g : 1), cy = a.y + (b.y - a.y) * (i ? g : 1) - 40, sc = 1.12 + 0.04 * Math.sin(t * 0.6);
+  let cx = a.x + (b.x - a.x) * (i ? g : 1), cy = a.y + (b.y - a.y) * (i ? g : 1) - 40, sc = 1.04 + 0.03 * Math.sin(t * 0.6);
   // finale: pull back to show the last few clues connected by their strings (the "solved" board)
   const H = slot(n - 1).y + 700, out = ease((t - (p.duration - 2.2)) / 1.2), endY = (slot(Math.max(0, n - 4)).y + slot(n - 1).y) / 2;
   cx = cx + (BW / 2 - cx) * out; cy = cy + (endY - cy) * out; sc = sc + (0.42 - sc) * out;

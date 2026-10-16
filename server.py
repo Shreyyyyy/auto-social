@@ -79,7 +79,8 @@ def run_detail(rid: str):
     read = lambda f: (d / f).read_text() if (d / f).exists() else None
     return run_summary(d) | {"caption": m.get("caption"), "marketing": read("marketing.md"), "research": read("research.txt"),
                              "review": json.loads(read("review.json")) if read("review.json") else None,
-                             "script": json.loads(read("script.json")) if read("script.json") else None, "meta": m}
+                             "script": json.loads(read("script.json")) if read("script.json") else None, "meta": m,
+                             "usage": json.loads(read("usage.json")) if read("usage.json") else None}
 
 
 class Caption(BaseModel):

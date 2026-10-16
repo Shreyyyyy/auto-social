@@ -14,7 +14,10 @@ if [ $# -gt 0 ]; then exec uv run reel.py "$@"; fi
 
 [ -d web/node_modules ] || (cd web && npm install --silent)
 [ -d web/.next ] || (cd web && npm run build --silent)
+for port in 3737 8787; do  # stop an older copy of this app still holding our ports
+  pids=$(lsof -ti tcp:$port -sTCP:LISTEN 2>/dev/null); [ -n "$pids" ] && kill $pids 2>/dev/null && sleep 1
+done
 uv run server.py & API=$!
 trap 'kill $API 2>/dev/null' EXIT INT TERM
-(sleep 4 && open http://localhost:3737) &
+(for i in $(seq 1 60); do curl -s -o /dev/null http://127.0.0.1:8787/api/runs && break; sleep 1; done; open http://localhost:3737) &
 cd web && npm run start --silent

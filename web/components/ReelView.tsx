@@ -15,7 +15,7 @@ export default function ReelView({id}: {id: string}) {
   const [caption, setCaption] = useState("");
   const [msg, setMsg] = useState<{ok: boolean; text: string} | null>(null);
   const [busy, setBusy] = useState(false);
-  const [tab, setTab] = useState<"review" | "script" | "marketing">("review");
+  const [tab, setTab] = useState<"review" | "script" | "marketing" | "usage">("review");
 
   const load = () => api.run(id).then((x) => { setR(x); setCaption(x.caption); }).catch((e) => setMsg({ok: false, text: e.message}));
   useEffect(() => { load(); }, [id]);
@@ -60,7 +60,7 @@ export default function ReelView({id}: {id: string}) {
 
         <div className="card p-5">
           <div className="mb-4 flex gap-1 rounded-xl bg-black/30 p-1">
-            {(["review", "script", "marketing"] as const).map((t) => (
+            {(["review", "script", "marketing", "usage"] as const).map((t) => (
               <button key={t} onClick={() => setTab(t)} className={`flex-1 rounded-lg px-3 py-1.5 text-sm font-medium capitalize ${tab === t ? "bg-white/10 text-white" : "text-zinc-400"}`}>
                 {t === "marketing" ? "SEO & marketing" : t}</button>
             ))}
@@ -84,6 +84,22 @@ export default function ReelView({id}: {id: string}) {
               <span className="flex-1 text-zinc-200">{l.caption}</span>
               <span className="chip h-fit bg-white/5 text-zinc-400">{l.visual.type === "none" ? "footage" : l.visual.type}</span></li>)}
           </ol>}
+          {tab === "usage" && (r.usage ? <div className="space-y-4">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-xl bg-black/30 p-3 text-center"><p className="text-xl font-bold text-emerald-300">${r.usage.gemini_usd.toFixed(3)}</p>
+                <p className="text-[11px] text-zinc-400">Gemini (≈₹{(r.usage.gemini_usd * 88).toFixed(1)})</p></div>
+              <div className="rounded-xl bg-black/30 p-3 text-center"><p className="text-xl font-bold text-zinc-200">≈${r.usage.claude_usd_equivalent.toFixed(2)}</p>
+                <p className="text-[11px] text-zinc-400">Claude (subscription)</p></div>
+              <div className="rounded-xl bg-black/30 p-3 text-center"><p className="text-xl font-bold text-zinc-200">{r.usage.calls}</p>
+                <p className="text-[11px] text-zinc-400">AI calls · {r.usage.minutes ?? "?"} min</p></div>
+            </div>
+            <table className="w-full text-sm"><thead><tr className="text-left text-xs text-zinc-500"><th className="py-1">Step</th><th>Calls</th><th>Tokens in/out</th><th className="text-right">Cost</th></tr></thead>
+              <tbody>{Object.entries(r.usage.steps).sort((a, b) => b[1].usd - a[1].usd).map(([k, v]) => <tr key={k} className="border-t border-white/5">
+                <td className="py-1.5 text-zinc-200">{k}</td><td className="text-zinc-400">{v.calls}</td>
+                <td className="font-mono text-xs text-zinc-400">{(v.in / 1000).toFixed(1)}K / {(v.out / 1000).toFixed(1)}K</td>
+                <td className="text-right font-mono text-zinc-200">${v.usd.toFixed(4)}</td></tr>)}</tbody></table>
+            <p className="text-xs text-zinc-500">Footage, emoji animation, rendering and Buffer are free. Claude runs on your Claude Code subscription (shown as API-equivalent).</p>
+          </div> : <p className="text-sm text-zinc-400">Usage is tracked for reels made from now on.</p>)}
           {tab === "marketing" && (r.marketing ? <div className="prose-pack"><ReactMarkdown>{r.marketing}</ReactMarkdown></div> : <p className="text-sm text-zinc-400">No marketing pack.</p>)}
         </div>
       </div>

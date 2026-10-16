@@ -14,7 +14,7 @@ Gemini + Google Search does the research (news, facts, SEO keywords); every reel
   ./start.sh channels         # list Buffer channel ids
   ./start.sh resume out/<run> # finish a failed run, reusing what's done
 """
-import base64, fcntl, hashlib, io, json, os, re, shutil, subprocess, sys, time, wave
+import base64, contextlib, fcntl, hashlib, io, json, os, re, shutil, subprocess, sys, time, wave
 from pathlib import Path
 from typing import Literal
 
@@ -260,6 +260,18 @@ def add_signature(reel):
     return reel
 
 
+def write_checked(prompt, tries=3):
+    """Write a script, then repair mechanical problems (length, numbers, missing beats) up to `tries` times."""
+    reel = add_signature(retry(ask, prompt, Reel, tries=2))
+    for n in range(tries):
+        if not (issues := check_script(reel)): break
+        print(f"  fixing ({n + 1}/{tries}):", "; ".join(issues))
+        reel = add_signature(retry(ask, prompt + "\n\nYOUR PREVIOUS DRAFT HAD THESE PROBLEMS - fix every one (cut whole lines if it is too long; "
+                                   "keep the hook, define, how-it-works and recap):\n- " + "\n- ".join(issues)
+                                   + "\nPREVIOUS DRAFT:\n" + reel.model_dump_json(), Reel, tries=2))
+    return reel
+
+
 def check_script(reel):
     """Mechanical checks before paying for voice/footage: card numbers must be spoken, charts complete, teaching beats present."""
     issues, types = [], [l.visual.type for l in reel.lines]
@@ -322,6 +334,31 @@ def retry(fn, *a, tries=4, **k):
 CLAUDE_AVAILABLE = True
 
 
+# ---------- usage + cost ledger (Gemini paid-tier prices, USD per 1M tokens, from ai.google.dev/gemini-api/docs/pricing) ----------
+PRICES = {"gemini-3.8-flash": (0.75, 3.75), "gemini-2.5-pro-preview-tts": (1.00, 20.00), "gemini-2.5-flash-preview-tts": (0.50, 10.00),
+          "gemini-2.5-flash": (0.30, 2.50)}
+GROUNDING_USD, LYRIA_USD = 0.014, 0.04  # per grounded request (after 5,000 free/month), per 30s Lyria clip
+USAGE: list = []
+
+
+def track(step, model, r=None, extra_usd=0.0, note=""):
+    """Record one AI call: real token counts from the API response and what it costs."""
+    u = (r or {}).get("usageMetadata", {}) if isinstance(r, dict) else {}
+    tin, tout = u.get("promptTokenCount", 0), u.get("candidatesTokenCount", 0) + u.get("thoughtsTokenCount", 0)
+    pin, pout = PRICES.get(model, (0, 0))
+    USAGE.append({"step": step, "model": model, "in": tin, "out": tout, "usd": round(tin * pin / 1e6 + tout * pout / 1e6 + extra_usd, 5), "note": note})
+
+
+def usage_summary():
+    steps = {}
+    for u in USAGE:
+        g = steps.setdefault(u["step"], {"calls": 0, "in": 0, "out": 0, "usd": 0.0, "model": u["model"]})
+        g["calls"] += 1; g["in"] += u["in"]; g["out"] += u["out"]; g["usd"] = round(g["usd"] + u["usd"], 5)
+    gem = round(sum(u["usd"] for u in USAGE if not u["model"].startswith("claude")), 4)
+    cl = round(sum(u["usd"] for u in USAGE if u["model"].startswith("claude")), 4)
+    return {"gemini_usd": gem, "claude_usd_equivalent": cl, "calls": len(USAGE), "steps": steps}
+
+
 def ask_gemini(prompt, schema):
     """Gemini fallback when Claude CLI hits session rate limits."""
     schema_json = json.dumps(schema.model_json_schema(), ensure_ascii=False)
@@ -333,6 +370,7 @@ def ask_gemini(prompt, schema):
     r = requests.post(f"{GEMINI}/gemini-2.5-flash:generateContent", headers=GKEY(), json=body, timeout=120).json()
     if r.get("error"):
         raise RuntimeError(f"Gemini API error: {r['error']}")
+    track("script (Gemini fallback)", "gemini-2.5-flash", r)
     raw = r["candidates"][0]["content"]["parts"][0]["text"]
     return schema.model_validate(json.loads(raw))
 
@@ -350,7 +388,11 @@ def ask(prompt, schema, research=False):
                               "--json-schema", json.dumps(schema.model_json_schema()),
                               *(["--model", E("CLAUDE_MODEL")] if E("CLAUDE_MODEL") else [])],
                              input=prompt, capture_output=True, text=True, check=True).stdout
-        return schema.model_validate(json.loads(out)["structured_output"])
+        j = json.loads(out); u = j.get("usage", {})
+        USAGE.append({"step": "script (Claude)" if schema is Reel else f"{schema.__name__.lower()} (Claude)", "model": "claude",
+                      "in": u.get("input_tokens", 0) + u.get("cache_read_input_tokens", 0) + u.get("cache_creation_input_tokens", 0),
+                      "out": u.get("output_tokens", 0), "usd": round(j.get("total_cost_usd", 0), 5), "note": "covered by your Claude subscription"})
+        return schema.model_validate(j["structured_output"])
     except Exception:
         CLAUDE_AVAILABLE = False
         print("⚡ Claude session limit reached. Automatically switching to Gemini 2.5 Flash fallback.")
@@ -361,10 +403,11 @@ def save_wav(path, pcm, rate=24000):
     with wave.open(str(path), "wb") as w: w.setnchannels(1); w.setsampwidth(2); w.setframerate(rate); w.writeframes(pcm)
 
 
-def gemini(model, parts, **config):
+def gemini(model, parts, step="media", **config):
     """Gemini API (REST) -> (mime, bytes) of the first media part."""
     r = requests.post(f"{GEMINI}/{model}:generateContent", headers=GKEY(), timeout=300,
                       json={"contents": [{"parts": parts}], "generationConfig": config}).json()
+    track(step, model, r, LYRIA_USD if model.startswith("lyria") else 0.0)
     for p in ((r.get("candidates") or [{}])[0].get("content") or {}).get("parts", []):
         if "inlineData" in p: return p["inlineData"]["mimeType"], base64.b64decode(p["inlineData"]["data"])
     raise RuntimeError(f"{model}: {str(r.get('error') or r)[:300]}")
@@ -374,6 +417,7 @@ def research(topic, extra=""):
     """Gemini + Google Search grounding -> concise research notes with sources (news, facts, analogies, SEO)."""
     r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=300,
                       json={"contents": [{"parts": [{"text": RESEARCH + extra + "\nTOPIC: " + topic}]}], "tools": [{"google_search": {}}]}).json()
+    track("research (Google Search)", RESEARCH_MODEL, r, GROUNDING_USD, "grounding free for the first 5,000/month")
     c = (r.get("candidates") or [{}])[0]
     text = "".join(p.get("text", "") for p in (c.get("content") or {}).get("parts", []))
     if not text: raise RuntimeError(f"research: {str(r.get('error') or r)[:300]}")
@@ -431,7 +475,7 @@ Think of a thrilling storyteller telling kids a mystery: suspense -> surprise ->
 Accent: {C['accent']}.
 #### TRANSCRIPT
 {script}"""
-    _, pcm = gemini(TTS_MODEL, [{"text": prompt}], responseModalities=["AUDIO"],
+    _, pcm = gemini(TTS_MODEL, [{"text": prompt}], step="voice takes", responseModalities=["AUDIO"],
                     speechConfig={"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": voice or C["voice"]}}})
     save_wav(path, pcm)
 
@@ -440,6 +484,7 @@ def judge_voice(path):
     r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=300, json={"contents": [{"parts": [
         {"inlineData": {"mimeType": "audio/wav", "data": base64.b64encode(Path(path).read_bytes()).decode()}}, {"text": VOICE_JUDGE}]}],
         "generationConfig": {"responseMimeType": "application/json"}}).json()
+    track("voice judge", RESEARCH_MODEL, r)
     j = json.loads(r["candidates"][0]["content"]["parts"][0]["text"])
     j["score"] = -99 if j.get("brackets_or_directions_read_aloud") else sum(j.get(k, 0) for k in ("sounds_like_real_teacher", "emotion_range", "warmth", "pronunciation", "not_rushed")) + 2 * j.get("excitement", 0)
     return j
@@ -502,7 +547,7 @@ def gemini_tts(line, path):
     last_err = None
     for text in attempts:
         try:
-            _, pcm = gemini(LINE_TTS_MODEL, [{"text": text}],
+            _, pcm = gemini(LINE_TTS_MODEL, [{"text": text}], step="voice (line by line)",
                             responseModalities=["AUDIO"], speechConfig={"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": voice_name}}})
             save_wav(path, pcm)  # raw 24kHz 16-bit mono PCM
             return
@@ -515,7 +560,7 @@ def gemini_tts(line, path):
 def music(mood, d):
     """Lyria 3: 30s instrumental for this reel's mood (or your own music.mp3 if present). Returns the file name."""
     if Path("music.mp3").exists(): shutil.copy("music.mp3", d / "music.mp3"); return "music.mp3"
-    mime, data = gemini(MUSIC_MODEL, [{"text": f"30-second instrumental background track for an exciting but slow-paced explainer reel: {mood}. "
+    mime, data = gemini(MUSIC_MODEL, step="music (Lyria)", parts=[{"text": f"30-second instrumental background track for an exciting but slow-paced explainer reel: {mood}. "
                                                 "About 85-95 BPM, cinematic and playful: light percussion, plucks, a curious mystery feel that keeps "
                                                 "building tension with small lifts. No vocals, loopable."}])
     name = "music.wav" if "wav" in mime else "music.mp3"
@@ -625,6 +670,7 @@ def cache_put(key, value):
 
 
 SOURCE_DOWN: set = set()
+_POLITE = {"wm": threading.Lock(), "ia": threading.Lock()}
 NAMES = {"ov": "Openverse", "wm": "Wikimedia Commons", "ia": "Internet Archive", "pb": "Pixabay", "px": "Pexels"}
 
 
@@ -634,7 +680,10 @@ def cached(key, fetch):
     if (hit := cache_get(key)) is not None: return hit
     src = key.split(":")[0]
     if src in SOURCE_DOWN: return []
-    try: value = fetch()
+    try:
+        with (_POLITE[src] if src in _POLITE else contextlib.nullcontext()):  # Wikimedia/Archive rate-limit bursts
+            try: value = fetch()
+            except Exception: time.sleep(2); value = fetch()
     except Exception as e:
         with _CACHE_LOCK:
             if src not in SOURCE_DOWN: SOURCE_DOWN.add(src); print(f"  {NAMES.get(src, src)} unavailable ({str(e)[:60]}) - skipping it this run")
@@ -773,6 +822,7 @@ def pick_footage(topic, say, queries, used):
     for k, (_, b) in enumerate(imgs): parts += [{"text": f"candidate {k}:"}, {"inlineData": {"mimeType": "image/jpeg", "data": base64.b64encode(b).decode()}}]
     r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=180,
                       json={"contents": [{"parts": parts}], "generationConfig": {"responseMimeType": "application/json"}}).json()
+    track("footage judge", RESEARCH_MODEL, r, note=f"{len(imgs)} preview images")
     if not r.get("candidates"): raise RuntimeError(f"footage judge: {str(r.get('error') or r)[:200]}")
     j = json.loads(r["candidates"][0]["content"]["parts"][0]["text"])
     out = [(imgs[x["index"]][0], float(x.get("score", 0)), str(x.get("why", ""))[:120]) for x in j.get("ranked", [])
@@ -1031,6 +1081,7 @@ def review(d, reel):
     def one(_):
         r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=600, json={"contents": [{"parts": [
             {"inlineData": {"mimeType": "video/mp4", "data": video}}, {"text": prompt}]}], "generationConfig": {"responseMimeType": "application/json"}}).json()
+        track("beginner review", RESEARCH_MODEL, r)
         return json.loads(r["candidates"][0]["content"]["parts"][0]["text"])
     import concurrent.futures as cf
     with cf.ThreadPoolExecutor(2) as ex: runs = [x for x in ex.map(lambda k: (lambda: one(k))(), range(2))]  # two independent viewers
@@ -1055,7 +1106,13 @@ def needs_fix(j):
 
 def make(brief, meta=None, d=None):
     """Script -> voice -> music + stock footage -> Remotion render. Pass d=<out dir> to resume a failed run."""
-    with lock(): return _make(brief, meta, d)
+    with lock():
+        USAGE.clear(); t0 = time.time()
+        out = _make(brief, meta, d)
+        u = usage_summary() | {"minutes": round((time.time() - t0) / 60, 1), "detail": list(USAGE)}
+        rd = Path(out[0]).parent; (rd / "usage.json").write_text(json.dumps(u, ensure_ascii=False, indent=1))
+        print(f"  usage: Gemini ${u['gemini_usd']:.3f} · Claude ≈${u['claude_usd_equivalent']:.2f} (subscription) · {u['calls']} AI calls · {u['minutes']} min")
+        return out
 
 
 def _make(brief, meta, d):
@@ -1068,16 +1125,11 @@ def _make(brief, meta, d):
     else:
         (d / "brief.txt").write_text(brief); (d / "job.json").write_text(json.dumps(meta or {}))
         t0 = time.time(); print("researching (Gemini + Google Search)...")
-        try: notes = research(brief[:1500])
+        try: notes = retry(research, brief[:1500], tries=3)
         except Exception as e: notes = "(research unavailable)"; print(f"  research skipped: {e}")
         (d / "research.txt").write_text(notes, encoding="utf-8"); print(f"  {time.time() - t0:.0f}s")
         t0 = time.time(); print("writing (Claude)..."); prompt = BRIEF.replace("RESEARCH_NOTES", notes) + brief
-        reel = retry(ask, prompt, Reel, tries=2)
-        reel = add_signature(reel)
-        if (issues := check_script(reel)):  # one repair pass for mechanical problems (numbers, charts, missing teaching beats)
-            print("  fixing:", "; ".join(issues)); reel = retry(ask, prompt + "\n\nYOUR PREVIOUS DRAFT HAD THESE PROBLEMS - fix them:\n- "
-                                                             + "\n- ".join(issues) + "\nPREVIOUS DRAFT:\n" + reel.model_dump_json(), Reel, tries=2)
-            reel = add_signature(reel)
+        reel = write_checked(prompt)
         (d / "script.json").write_text(reel.model_dump_json(indent=2), encoding="utf-8"); print(f"  {time.time() - t0:.0f}s")
     print(f"  {reel.title} | {reel.genre}")
     t0 = time.time()
@@ -1136,10 +1188,9 @@ def _make(brief, meta, d):
         print("  revising the script from the review and re-rendering once...")
         fix = "\n".join(f"- {p.get('time', '')}: {p.get('issue', '')} -> {p.get('fix', '')}" for p in rv.get("problems", []))
         notes = (d / "research.txt").read_text() if (d / "research.txt").exists() else ""
-        new = retry(ask, BRIEF.replace("RESEARCH_NOTES", notes) + brief + "\n\nA BEGINNER WATCHED YOUR LAST VERSION. They learned: "
-                    f"{rv.get('learned')}. Scores: {rv.get('scores')}. Fix every problem below, keep what worked:\n{fix}\n"
-                    "LAST VERSION:\n" + reel.model_dump_json(), Reel, tries=2)
-        new = add_signature(new)
+        new = write_checked(BRIEF.replace("RESEARCH_NOTES", notes) + brief + "\n\nA BEGINNER WATCHED YOUR LAST VERSION. They learned: "
+                            f"{rv.get('learned')}. Scores: {rv.get('scores')}. Fix every problem below, keep what worked:\n{fix}\n"
+                            "LAST VERSION:\n" + reel.model_dump_json())
         v1 = d / "v1"; v1.mkdir(exist_ok=True)  # keep the first version; restored if the revision scores lower
         for f in [d / "reel.mp4", d / "cover.jpg", d / "meta.json", d / "marketing.md", d / "props.json"]:
             if f.exists(): shutil.copy(f, v1 / f.name)
@@ -1286,15 +1337,15 @@ def write_episode_script(sr, i, notes):
     nxt = f"\nNEXT EPISODE (tease it at the end): {eps[i + 1]['title']}" if i + 1 < len(eps) else "\nThis is the series finale."
     prev = f"\nPREVIOUS CASE: #{i} {eps[i - 1]['title']} - open with a one-line callback to it." if i else ""
     brief = f"Series '{sr['name']}', CASE #{i + 1}/{len(eps)}: {e['title']} ({e['era']})\n{e['brief']}{prev}{nxt}"
-    reel = add_signature(retry(ask, BRIEF.replace("RESEARCH_NOTES", notes) + brief, Reel, tries=2))
-    return reel.model_dump()
+    return write_checked(BRIEF.replace("RESEARCH_NOTES", notes) + brief).model_dump()
 
 
 def plan_series(subject, n=10):
     """Plan the playlist AND write every episode's script now. Videos are made later, one Run at a time."""
     import concurrent.futures as cf
+    USAGE.clear()
     print("researching the whole story (Gemini + Google Search)...")
-    notes = research(subject, "8. Key milestones from the origins to today and what is coming next: year, who, what changed, "
+    notes = retry(research, subject, "8. Key milestones from the origins to today and what is coming next: year, who, what changed, "
                               f"why it mattered - enough for {int(n)} daily episodes.\n")
     print("planning episodes (Claude)...")
     sr = ask(PLAN_SERIES.replace("N_EPISODES", str(int(n))) + "\nRESEARCH NOTES:\n" + notes + "\n\n" + subject, Series)
@@ -1308,6 +1359,8 @@ def plan_series(subject, n=10):
         except Exception as ex: print(f"  script {i + 1} failed: {ex}")
         save(sr)
     with cf.ThreadPoolExecutor(3) as ex: list(ex.map(one, range(len(sr["episodes"]))))
+    sr = load(sr["id"]); sr["planning_usage"] = usage_summary(); save(sr)
+    print(f"  usage: Gemini ${sr['planning_usage']['gemini_usd']:.3f} · Claude ≈${sr['planning_usage']['claude_usd_equivalent']:.2f} (subscription)")
     return sr
 
 
