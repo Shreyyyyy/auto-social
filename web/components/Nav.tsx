@@ -12,13 +12,16 @@ const ITEMS = [
 export default function Nav() {
   const path = usePathname();
   return (
-    <nav className="space-y-1">
+    <nav className="flex gap-1 overflow-x-auto md:flex-col md:space-y-1">
       {ITEMS.map((it) => {
         const active = it.href === "/" ? path === "/" : path.startsWith(it.href);
         return (
           <Link key={it.href} href={it.href}
-            className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${active ? "bg-white/10 text-white" : "text-zinc-400 hover:bg-white/5 hover:text-zinc-100"}`}>
-            <span>{it.icon}</span>{it.label}
+            className={`relative flex shrink-0 items-center gap-3 rounded-2xl px-4 py-3 text-[0.95rem] font-medium transition ${active
+              ? "bg-gradient-to-r from-case-500/30 via-white/[0.08] to-transparent text-white shadow-[inset_0_1px_0_rgba(255,255,255,.08)]"
+              : "text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-100"}`}>
+            {active && <span className="absolute left-0 top-1/2 hidden h-6 w-1 -translate-y-1/2 rounded-full bg-gradient-to-b from-neon-cyan to-neon-pink shadow-[0_0_12px] shadow-case-400 md:block" />}
+            <span className="text-lg">{it.icon}</span>{it.label}
           </Link>
         );
       })}

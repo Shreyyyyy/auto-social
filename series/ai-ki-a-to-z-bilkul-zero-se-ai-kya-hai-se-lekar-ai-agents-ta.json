@@ -1,0 +1,2834 @@
+{
+  "id": "ai-ki-a-to-z-bilkul-zero-se-ai-kya-hai-se-lekar-ai-agents-ta",
+  "name": "AI ki A to Z: bilkul zero se - AI kya hai se lekar AI agents tak",
+  "subject": "AI ki A to Z: bilkul zero se - AI kya hai se lekar AI agents tak",
+  "notes": "### 0. UNDERSTANDING\n* **Topic & Angle:** A zero-to-hero primer explaining what Artificial Intelligence (AI) actually is, how it evolved from answering questions to doing tasks on its own (AI Agents), demystified in plain everyday Hindi/Hinglish.\n* **Core Takeaway:** AI is not magic or a robot monster—it started as an *information assistant* (like a digital munshi) and has now graduated into an *action agent* (a smart helper who can book tickets and buy groceries for you).\n\n---\n\n### 1. LATEST NEWS (Last 60 Days — India First)\n* **AI Agents Paying via UPI (Sept–Oct 2026):** The National Payments Corporation of India (NPCI) is developing the *Unified Agent Protocol (UAP)*, which will allow verified AI agents to execute small autonomous UPI transactions (like ordering weekly ration/groceries) within pre-set budget caps without manual PIN approval for each transaction *(Source: Reuters / The Times of India, Sept 9, 2026)*.\n* **IndiGo Airlines Deploys Vernacular AI Agents (Sept 2026):** IndiGo backed Sarvam AI to integrate agentic multilingual voice workflows directly into airline operations to handle real-time customer calls and flight queries in regional Indian dialects *(Source: Reddit AI India / Tech Portal Reports, Sept 2, 2026)*.\n* **Sarvam AI Enterprise Agent Push (Oct 2026):** Homegrown startup Sarvam AI expanded talks for funding at a $3 billion valuation to build out sovereign Indic language AI agents for Indian public institutions and banks like LIC and SBI Life *(Source: The Economic Times, Oct 13, 2026)*.\n\n---\n\n### 2. TRENDING\n* **Search Interest:** Spikes around terms like *\"AI agent kya hota hai\"*, *\"ChatGPT vs AI Agents\"*, and *\"UPI AI auto payment\"*.\n* **Viral Creator Angles:** \n  * \"ChatGPT sirf bolta hai, naya AI kaam kar deta hai\" (Comparison reels showing ChatGPT drafting an email vs. an Agent actually opening Gmail, attaching a PDF, and hitting send).\n  * \"Future of Kirana\": Showing an AI agent automatically checking fridge inventory, reordering atta/dal on Blinkit/Zepto, and settling via UPI.\n* **Audio & Hashtags:** Trending audio using punchy fast tech beats (synth-wave/phonk loops); hashtags: `#AIAgents`, `#TechKiBaat`, `#FutureOfWork`, `#GenerativeAI`, `#DigitalIndia`.\n\n---\n\n### 3. WHAT PEOPLE ARE SAYING\n* *\"Bhai, ChatGPT to bas gyaan deta hai, agent khud Tatkal ticket book kar dega kya?\"* — Common query on YouTube comments and Reddit India.\n* *\"Yeh to computer virus jaisa bank account khali toh nahi kar dega?\"* — Middle-aged parent concern seen on WhatsApp tech communities and X regarding autonomous UPI payments.\n* *\"Dukan pe hisaab rakhne ke liye software tha, ab munshi hi AI ban gaya.\"* — Small business owner on Quora.\n* *\"AI hamari naukri khayega ya humara kaam asaan karega?\"* — Constant recurring theme across Indian college reels.\n\n---\n\n### 4. FACTS\n* **UPI Monthly Volume (Aug 2026):** India’s UPI recorded 24.51 billion transactions in a single month worth ₹29.82 lakh crore, providing the foundation for NPCI's upcoming autonomous AI agent layer *(Source: NPCI / The Times of India, Sept 2026)*. *(Note: Some earlier mid-2024 NPCI releases cited ~15 billion monthly transactions, reflecting rapid growth to 24.5B in 2026)*.\n* **Indian Language Compute (2024–2026):** Over 90% of Indians access the internet in vernacular languages, prompting sovereign models like Sarvam 2B and Indus to be trained on multi-trillion Indic tokens across 10+ official languages *(Source: Sarvam AI Product Launch, Aug 2024 / Aug 2026)*.\n* **Agent Market Shift (2024–2026):** Gartner and IDC research project that by 2026–2027, over 40% of customer support workflows and enterprise IT operations will transition from prompt-response chatbots to multi-step autonomous AI agents *(Source: Gartner Enterprise Tech Briefings, 2025/2026)*.\n\n---\n\n### 5. BEGINNER TEACHING\n\n#### One Plain Sentence\n> *\"Pehle ka AI sirf sawaal ka jawaab likh kar deta tha, par naya 'AI Agent' ek samajhdaar assistant hai jo aapke kahe bina poora kaam khud execute kar deta hai.\"*\n\n#### 3 Everyday Indian Analogies\n1. **Kirana Dukan ka Munshi (The Evolution):** \n   * *Traditional Software:* The paper bahi-khata (only records entries).\n   * *Generative AI (ChatGPT):* A calculator that answers \"Chini ka daam kya hai?\".\n   * *AI Agent:* A chhotu/munshi who notices the sugar sack is empty, walks to the wholesale mandi, bargains, buys 5 sacks within a ₹2,000 budget, and places them in the store.\n2. **Cricket Captain vs. Batsman:**\n   * An LLM/Chatbot is like a batsman playing one ball (one prompt, one response).\n   * An AI Agent is Rohit Sharma as captain: he assesses the field, plans 5 overs ahead, changes bowlers if runs are leaking, and adapts until the match is won.\n3. **IRCTC Tatkal Booking:**\n   * Normal AI writes a guide: *\"How to book a ticket at 10:00 AM.\"*\n   * An AI Agent logs in at 9:59 AM, fills passenger details, solves the captcha, and keeps the ticket ready before the clock strikes 10:02 AM.\n\n#### Myth vs. Truth\n* **Myth:** *\"AI Agent ka matlab Terminator ya lohe ka robot hai jo insaano ko replace karega.\"*\n* **Truth:** AI Agent sirf ek smart software script hai jo browser aur apps chala sakta hai taaki aapka boring routine computer kaam (emails, data entry, bills) apne aap ho sake.\n\n#### Simple Real Data for Chart (Evolution of AI Interaction)\n* **2015:** Rule-Based AI (Siri/Alexa simple voice toggles) — *Accuracy on complex tasks: ~20%*\n* **2022:** Generative AI (ChatGPT prompt & text replies) — *Task execution: 0% (only text)*\n* **2024:** Tool-Use AI (Plugins & search lookup) — *Execution rate: ~35%*\n* **2026:** Autonomous AI Agents (Multi-step goal execution & UPI/API actions) — *Target efficiency: 80%+ on defined enterprise workflows*\n\n---\n\n### 6. BEST EXAMPLES\n\n| Candidate Example | Verified (1-10) | Recent (1-10) | Relatable in India (1-10) | Surprising (1-10) | Total (/40) | Decision | Reason |\n| :--- | :--- | :--- | :--- | :--- | :--- | :--- |\n| **1. NPCI UPI Agentic Payments** (AI directly buying groceries within user-set budget) | 10 | 10 | 10 | 10 | **40** | **KEEP** | Absolute daily-life goldmine. Every Indian uses UPI; hearing that AI can spend up to ₹500 for ration automatically creates instant intrigue. |\n| **2. Kirana Munshi to Digital Agent** (Inventory auto-restock workflow) | 9 | 9 | 10 | 9 | **37** | **KEEP** | Perfect conceptual hook for parents, shopkeepers, and students to understand \"Chatbot vs Agent\" in 5 seconds. |\n| **3. IndiGo Airlines Voice Agents** (Vernacular passenger call handling by Sarvam) | 9 | 8 | 8 | 7 | **32** | **DROP** | Good enterprise use-case, but slightly less gripping for a 40-sec beginner reel than UPI. |\n| **4. Autonomous Code Writing Agents (Devin / GitHub Copilot Workspace)** | 9 | 7 | 6 | 7 | **29** | **DROP** | Too technical; parents and homemakers will disconnect immediately. |\n| **5. Autonomous Healthcare Diagnostic Agents** | 8 | 7 | 7 | 8 | **30** | **DROP** | Heavy regulatory caveats, lacks the instant everyday punch of shopping/UPI. |\n\n---\n\n### 7. SEO & DISCOVERY STRATEGY\n\n#### 8 Search Phrases\n1. AI kya hai bilkul shuruat se\n2. AI agent kya hota hai\n3. What is AI agent in Hindi\n4. Difference between ChatGPT and AI Agent\n5. AI UPI payment Kaise karta hai\n6. AI explained for beginners in Hindi\n7. How AI agents work simply explained\n8. Artificial Intelligence A to Z in Hindi\n\n#### 5 Relevant Active Hashtags\n* `#AIAgents`\n* `#AIExplained`\n* `#TechInHindi`\n* `#DigitalBharat`\n* `#FutureTech`\n\n#### Instagram Reels Discovery Guidance\n* **Hook On-Screen Text (First 3 sec):** *\"ChatGPT ab purana ho gaya? Meet AI AGENTS!\"* or *\"AI ab sirf bolega nahi, kaam karega!\"*\n* **Caption Structure:** Keep the first 2 lines punchy and curiosity-driven. Break down the 3-step difference (Chatbot vs Agent) using bullet points and a question at the end: *\"Kya aap apne UPI ka access AI ko doge? Comment me batao.\"*\n* **Audio & Retention:** Use clear voice-over upfront with high contrast yellow/white Hinglish auto-captions.\n\n---\n\n### 8. EXTRA: 10 DAILY EPISODES (Origin to Future Roadmap)\n\n* **Episode 1: The Birth (1950–1956)**\n  * *Who:* Alan Turing & John McCarthy.\n  * *What:* The \"Turing Test\" question: *Can machines think?*\n  * *Why It Mattered:* Coined the term \"Artificial Intelligence\" and laid mathematical foundations.\n* **Episode 2: The Rules Era / Expert Systems (1970s–1980s)**\n  * *Who:* Edward Feigenbaum & early computer scientists.\n  * *What:* \"If-Else\" rulebooks programmed into computers for medical and chess logic.\n  * *Why It Mattered:* First time computers automated human decision trees, though rigid.\n* **Episode 3: Machine Learning Awakens (1990s–2000s)**\n  * *Who:* IBM (Deep Blue) & statistical pioneers.\n  * *What:* Computers learning patterns from data instead of hardcoded rules. Deep Blue defeats Garry Kasparov (1997).\n  * *Why It Mattered:* Proved computers can outcalculate world champions using pattern recognition.\n* **Episode 4: The Deep Learning & Big Data Boom (2012)**\n  * *Who:* Geoffrey Hinton & Alex Krizhevsky (AlexNet).\n  * *What:* Neural networks powered by modern GPUs crack image recognition.\n  * *Why It Mattered:* Gave AI \"eyes\" to read numbers, faces, and medical scans.\n* **Episode 5: The Smartphone AI in Your Pocket (2015–2016)**\n  * *Who:* Google, Apple, YouTube.\n  * *What:* Recommendation algorithms and voice assistants (Google Assistant, Siri, YouTube feed).\n  * *Why It Mattered:* AI shifted from research labs to influencing daily habits of billions in India.\n* **Episode 6: The Transformer Breakthrough (2017)**\n  * *Who:* Google Brain researchers (*\"Attention Is All You Need\"*).\n  * *What:* Novel neural network architecture understanding language context in parallel.\n  * *Why It Mattered:* The parent architecture behind ChatGPT, Gemini, and all modern generative tech.\n* **Episode 7: The Generative AI Explosion (2022–2023)**\n  * *Who:* OpenAI (ChatGPT).\n  * *What:* AI generating essays, poetry, and code directly from conversational prompts.\n  * *Why It Mattered:* AI became universally accessible to non-tech people overnight.\n* **Episode 8: AI Learns Indian Voices (2024)**\n  * *Who:* Indian AI initiatives (Bhashini, Sarvam AI, BharatGPT).\n  * *What:* Sovereign Indic models breaking language and literacy barriers for voice/regional speakers.\n  * *Why It Mattered:* Democratised tech for rural and non-English-speaking Bharat.\n* **Episode 9: The Rise of AI Agents (2025–2026)**\n  * *Who:* Anthropic, OpenAI, NPCI Unified Agent Protocol.\n  * *What:* AI transitioning from conversational chatbots to autonomous agents using computers and payment rails.\n  * *Why It Mattered:* AI stops just chatting and starts operating software on human behalf.\n* **Episode 10: What’s Next — Physical AI & AGI (Future)**\n  * *Who:* Robotics labs & frontier labs.\n  * *What:* Agents entering physical humanoid robots and ambient spaces (smart homes/factories).\n  * *Why It Mattered:* Blurs the boundary between digital tasks and real-world physical assistance.\nSources: indiatimes.com, reddit.com, instagram.com, startupwire.in, sarvam.ai, youtube.com, unpay.co, hindustantimes.com",
+  "created": "2026-10-16 12:17",
+  "arcs": [
+    {
+      "title": "Chapter 1 - Jad: AI ka janm aur pehle kadam",
+      "summary": "Ek sawaal ('kya machine soch sakti hai?') se lekar rulebook wale AI aur phir khud seekhne wali machine tak - AI ki neev."
+    },
+    {
+      "title": "Chapter 2 - Breakthrough: AI ko aankhein, jeb aur zubaan mili",
+      "summary": "Deep learning ne AI ko dekhna sikhaya, smartphone ne use har jeb mein pahunchaaya, aur Transformer ne use bhasha samajhna sikhaya."
+    },
+    {
+      "title": "Chapter 3 - Aaj: AI bolta hai, Bharat ki bhasha mein, aur ab kaam bhi karta hai",
+      "summary": "ChatGPT ne AI ko sabke haath diya, Indic AI ne use Bharat ki zubaan di, aur AI Agents ne use 'bolne' se 'karne' tak pahunchaaya."
+    },
+    {
+      "title": "Chapter 4 - Kal: AI ka agla chapter",
+      "summary": "Screen se bahar - physical AI aur AGI ka sapna, aur aapki naukri ka sach."
+    }
+  ],
+  "episodes": [
+    {
+      "title": "Machine soch sakti hai? 1950 ka sawaal jo aaj aapke UPI tak pahunch gaya",
+      "era": "1950-1956",
+      "brief": "0-1.5s HOOK: (Phone pe customer care call ki ghanti) \"Aapne pichhle hafte jis 'customer care' se baat ki... pakka insaan tha?\" Lagta galat hai, par sach ho sakta hai.\n1.5-5s SELF-RELEVANCE + OPEN LOOP: Aapke WhatsApp, Gmail, phone - har jagah ab 'AI' likha hai. Ye naam ek aadmi ne rakha tha, aur wahi sawaal aaj aapke UPI tak aa pahuncha hai - kaise, wo aage batata hoon.\n5-10s CONCEPT IN ONE SENTENCE: AI matlab machine ko aisa banana ki wo woh kaam kar sake jisme insaan ko dimaag lagana padta hai.\n10-17s REAL-LIFE ANALOGY: Parde ke peeche se phone pe koi baat kar raha hai - agar aap bata hi na pao ki wo insaan hai ya machine, to machine 'samajhdaar' maani jaayegi. Yahi hai 1950 mein Alan Turing ka 'Turing Test'.\n17-28s HOW IT WORKS (screen pe banta hai): 1) Ek judge, do parde - ek ke peeche insaan, ek ke peeche machine. 2) Judge dono se likh kar sawaal poochta hai. 3) Judge pehchaan na paaye to machine pass. 4) 1956: John McCarthy ne is sapne ko naam diya - 'Artificial Intelligence'.\n28-34s LOCAL NEWS EXAMPLE (loop payoff): Sept 2026 mein IndiGo ne Sarvam AI ke saath milkar regional boliyon mein customer calls sambhalne wale AI voice agents lagaye (Source: Reddit AI India / Tech Portal reports, 2 Sept 2026). Aur NPCI aisa system bana raha hai jisme verified AI agent tay budget ke andar UPI payment kar sake (Reuters / Times of India, 9 Sept 2026). Turing ka sawaal ab aapke phone pe hai.\n34-38s MYTH vs TRUTH: Aap soch rahe ho - 'AI matlab lohe ka robot?' Nahi. AI ki shuruaat ek sawaal aur kaagaz-pen ke idea se hui thi - ye software ka dimaag hai, lohe ka shareer nahi.\n38-42s YAAD RAKHO: \"AI = machine jo dimaag wala kaam kare.\" Ab aap zyaadatar logon se zyada jaante ho ki 'AI' shabd aaya kahaan se.\n42-45s SIGN-OFF: Ye video us dost ko bhejo jo AI ko 'Terminator' samajhta hai. Par pehli machines seekhti nahi thi - sirf ratti thi. Kal: wo 'rulebook' wala AI jo aapko aaj bhi 'Press 1' bolta hai.\nEXAMPLE: Customer care call - aawaz insaan ki hai ya machine ki? Yahi Turing Test hai, aapke phone pe.\nVISUALS: Stock: bajta hua phone, haath mein phone, purane computer/typewriter, 1950s style black-and-white office footage (bina chehron ke). Drawn: do parde + judge ka icon, '1950 Turing' aur '1956 AI ka naam' timeline, IndiGo/UPI news card overlay. Captions peele-safed.\nWHY NOW: IndiGo-Sarvam voice agents (2 Sept 2026) aur NPCI ka AI-agent UPI plan (9 Sept 2026) - log poochh rahe hain 'AI agent kya hota hai'; jawaab 1950 ke sawaal se shuru hota hai.",
+      "builds_on": [],
+      "arc": 0,
+      "status": "posted",
+      "script": {
+        "title": "AI kya hai? 1950 ka Turing Test aur 'AI' naam kahaan se aaya",
+        "genre": "AI Case File - beginner explainer (Series: AI ki A to Z, Case #1/10)",
+        "case_title": "Machine Soch Sakti Hai?",
+        "hook": "AI kya hai? Call pe insaan?",
+        "music_mood": "soft curious detective lo-fi with playful pizzicato",
+        "caption_ig": "AI kya hai? Simple: machine jo dimaag wala kaam kare - aur kahaani 1950 ke ek sawaal se shuru hui.\n\nYaad rakho: AI = machine jo dimaag wala kaam kare.\n\nTuring Test kya hai? 1950 mein Alan Turing ne poocha \"kya machine soch sakti hai?\" 1956 mein John McCarthy ne naam diya: Artificial Intelligence.\nAaj wahi sawaal customer care calls aur UPI tak aa gaya hai - AI agent kya hota hai, is series mein bilkul zero se samjhenge.\n\nSave karo aur us dost ko bhejo jo AI ko Terminator samajhta hai. Case #2 kal!",
+        "seo": {
+          "keywords": [
+            "AI kya hai",
+            "AI kya hai bilkul shuruat se",
+            "Turing Test kya hai",
+            "Artificial Intelligence A to Z in Hindi",
+            "AI explained for beginners in Hindi",
+            "AI agent kya hota hai",
+            "AI ka naam kisne rakha"
+          ],
+          "hashtags": [
+            "#AIExplained",
+            "#TechInHindi",
+            "#AIAgents",
+            "#DigitalBharat"
+          ],
+          "alt_text": "A beginner-friendly Hindi reel explaining AI kya hai through the 1950 Turing Test, how John McCarthy named Artificial Intelligence in 1956, and how it reaches today's customer care calls and UPI.",
+          "first_comment": "Sach batao - kabhi customer care call pe shak hua ki saamne machine hai? Turing Test ko apne shabdon mein ek line mein samjhao 👇",
+          "story_text": "Pichhli customer care call pe insaan tha ya machine? 🤔 1950 ka ye sawaal aaj bhi zinda hai...",
+          "broadcast_text": "Case #1 khul gaya! 🕵️ AI kya hai aur 'AI' naam aaya kahaan se - 40 second mein, bilkul zero se."
+        },
+        "lines": [
+          {
+            "text": "पिछली customer care call... पक्का इंसान था?",
+            "caption": "Pichhli customer care call... pakka insaan tha?",
+            "onscreen": "Call pe insaan tha?",
+            "emoji": "🤨",
+            "delivery": "suspense, whispering",
+            "footage": [
+              "woman on phone call",
+              "phone ringing desk",
+              "person holding phone"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "ये है AI की Chai-Break Class — चालीस second, एक concept, ज़िंदगी भर याद!",
+            "caption": "Ye hai AI ki Chai-Break Class — 40 second, ek concept, zindagi bhar yaad!",
+            "onscreen": "AI ki Chai-Break Class",
+            "emoji": "☕",
+            "delivery": "bright, warm, signature tone, smiling",
+            "footage": [],
+            "visual": {
+              "type": "brand",
+              "title": "AI ki Chai-Break Class",
+              "items": [
+                "40 sec · 1 concept · zindagi bhar yaad"
+              ],
+              "number": 0,
+              "suffix": "☕",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "AI मतलब: machine जो दिमाग वाला काम करे।",
+            "caption": "AI matlab: machine jo dimaag wala kaam kare.",
+            "onscreen": "AI = dimaag wali machine",
+            "emoji": "🧠💡",
+            "delivery": "warm, clear, smiling",
+            "footage": [
+              "student thinking notebook",
+              "person solving puzzle",
+              "thinking"
+            ],
+            "visual": {
+              "type": "define",
+              "title": "AI",
+              "items": [
+                "Dimaag wala kaam karne wali machine"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "1950, Turing का सवाल: machine सोच सकती है?",
+            "caption": "1950, Turing ka sawaal: machine soch sakti hai?",
+            "onscreen": "1950: Machine soch sakti?",
+            "emoji": "🧐",
+            "delivery": "dramatic pause, then serious",
+            "footage": [
+              "vintage typewriter typing",
+              "black white office",
+              "old computer"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Judge, दो परदे, लिखे सवाल... पहचान न पाए? Machine pass!",
+            "caption": "Judge, do parde, likhe sawaal... pehchaan na paaye? Machine pass!",
+            "onscreen": "Turing Test",
+            "emoji": "⚖️🤖",
+            "delivery": "slow build, then excited",
+            "footage": [
+              "curtain behind silhouette",
+              "person writing letter",
+              "curtain"
+            ],
+            "visual": {
+              "type": "flow",
+              "title": "Turing Test",
+              "items": [
+                "⚖️ Judge, do parde",
+                "✍️ Likh kar sawaal",
+                "🤖 Pehchaan nahi? Pass!"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "1956: McCarthy ने नाम दिया, Artificial Intelligence!",
+            "caption": "1956: McCarthy ne naam diya, Artificial Intelligence!",
+            "onscreen": "1956: Naam mila 'AI'",
+            "emoji": "🎉",
+            "delivery": "proud, punchy",
+            "footage": [
+              "vintage computer room",
+              "old university building",
+              "chalkboard writing"
+            ],
+            "visual": {
+              "type": "list",
+              "title": "Case timeline",
+              "items": [
+                "1950: Turing Test",
+                "1956: 'AI' naam mila"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "रुको... आज IndiGo की calls AI संभाल रहा है!",
+            "caption": "Ruko... aaj IndiGo ki calls AI sambhal raha hai!",
+            "onscreen": "Calls pe AI agents",
+            "emoji": "😲✈️",
+            "delivery": "gasp, shocked",
+            "footage": [
+              "airport check-in counter",
+              "airplane at airport",
+              "woman phone call"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": "Tech Portal Reports · 2 Sep 2026"
+          },
+          {
+            "text": "और NPCI: AI जो budget में UPI करे!",
+            "caption": "Aur NPCI: AI jo budget mein UPI kare!",
+            "onscreen": "AI karega UPI payment",
+            "emoji": "💸🤯",
+            "delivery": "big excited reveal",
+            "footage": [
+              "UPI QR payment shop",
+              "phone payment kirana",
+              "mobile payment"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": "Reuters/TOI · 9 Sep 2026"
+          },
+          {
+            "text": "लोहे का robot? नहीं, software का दिमाग!",
+            "caption": "Lohe ka robot? Nahi, software ka dimaag!",
+            "onscreen": "Robot nahi, software",
+            "emoji": "😂🤖",
+            "delivery": "laughing, then firm",
+            "footage": [
+              "toy robot table",
+              "laptop code screen",
+              "computer"
+            ],
+            "visual": {
+              "type": "stamp",
+              "title": "AI = lohe ka robot",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": false,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "याद रखो: AI = machine जो दिमाग वाला काम करे।",
+            "caption": "Yaad rakho: AI = machine jo dimaag wala kaam kare.",
+            "onscreen": "CASE SOLVED",
+            "emoji": "✅🧠",
+            "delivery": "slow, rhythmic, proud",
+            "footage": [
+              "detective board pins",
+              "notebook writing",
+              "desk"
+            ],
+            "visual": {
+              "type": "recap",
+              "title": "AI = machine jo dimaag wala kaam kare",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "कल: 'Press 1' वाला AI... वो call, इंसान था?",
+            "caption": "Kal: 'Press 1' wala AI... wo call, insaan tha?",
+            "onscreen": "Kal: 'Press 1' wala AI",
+            "emoji": "😉",
+            "delivery": "warm, then teasing whisper",
+            "footage": [
+              "phone keypad pressing",
+              "friends sharing phone",
+              "phone call"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          }
+        ]
+      },
+      "video": "out/20261016-123436/reel.mp4"
+    },
+    {
+      "title": "'Press 1 for Hindi' bhi AI tha? Rulebook wala AI",
+      "era": "1970s-1980s",
+      "brief": "0-1.5s HOOK: (Phone pe IVR menu) \"'Hindi ke liye 1 dabaayein...' - ye gussa dilaane wali aawaz bhi ek tarah ka AI hai.\"\n1.5-5s SELF-RELEVANCE + OPEN LOOP: Bank, bijli, gas booking - har jagah aap is 'rule wale AI' se ladte ho. Is AI ki ek kamzori ne isse lagbhag khatam kar diya - wo 30 second mein.\n5-10s CONCEPT IN ONE SENTENCE: 'Expert system' matlab kisi expert ke saare niyam computer mein likh do - 'agar ye, to wo' - aur computer unhi niyamon se faisla kare.\n10-17s REAL-LIFE ANALOGY: Dadi ki nuskhon wali diary - 'khaansi + bukhaar = kaadha'. Diary mein likha hai to perfect jawaab. Nayi bimaari aayi to diary chup.\n17-28s HOW IT WORKS (screen pe banta hai): 1) Doctor/expert se saare niyam likhwao. 2) Computer mein IF-THEN ki seedhi banao. 3) Sawaal aaye to computer seedhi pe chalke jawaab de. 4) Koi niyam match na ho - computer atak jaata hai.\n28-34s LOCAL NEWS EXAMPLE (loop payoff): Kamzori yahi thi - duniya itni badi hai ki har case ka niyam likhna namumkin. Isliye ab IndiGo jaisi airline 'Press 1' wale menu se aage badhkar Sarvam AI ke voice agents laga rahi hai jo regional boliyan samajhte hain (Source: Reddit AI India / Tech Portal reports, 2 Sept 2026).\n34-38s MYTH vs TRUTH: Aap soch rahe ho - 'computer jo bhi kare, khud sochta hoga.' Nahi - rule wala AI utna hi jaanta hai jitna kisi ne likh diya. Diary se bahar ek shabd nahi.\n38-42s YAAD RAKHO: \"Rule wala AI = ratta maar student; naya sawaal aaya to fail.\"\n42-45s SIGN-OFF: Ye us dost ko bhejo jo IVR pe roz chillata hai - ab use pata hoga kyun. Kal: wo machine jo bina rules ke, misaalon se khud seekhti hai - aur jisne world chess champion ko hara diya.\nEXAMPLE: Dadi ki nuskha diary - jo likha hai wahi chalega, naye case pe kuch nahi.\nVISUALS: Stock: phone keypad pe ungli dabana, call center headsets (bina chehron ke), haath se likhi diary ke panne. Drawn: IF -> THEN flowchart seedhi, ek 'NO MATCH' laal cross, timeline mein 1970s-80s marker.\nWHY NOW: Airlines aur companies 'Press 1' se AI voice agents pe shift ho rahi hain (IndiGo-Sarvam, 2 Sept 2026) - purane rule wale AI ko samjhe bina naya badlaav samajh nahi aayega.",
+      "builds_on": [
+        1
+      ],
+      "arc": 0,
+      "status": "posted",
+      "script": {
+        "title": "'Press 1 for Hindi' bhi AI tha? Rulebook wala AI (1970s-80s)",
+        "genre": "AI explained from zero - teaching reel (AI Case File)",
+        "case_title": "Press 1 Ka Raaz",
+        "hook": "Rule wala AI: Press 1?!",
+        "music_mood": "soft playful detective pizzicato with warm lo-fi beat",
+        "caption_ig": "Rule wala AI kya hai? 'Hindi ke liye 1 dabaayein' wala IVR isi purane Expert System ke tarike se chalta hai.\n\nYAAD RAKHO: Rule wala AI = ratta maar student - naya sawaal, fail!\n\n1970s-80s ke Expert System mein expert ke niyam 'agar ye, to wo' ki tarah computer mein likhe jaate the - jo likha hai, bas wahi chalega.\nIsliye ab companies IVR menu se aage badhkar boli samajhne wale AI voice agents laa rahi hain. AI ki A to Z, Case #2.\n\nSave karo, aur us dost ko bhejo jo IVR pe roz chillata hai!",
+        "seo": {
+          "keywords": [
+            "rule wala AI kya hai",
+            "expert system kya hai in Hindi",
+            "rule based AI in Hindi",
+            "IVR kaise kaam karta hai",
+            "AI kya hai bilkul shuruat se",
+            "AI explained for beginners in Hindi",
+            "Artificial Intelligence A to Z in Hindi"
+          ],
+          "hashtags": [
+            "#AIExplained",
+            "#TechInHindi",
+            "#ExpertSystem",
+            "#AIkiAtoZ",
+            "#DigitalBharat"
+          ],
+          "alt_text": "Ek detective case file style reel jo IVR phone menu aur dadi ki nuskha diary ki misaal se samjhati hai ki rule wala AI yaani Expert System kya hai aur kahan atak jaata hai.",
+          "first_comment": "Aapka sabse irritating 'Press 1' wala experience kaunsa tha - bank, bijli ya gas booking? Aur dadi ki diary ka kaunsa nuskha aaj bhi chalta hai? 😄",
+          "story_text": "Jo IVR aapko roz gussa dilata hai, uske peeche 1970s ka ek raaz chhupa hai 🕵️",
+          "broadcast_text": "Aaj ka case: 'Press 1 for Hindi' bhi purane AI ke tarike se chalta hai! 40 second mein samjho rule wala AI 📂"
+        },
+        "lines": [
+          {
+            "text": "'हिंदी के लिए 1 दबाएँ' — ये भी AI है!",
+            "caption": "'Hindi ke liye 1 dabaayein' - ye bhi AI hai!",
+            "onscreen": "Press 1 = AI?!",
+            "emoji": "😤☝️",
+            "delivery": "mock-robotic, then gasp",
+            "footage": [
+              "finger pressing phone keypad",
+              "phone call keypad",
+              "man on phone call"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "ये है AI की Chai-Break Class — चालीस second, एक concept, ज़िंदगी भर याद!",
+            "caption": "Ye hai AI ki Chai-Break Class — 40 second, ek concept, zindagi bhar yaad!",
+            "onscreen": "AI ki Chai-Break Class",
+            "emoji": "☕",
+            "delivery": "bright, warm, signature tone, smiling",
+            "footage": [],
+            "visual": {
+              "type": "brand",
+              "title": "AI ki Chai-Break Class",
+              "items": [
+                "40 sec · 1 concept · zindagi bhar yaad"
+              ],
+              "number": 0,
+              "suffix": "☕",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "रोज़ लड़ते हो? पर एक कमज़ोरी है...",
+            "caption": "Roz ladte ho? Par ek kamzori hai...",
+            "onscreen": "Ek kamzori... kya?",
+            "emoji": "😡🤫",
+            "delivery": "laughing, then whispering suspense",
+            "footage": [
+              "frustrated man phone call",
+              "angry person on phone",
+              "person holding phone"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Expert System: expert के नियम, 'अगर ये, तो वो'।",
+            "caption": "Expert System: expert ke niyam, 'agar ye, to wo'.",
+            "onscreen": "Expert System · 1970s",
+            "emoji": "🧐📚",
+            "delivery": "slow, clear explaining",
+            "footage": [
+              "old computer terminal",
+              "vintage computer",
+              "computer screen"
+            ],
+            "visual": {
+              "type": "define",
+              "title": "Expert System",
+              "items": [
+                "Expert ke niyam, computer mein"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "दादी की diary: खाँसी? काढ़ा! नई बीमारी? चुप।",
+            "caption": "Dadi ki diary: khaansi? Kaadha! Nayi bimaari? Chup.",
+            "onscreen": "Dadi ki diary 📒",
+            "emoji": "🍵🤐",
+            "delivery": "warm smile, then hush",
+            "footage": [
+              "handwritten diary pages",
+              "old notebook handwriting",
+              "grandmother reading"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "नियम लिखो, IF-THEN सीढ़ी बनाओ, चलो... match नहीं? अटक!",
+            "caption": "Niyam likho, IF-THEN seedhi banao, chalo... match nahi? Atak!",
+            "onscreen": "IF → THEN",
+            "emoji": "⚙️❌",
+            "delivery": "step by step, comic crash",
+            "footage": [
+              "flowchart on whiteboard",
+              "whiteboard drawing",
+              "notebook sketch"
+            ],
+            "visual": {
+              "type": "flow",
+              "title": "Rule wala AI kaise chalta hai",
+              "items": [
+                "✍️ Expert ke niyam likho",
+                "🪜 IF → THEN seedhi banao",
+                "🚶 Seedhi pe chalke jawaab",
+                "❌ No match = atak gaya"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Twist: हर नियम लिखना नामुमकिन!",
+            "caption": "Twist: har niyam likhna namumkin!",
+            "onscreen": "Har niyam? Namumkin!",
+            "emoji": "🤯🌏",
+            "delivery": "dramatic pause, big reveal",
+            "footage": [
+              "crowded indian street",
+              "busy market crowd",
+              "city crowd"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "अब IndiGo ला रही बोली समझने वाला AI।",
+            "caption": "Ab IndiGo la rahi boli samajhne wala AI.",
+            "onscreen": "Press 1 → AI agent",
+            "emoji": "✈️🗣️",
+            "delivery": "proud, punchy news",
+            "footage": [
+              "call center headset",
+              "customer support headset",
+              "airport check in"
+            ],
+            "visual": {
+              "type": "compare",
+              "title": "Purana vs Naya",
+              "items": [
+                "Press 1 wala menu",
+                "Sarvam: boli samajhne wala AI"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": "Tech Portal · Sep 2026"
+          },
+          {
+            "text": "ख़ुद सोचता? नहीं! जितना लिखा, उतना।",
+            "caption": "Khud sochta? Nahi! Jitna likha, utna.",
+            "onscreen": "Jitna likha, utna jaane",
+            "emoji": "🤔❌",
+            "delivery": "playful doubt, then firm",
+            "footage": [
+              "person thinking at laptop",
+              "student thinking",
+              "person thinking"
+            ],
+            "visual": {
+              "type": "stamp",
+              "title": "Utna hi jaane, jitna likha",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Rule वाला AI: रट्टा मार student — नया सवाल, fail!",
+            "caption": "Rule wala AI: ratta maar student - naya sawaal, fail!",
+            "onscreen": "CASE SOLVED",
+            "emoji": "🎓😅",
+            "delivery": "rhythmic, chant-like",
+            "footage": [
+              "student memorizing book",
+              "student studying",
+              "classroom"
+            ],
+            "visual": {
+              "type": "recap",
+              "title": "Rule wala AI = ratta maar student, naya sawaal = fail!",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "दोस्त को भेजो! कल: मिसाल से सीखती मशीन। तब तक... 1 दबाएँ!",
+            "caption": "Dost ko bhejo! Kal: misaal se seekhti machine. Tab tak... 1 dabaayein!",
+            "onscreen": "Kal: Machine Learning",
+            "emoji": "😂♟️",
+            "delivery": "warm, cheeky, laughing",
+            "footage": [
+              "friends laughing phone",
+              "friends sharing phone",
+              "people laughing"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          }
+        ]
+      },
+      "video": "out/20261016-130805/reel.mp4"
+    },
+    {
+      "title": "Rule nahi, misaal se seekho: Machine Learning ka jaadu",
+      "era": "1990s-2000s (Deep Blue, 1997)",
+      "brief": "0-1.5s HOOK: \"1997 mein ek computer ne world chess champion ko hara diya.\" (Chess ki goti girti hai)\n1.5-5s SELF-RELEVANCE + OPEN LOOP: Aur usi daur ki soch aaj aapke Gmail ka spam folder chala rahi hai. Par ek twist hai - chess wala computer asal mein 'seekh' nahi raha tha. Kaise? Thodi der mein.\n5-10s CONCEPT IN ONE SENTENCE: Machine Learning matlab computer ko niyam nahi, hazaaron misaalein do - wo khud pattern pakad leta hai.\n10-17s REAL-LIFE ANALOGY: Sabziwale ko kisi ne 'pakka tamatar' ka rule nahi sikhaya - roz hazaaron tamatar dekh-dekh ke uski aankh khud seekh gayi.\n17-28s HOW IT WORKS (screen pe banta hai): 1) Bahut saari misaalein do, jawaab ke saath (ye spam, ye nahi). 2) Machine andaaza lagati hai. 3) Galat hua to khud ko thoda sudhaarti hai. 4) Lakhon baar ke baad - naye email pe bhi sahi andaaza.\n28-34s LOCAL NEWS EXAMPLE (loop payoff): Twist: IBM ka Deep Blue (Kasparov ko 1997 mein haraaya) zyada-tar tez calculation se jeeta tha - asli 'seekhna' isi daur mein data se shuru hua. Aur data kitna hai? Sirf Aug 2026 mein India mein 24.51 billion UPI transactions hue, ₹29.82 lakh crore ke (Source: NPCI / Times of India, Sept 2026). Itne bade data ke liye haath se rules likhna namumkin - yahi wajah hai machine ko khud seekhna pada.\n34-38s MYTH vs TRUTH: Aap soch rahe ho - 'computer jeeta, matlab insaan se zyada samajhdaar.' Nahi - wo ek hi kaam mein tez hai. Chess champion computer chai bhi nahi bana sakta.\n38-42s YAAD RAKHO: \"Purana AI ratta maarta tha, Machine Learning dekh-dekh ke seekhti hai.\" Ab aap spam folder ka raaz jaante ho.\n42-45s SIGN-OFF: Ye us dost ko bhejo jo kehta hai 'computer to bas wahi karta hai jo bolo.' Par is machine ki aankhein nahi thi - photo dekh ke pehchaan nahi sakti thi. Kal: 2012, jab AI ko aankhein mili.\nEXAMPLE: Sabziwala jo bina kisi rulebook ke pakka tamatar pehchaan leta hai - misaalon se seekha.\nVISUALS: Stock: chess board pe goti chalna (sirf haath), mandi mein tamatar ke dher, laptop pe inbox scroll. Drawn: 'Rules' vs 'Examples' split screen, galti -> sudhaar ka gol chakra, UPI 24.51 billion stat card with source.\nWHY NOW: UPI ka record data (Aug 2026) aur NPCI ka AI agent plan - jo AI aapka paisa sambhaalega wo sab data se seekhne wali machine pe khada hai.",
+      "builds_on": [
+        2
+      ],
+      "arc": 0,
+      "status": "posted",
+      "script": {
+        "title": "Machine Learning kya hai? Chess computer ka twist | AI ki A to Z · Case #3",
+        "genre": "education explainer - AI case file",
+        "case_title": "Tamatar Wala Computer",
+        "hook": "Machine Learning: Chess ka raaz",
+        "music_mood": "curious detective lo-fi with soft playful pizzicato",
+        "caption_ig": "Machine Learning kya hai? Computer ko rulebook nahi, misaalein do - wo khud seekh jaata hai.\n\nYAAD RAKHO: Purana AI ratta maarta, Machine Learning dekh ke seekhti!\n\n1997 mein Deep Blue ne chess champion ko haraya, par zyada-tar tez hisaab lagakar. AI kaise seekhta hai? Data se.\nAapka Gmail spam filter bhi aise hi kaam karta hai: misaal, andaaza, galti, sudhaar. Machine Learning in Hindi, bilkul simple.\n\nSave karo aur us dost ko bhejo jo kehta hai \"computer to bas ratta maarta hai\" 🍅",
+        "seo": {
+          "keywords": [
+            "machine learning kya hai",
+            "machine learning in hindi",
+            "AI kaise seekhta hai",
+            "spam filter kaise kaam karta hai",
+            "Deep Blue Kasparov 1997",
+            "AI explained for beginners in Hindi",
+            "AI kya hai bilkul shuruat se"
+          ],
+          "hashtags": [
+            "#MachineLearning",
+            "#AIExplained",
+            "#TechInHindi",
+            "#AIKiAtoZ"
+          ],
+          "alt_text": "A Hindi explainer reel on what Machine Learning is, using a vegetable seller's eye for ripe tomatoes and a Gmail spam filter to show how computers learn from examples.",
+          "first_comment": "Ek sawaal: aapki zindagi mein aisa kaun sa kaam hai jo aapne kisi rulebook se nahi, bas dekh-dekh ke seekha? 🍅 Comment mein batao!",
+          "story_text": "1997 mein computer ne chess champion ko haraya... bina seekhe? 🤔",
+          "broadcast_text": "Case #3 khul gaya! 🕵️ Aaj ka lesson: Machine Learning, yaani computer ne ratta chhod ke seekhna kaise shuru kiya."
+        },
+        "lines": [
+          {
+            "text": "1997 में computer ने chess champion हराया... बिना सीखे!",
+            "caption": "1997 mein computer ne chess champion haraya... bina seekhe!",
+            "onscreen": "1997: Computer jeeta!",
+            "emoji": "♟️😱",
+            "delivery": "suspense, then gasp",
+            "footage": [
+              "chess piece falling",
+              "chess game hands",
+              "chess board"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "ये है AI की Chai-Break Class — चालीस second, एक concept, ज़िंदगी भर याद!",
+            "caption": "Ye hai AI ki Chai-Break Class — 40 second, ek concept, zindagi bhar yaad!",
+            "onscreen": "AI ki Chai-Break Class",
+            "emoji": "☕",
+            "delivery": "bright, warm, signature tone, smiling",
+            "footage": [],
+            "visual": {
+              "type": "brand",
+              "title": "AI ki Chai-Break Class",
+              "items": [
+                "40 sec · 1 concept · zindagi bhar yaad"
+              ],
+              "number": 0,
+              "suffix": "☕",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Machine Learning मतलब: rulebook नहीं, मिसालें दो!",
+            "caption": "Machine Learning matlab: rulebook nahi, misaalein do!",
+            "onscreen": "Rulebook nahi, misaalein",
+            "emoji": "📚🧠",
+            "delivery": "warm, slow build",
+            "footage": [
+              "student reading notebook",
+              "rule book pages",
+              "classroom"
+            ],
+            "visual": {
+              "type": "define",
+              "title": "Machine Learning",
+              "items": [
+                "Misaalein dekh ke khud seekhna"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "सब्ज़ीवाले को पक्का टमाटर किसने सिखाया? आँख ख़ुद सीख गई!",
+            "caption": "Sabziwale ko pakka tamatar kisne sikhaya? Aankh khud seekh gayi!",
+            "onscreen": "Sabziwale ki aankh",
+            "emoji": "🍅👀",
+            "delivery": "teasing, playful",
+            "footage": [
+              "vendor sorting tomatoes",
+              "tomato market india",
+              "vegetable market"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Gmail spam ऐसे पकड़ता: मिसालें, अंदाज़ा, ग़लती, सुधार... लाखों बार!",
+            "caption": "Gmail spam aise pakadta: misaalein, andaaza, galti, sudhaar... lakhon baar!",
+            "onscreen": "Spam kaise pakda?",
+            "emoji": "📩🤔",
+            "delivery": "step by step, excited",
+            "footage": [
+              "laptop email inbox",
+              "typing on laptop",
+              "laptop"
+            ],
+            "visual": {
+              "type": "flow",
+              "title": "Spam kaise pakda?",
+              "items": [
+                "📩 Misaalein: spam / not spam",
+                "🤔 Machine andaaza lagaye",
+                "🔧 Galti pe khud sudhaar",
+                "✅ Lakhon baar, phir sahi"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Twist: Deep Blue सिर्फ़ तेज़ हिसाब लगाता था!",
+            "caption": "Twist: Deep Blue sirf tez hisaab lagata tha!",
+            "onscreen": "Twist: Sirf tez hisaab",
+            "emoji": "🫢⚡",
+            "delivery": "dramatic pause, big reveal",
+            "footage": [
+              "chess clock pressing",
+              "chess tournament players",
+              "chess pieces"
+            ],
+            "visual": {
+              "type": "compare",
+              "title": "Hisaab vs Seekhna",
+              "items": [
+                "Deep Blue: tez hisaab",
+                "ML: misaal se seekhna"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "August 2026 में लगभग 2,450 crore UPI payments! इतने rules? नामुमकिन।",
+            "caption": "August 2026 mein lagbhag 2,450 crore UPI payments! Itne rules? Namumkin.",
+            "onscreen": "2,450 crore UPI payments",
+            "emoji": "💸🤯",
+            "delivery": "shocked, punchy",
+            "footage": [
+              "UPI QR payment shop",
+              "phone payment scan",
+              "shopping street india"
+            ],
+            "visual": {
+              "type": "counter",
+              "title": "UPI transactions · Aug 2026",
+              "items": [],
+              "number": 2450.0,
+              "suffix": " crore",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": "NPCI / TOI · Sept 2026"
+          },
+          {
+            "text": "Computer समझदार? नहीं! वो चाय तक नहीं बना सकता।",
+            "caption": "Computer samajhdaar? Nahi! Wo chai tak nahi bana sakta.",
+            "onscreen": "Chai bhi nahi banti!",
+            "emoji": "☕😂",
+            "delivery": "laughing",
+            "footage": [
+              "making masala chai",
+              "tea stall india",
+              "tea cup"
+            ],
+            "visual": {
+              "type": "stamp",
+              "title": "Computer insaan se samajhdaar",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": false,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "याद रखो: पुराना AI रट्टा मारता, Machine Learning देख के सीखती!",
+            "caption": "Yaad rakho: purana AI ratta maarta, Machine Learning dekh ke seekhti!",
+            "onscreen": "Case solved!",
+            "emoji": "🧠💡",
+            "delivery": "proud, slow, rhythmic",
+            "footage": [
+              "children learning classroom",
+              "school students",
+              "notebook writing"
+            ],
+            "visual": {
+              "type": "recap",
+              "title": "Purana AI ratta maarta, ML dekh ke seekhti",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "दोस्तों को भेजो! कल: AI ने देखना कैसे सीखा?",
+            "caption": "Doston ko bhejo! Kal: AI ne dekhna kaise seekha?",
+            "onscreen": "Kal: AI ki aankhein",
+            "emoji": "👀🎉",
+            "delivery": "warm smile, teasing",
+            "footage": [
+              "friends sharing phone",
+              "people using smartphone",
+              "smartphone"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          }
+        ]
+      },
+      "video": "out/20261016-132355/reel.mp4"
+    },
+    {
+      "title": "AI ko aankhein kaise mili? 2012 ki kahaani",
+      "era": "2012 (AlexNet)",
+      "brief": "0-1.5s HOOK: \"Aapka phone photo dekh ke bata deta hai ye 'khaana' hai ya 'kutta' - par computer ne 'dekhna' sirf 2012 mein seekha.\"\n1.5-5s SELF-RELEVANCE + OPEN LOOP: Gallery ka search, Google Lens se kisi bhi cheez ka daam - sab isi se. Aur iske peeche ek 'gaming wala chip' hai - kaise, 40 second pe.\n5-10s CONCEPT IN ONE SENTENCE: Deep Learning matlab 'neuron' jaisi chhoti-chhoti parton (layers) ka jaal, jo photo ko tukdon mein dekh ke milkar pehchaanta hai.\n10-17s REAL-LIFE ANALOGY: Kirana pe teen ladke maal check karte hain - pehla sirf rang dekhta (laal-peela), doosra shape (packet), teesra label - teeno milkar: 'ye Parle-G hai!' Har layer ek ladka.\n17-28s HOW IT WORKS (screen pe banta hai): 1) Photo = lakhon chhote rang ke dabbe (pixels), har ek ek number. 2) Pehli layer kinare aur lines pakadti. 3) Agli layer shapes - aankh, kaan, pahiya. 4) Aakhri layer: 'billi' - aur galti hui to Episode 3 ki tarah sudhaar.\n28-34s LOCAL NEWS EXAMPLE (loop payoff): 2012 mein Geoffrey Hinton ki team (AlexNet) ne video games wale graphics chips (GPU) pe ye jaal chalaya - itna tez ki photo pehchaanne ki race mein sabko peeche chhod diya. Aaj Sarvam AI jaisi Indian company isi deep learning ke dam pe Indic AI bana rahi hai aur $3 billion valuation pe funding ki baat kar rahi hai (Source: The Economic Times, 13 Oct 2026).\n34-38s MYTH vs TRUTH: Aap soch rahe ho - 'AI hamari tarah dekhta hai.' Nahi - wo sirf numbers ke dher mein pattern dhoondhta hai. Use 'billi' ka matlab nahi pata, bas pattern pata hai.\n38-42s YAAD RAKHO: \"Deep Learning = layer-layer mein dekhna; gaming chip ne use tez banaya.\"\n42-45s SIGN-OFF: Ye us dost ko bhejo jo PUBG khelta hai - uske graphics card ne AI ko aankhein di! Kal: ye AI chupke se aapki jeb mein ghus gaya - aapka feed aapko kaise padh leta hai?\nEXAMPLE: Kirana ke teen ladke - rang, shape, label - milkar 'Parle-G' pehchaante hain = deep learning ki layers.\nVISUALS: Stock: phone camera se sabzi/packet scan karna (haath), gaming setup ke RGB chips close-up, kirana shelf. Drawn: photo ka pixels grid mein tootna, 3 layer ke dabbe (lines -> shapes -> naam), GPU chip pe 'tez' arrow, ET news card.\nWHY NOW: Sarvam AI ki $3B valuation wali funding talks (ET, 13 Oct 2026) - Indian AI boom ki jad 2012 ki ye 'aankhein' hain.",
+      "builds_on": [
+        3
+      ],
+      "arc": 1,
+      "status": "posted",
+      "script": {
+        "title": "AI ko aankhein kaise mili? Deep Learning ki 2012 wali kahaani",
+        "genre": "education",
+        "case_title": "AI Ki Aankhein",
+        "hook": "Deep Learning: AI ki aankhein?",
+        "music_mood": "warm curious lo-fi with soft detective plucks",
+        "caption_ig": "Deep Learning kya hai? Ye AI ko aankhein deta hai aur photo ko परत-परत देखकर पहचानता है। 👀\n\nYAAD RAKHO: Deep Learning = परत-परत देखना!\n\nGallery search aur Google Lens isi se chalte hain - aur 2012 mein ise gaming chip (GPU) ne tez banaya.\n\nAI kaise dekhta hai, simple Hindi mein samjho: pixels -> lines -> shapes -> naam.\n\nSave karo aur us dost ko bhejo jo PUBG khelta hai - uske GPU ne AI ko aankhein di! 😉",
+        "seo": {
+          "keywords": [
+            "deep learning kya hai",
+            "deep learning in hindi",
+            "AI kaise dekhta hai",
+            "AlexNet 2012 kya hai",
+            "GPU aur AI ka rishta",
+            "AI explained for beginners in Hindi",
+            "image recognition kaise kaam karta hai"
+          ],
+          "hashtags": [
+            "#DeepLearning",
+            "#AIExplained",
+            "#TechInHindi",
+            "#AIKiAtoZ",
+            "#DigitalBharat"
+          ],
+          "alt_text": "Ek Hindi explainer reel jo kirana dukaan ke teen ladkon ki misaal se samjhati hai ki Deep Learning layer-layer mein photo kaise pehchaanta hai, aur 2012 mein gaming chip GPU ne ise tez kaise banaya. Ismein Sarvam AI ka bhi zikr hai.",
+          "first_comment": "Apne shabdon mein batao: photo se 'billi' tak pahunchne mein AI kaun-kaun si layers se guzarta hai? 🐱",
+          "story_text": "Aapke dost ke gaming chip ne AI ko aankhein di... yakeen nahi? 👀",
+          "broadcast_text": "Case #4 khul gaya! 🕵️ Aaj samjho AI ne 'dekhna' kaise seekha - Deep Learning ki 2012 wali kahaani."
+        },
+        "lines": [
+          {
+            "text": "आपका फ़ोन चेहरा कैसे पहचानता है? AI ने 'देखना' सिर्फ़ 2012 में सीखा!",
+            "caption": "Aapka phone chehra kaise pehchaanta hai? AI ne 'dekhna' sirf 2012 mein seekha!",
+            "onscreen": "AI ne 'dekhna' seekha?",
+            "emoji": "📱🤔",
+            "delivery": "mysterious, then gasp",
+            "footage": [
+              "phone scanning face unlock",
+              "person unlocking phone face",
+              "smartphone face recognition"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "ये है AI की Chai-Break Class — चालीस second, एक concept, ज़िंदगी भर याद!",
+            "caption": "Ye hai AI ki Chai-Break Class — 40 second, ek concept, zindagi bhar yaad!",
+            "onscreen": "AI ki Chai-Break Class",
+            "emoji": "☕",
+            "delivery": "bright, warm, signature tone, smiling",
+            "footage": [],
+            "visual": {
+              "type": "brand",
+              "title": "AI ki Chai-Break Class",
+              "items": [
+                "40 sec · 1 concept · zindagi bhar yaad"
+              ],
+              "number": 0,
+              "suffix": "☕",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "ये है Deep Learning - 'परतों का जाल'!",
+            "caption": "Ye hai Deep Learning - 'paraton ka jaal'!",
+            "onscreen": "Deep Learning = Paraton ka jaal",
+            "emoji": "🧠✨",
+            "delivery": "warm, slow build",
+            "footage": [
+              "layers of paper stack",
+              "multiple transparent sheets",
+              "layered rock formation"
+            ],
+            "visual": {
+              "type": "define",
+              "title": "Deep Learning",
+              "items": [
+                "AI ko aankhein deta hai",
+                "Layer-layer mein photo dekhna"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "किराने पर सोचो तीन लड़के: रंग, shape, label। मिलकर बोले, 'ये Parle-G है!'",
+            "caption": "Kirane par socho teen ladke: rang, shape, label. Milkar bole, 'ye Parle-G hai!'",
+            "onscreen": "3 ladke = 3 layers",
+            "emoji": "🤓🍪",
+            "delivery": "teasing, playful",
+            "footage": [
+              "indian grocery shop biscuits",
+              "kirana store shelves",
+              "kids looking at snacks"
+            ],
+            "visual": {
+              "type": "list",
+              "title": "Har ladka = ek layer",
+              "items": [
+                "1: Rang dekho",
+                "2: Shape dekho",
+                "3: Label padho"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "ऐसे ही, photo pixels में टूटती है। Layers lines, shapes, और फिर 'बिल्ली' पहचानती हैं!",
+            "caption": "Aise hi, photo pixels mein tootati hai. Layers lines, shapes, aur phir 'Billi' pehchaanti hain!",
+            "onscreen": "Pixels to 'Billi'",
+            "emoji": "🔎😺",
+            "delivery": "step by step, then aha",
+            "footage": [
+              "abstract pixelated image",
+              "cat face close up",
+              "digital image pixels"
+            ],
+            "visual": {
+              "type": "flow",
+              "title": "AI kaise dekhta hai",
+              "items": [
+                "🟥 Pixels = numbers",
+                "📏 Layer 1: Lines",
+                "👀 Layer 2: Shapes",
+                "😺 Layer 3: 'Billi!'"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "रुको... 2012 में Hinton ने gaming chip (GPU) पर ये AI दौड़ाया, photo पहचानने में सबको पीछे छोड़ा!",
+            "caption": "Ruko... 2012 mein Hinton ne gaming chip (GPU) par ye AI daudaaya, photo pehchaanne mein sabko peeche chhodaa!",
+            "onscreen": "Gaming Chip = GPU",
+            "emoji": "⚡💻",
+            "delivery": "whisper, then big excited reveal",
+            "footage": [
+              "rgb gaming pc interior",
+              "graphics card close up",
+              "person playing video game"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "आज Sarvam AI ₹2,400 crore ($3 billion) पर इसी Deep Learning से Indic AI बना रहा है!",
+            "caption": "Aaj Sarvam AI ₹2,400 crore ($3 billion) par isi Deep Learning se Indic AI bana raha hai!",
+            "onscreen": "Sarvam AI ka kamaal",
+            "emoji": "🇮🇳🚀",
+            "delivery": "proud, punchy",
+            "footage": [
+              "busy Indian tech office",
+              "futuristic city scape india",
+              "people working on laptops"
+            ],
+            "visual": {
+              "type": "counter",
+              "title": "Sarvam AI Valuation",
+              "items": [],
+              "number": 2400.0,
+              "suffix": " crore",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": "The Economic Times · Oct 2026"
+          },
+          {
+            "text": "आप सोच रहे हो - AI इंसान की तरह देखता है? नहीं, बस numbers में pattern!",
+            "caption": "Aap soch rahe ho - AI insaan ki tarah dekhta hai? Nahi, bas numbers mein pattern!",
+            "onscreen": "Myth: AI insaan jaisa dekhta hai",
+            "emoji": "🧐❌",
+            "delivery": "dramatic pause, then honest",
+            "footage": [
+              "person looking confused",
+              "human eye close up",
+              "abstract data patterns"
+            ],
+            "visual": {
+              "type": "stamp",
+              "title": "AI insaan jaisa dekhta hai",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": false,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "याद रखो: Deep Learning = परत-परत देखना। CASE SOLVED!",
+            "caption": "Yaad rakho: Deep Learning = parat-parat dekhna. CASE SOLVED!",
+            "onscreen": "CASE SOLVED",
+            "emoji": "🧠💡",
+            "delivery": "slow, sing-song verdict",
+            "footage": [
+              "detective board with red strings",
+              "magnifying glass on clue",
+              "person writing 'solved'"
+            ],
+            "visual": {
+              "type": "recap",
+              "title": "Deep Learning = परत-परत देखना",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "PUBG दोस्त को भेजो - उसके gaming chip ने AI को आँखें दीं! कल: आपका feed?",
+            "caption": "PUBG dost ko bhejo - uske gaming chip ne AI ko aankhein di! Kal: aapka feed?",
+            "onscreen": "GPU ne di aankhein!",
+            "emoji": "🎮😉",
+            "delivery": "laughing, then teasing",
+            "footage": [
+              "friends playing mobile games",
+              "gamer with headphones",
+              "person scrolling phone feed"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          }
+        ]
+      },
+      "video": "out/20261016-135356/reel.mp4"
+    },
+    {
+      "title": "Aapka feed aapko aapki mummy se zyada jaanta hai?",
+      "era": "2015-2016 (Smartphone AI)",
+      "brief": "0-1.5s HOOK: \"Aapne ek baar paneer tikka recipe dekhi... ab feed mein sirf paneer.\" (Phone pe tezi se scroll)\n1.5-5s SELF-RELEVANCE + OPEN LOOP: Ye reel jo aap abhi dekh rahe ho - ye bhi aap tak ek AI ne pahunchaayi. Proof end se pehle.\n5-10s CONCEPT IN ONE SENTENCE: Recommendation AI aapki har click, like aur kitni der ruke - is sab se seekh ke andaaza lagata hai ki aap agla kya dekhoge.\n10-17s REAL-LIFE ANALOGY: Mohalle ka chaiwala - aapko dekhte hi 'kam cheeni, adrak wali' bana deta hai. Kisi ne bataya nahi - roz dekh ke seekha. YouTube aur Instagram wahi chaiwala hain, karodon logon ke liye.\n17-28s HOW IT WORKS (screen pe banta hai): 1) Aap kya dekhte ho, kahaan rukte ho - note. 2) Aap jaise logon ne aage kya pasand kiya - milao (Episode 3 ki misaal se seekhna). 3) Har video ko 'ye pasand aayega' ka score. 4) Aapka reaction -> phir se sudhaar.\n28-34s LOCAL NEWS EXAMPLE (loop payoff): Proof: aap 'AI kya hai' jaisi cheezein dhoondhte ho, isliye ye reel aayi. Aur ye Hinglish mein kyun? 90% se zyada Indians internet apni bhasha mein chalate hain (Source: Sarvam AI product launch, Aug 2024 / Aug 2026) - isliye ab apps aur AI aapki bhasha mein aa rahe hain.\n34-38s MYTH vs TRUTH: Aap soch rahe ho - 'feed to random hai.' Nahi - har reel ek prediction hai ki aap rukoge. Aap jitna rukte ho, AI utna seekhta hai.\n38-42s YAAD RAKHO: \"Feed random nahi - har reel AI ka andaaza hai.\" Ab aap jaante ho ki aapka feed aapko kyun pakad ke rakhta hai.\n42-45s SIGN-OFF: Ye us dost ko bhejo jo kehta hai 'mera feed mujhe samajhta hai' - ab use wajah pata hogi. Par ye AI sirf chun sakta tha, baat nahi kar sakta tha. Kal: 2017 ka wo ek research paper jisne ChatGPT ko janm diya.\nEXAMPLE: Mohalle ka chaiwala jo bina pooche aapki chai bana deta hai = recommendation AI.\nVISUALS: Stock: phone pe reels scroll karte haath, chai ki tapri pe kettle aur glass, paneer tikka pakte hue. Drawn: aankh-icon 'kitni der ruke' timer, 'pasand score' meter har video pe, feedback loop chakra, 90% vernacular stat card.\nWHY NOW: Har koi apne feed pe 'AI' reels dekh raha hai - aur 'AI agent kya hota hai' search badh raha hai; ye samajhna zaroori hai ki AI pehle se aapki jeb mein kaam kar raha hai.",
+      "builds_on": [
+        3,
+        4
+      ],
+      "arc": 1,
+      "status": "posted",
+      "script": {
+        "title": "AI ki A to Z: Smartphone AI (2015-2016)",
+        "genre": "AI explainer - AI Case File (Case #5/10: Smartphone AI 2015-2016)",
+        "case_title": "Paneer Feed Ka Raaz",
+        "hook": "Recommendation AI: feed mein sirf paneer?",
+        "music_mood": "warm curious lo-fi with soft detective pizzicato",
+        "caption_ig": "Recommendation AI kya hai? Wo AI jo aapki har click dekh ke andaaza lagata hai ki aap agla kya dekhoge.\n\nYAAD RAKHO: Feed random nahi - har reel AI ka andaaza!\n\nInstagram aur YouTube ka algorithm mohalle ke chaiwale jaisa hai - bina pooche aapki 'adrak wali' bana deta hai.\n\nAI kya hai bilkul shuruat se, AI explained in Hindi - Case #5/10 of AI ki A to Z.\n\nSave karo, aur us dost ko bhejo jiska feed sirf paneer hai. Kal: ChatGPT ka 'T' kisne banaya?",
+        "seo": {
+          "keywords": [
+            "Recommendation AI kya hai",
+            "Instagram algorithm kaise kaam karta hai",
+            "YouTube feed AI in Hindi",
+            "AI kya hai bilkul shuruat se",
+            "AI explained for beginners in Hindi",
+            "Artificial Intelligence A to Z in Hindi",
+            "feed mein same video kyun aate hain"
+          ],
+          "hashtags": [
+            "#AIExplained",
+            "#TechInHindi",
+            "#RecommendationAI",
+            "#DigitalBharat",
+            "#AIKiAToZ"
+          ],
+          "alt_text": "A warm Hinglish detective-style reel explaining Recommendation AI with a mohalla chaiwala analogy and a 3-step flow of how your Instagram and YouTube feed predicts what you will watch next.",
+          "first_comment": "Sach batao - aapke feed pe aajkal kis cheez ki 'paneer' chal rahi hai? 😄 Cricket, recipes, ya AI reels?",
+          "story_text": "Mera feed mujhe mummy se zyada jaanta hai... aur ab wajah pata chal gayi 👀",
+          "broadcast_text": "Case #5 open hai: aapka feed aapko itna kaise jaanta hai? Aaj ka lesson - Recommendation AI, chai ki tapri wale example se ☕"
+        },
+        "lines": [
+          {
+            "text": "एक paneer recipe देखी... अब feed में बस paneer!",
+            "caption": "Ek paneer recipe dekhi... ab feed mein bas paneer!",
+            "onscreen": "Feed mein sirf paneer?!",
+            "emoji": "😳🍳",
+            "delivery": "teasing, playful",
+            "footage": [
+              "paneer tikka grilling",
+              "hand scrolling phone reels",
+              "indian food cooking"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "ये है AI की Chai-Break Class — चालीस second, एक concept, ज़िंदगी भर याद!",
+            "caption": "Ye hai AI ki Chai-Break Class — 40 second, ek concept, zindagi bhar yaad!",
+            "onscreen": "AI ki Chai-Break Class",
+            "emoji": "☕",
+            "delivery": "bright, warm, signature tone, smiling",
+            "footage": [],
+            "visual": {
+              "type": "brand",
+              "title": "AI ki Chai-Break Class",
+              "items": [
+                "40 sec · 1 concept · zindagi bhar yaad"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "ये Reel भी आप तक Recommendation AI ने पहुँचाई है.",
+            "caption": "Ye reel bhi aap tak Recommendation AI ne pahunchaayi hai.",
+            "onscreen": "Reel bhi AI laaya!",
+            "emoji": "🤫🤖",
+            "delivery": "suspense, curious",
+            "footage": [
+              "woman watching phone night",
+              "person holding smartphone",
+              "phone screen glow"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "ये AI आपकी अगली पसंद का अंदाज़ा लगाता है.",
+            "caption": "Ye AI aapki agli pasand ka andaaza lagata hai.",
+            "onscreen": "Recommendation AI",
+            "emoji": "🧠💡",
+            "delivery": "clear, warm explaining",
+            "footage": [
+              "phone tapping like",
+              "scrolling social media",
+              "smartphone closeup"
+            ],
+            "visual": {
+              "type": "define",
+              "title": "Recommendation AI",
+              "items": [
+                "Agli pasand ka andaaza"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "चायवाला बिना पूछे 'अदरक वाली' चाय बना देता है? AI भी वही!",
+            "caption": "Chaiwala bina puche 'adrak wali' chai bana deta hai? AI bhi wahi!",
+            "onscreen": "Chaiwala jaisa AI",
+            "emoji": "☕😊",
+            "delivery": "slow build, then smiling",
+            "footage": [
+              "indian tea stall kettle",
+              "chai pouring glass",
+              "street tea stall"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "AI देखता है आप क्या देखते हो, कितनी देर रुकते हो, और सीखता है.",
+            "caption": "AI dekhta hai aap kya dekhte ho, kitni der rukte ho, aur seekhta hai.",
+            "onscreen": "AI Kaise Seekhta Hai?",
+            "emoji": "🔎👀",
+            "delivery": "detective, step by step",
+            "footage": [
+              "phone scrolling closeup",
+              "finger swiping screen",
+              "smartphone"
+            ],
+            "visual": {
+              "type": "flow",
+              "title": "Feed Kaise Banta Hai",
+              "items": [
+                "👀 Kya dekha?",
+                "⏱️ Kitni der ruke?",
+                "💡 Seekho!"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Proof? 'AI kya hai' search kiya, इसलिए ये reel आप तक आई! Random नहीं.",
+            "caption": "Proof? 'AI kya hai' search kiya, isliye ye reel aap tak aayi! Random nahi.",
+            "onscreen": "Proof: aapki search!",
+            "emoji": "😏👉",
+            "delivery": "dramatic pause, then firm",
+            "footage": [
+              "typing search on phone",
+              "student using phone",
+              "phone in hand"
+            ],
+            "visual": {
+              "type": "stamp",
+              "title": "Feed random hai",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": false,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "तो याद रखो: feed random नहीं, हर reel AI का अंदाज़ा!",
+            "caption": "Toh yaad rakho: feed random nahi, har reel AI ka andaaza!",
+            "onscreen": "CASE SOLVED",
+            "emoji": "🏆✅",
+            "delivery": "slow, rhythmic verdict",
+            "footage": [
+              "detective board",
+              "notebook writing",
+              "desk"
+            ],
+            "visual": {
+              "type": "recap",
+              "title": "Feed random nahi - har reel AI ka andaaza!",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "उस दोस्त को भेजो जिसका feed सिर्फ़ paneer है! कल: ChatGPT का 'T' कहाँ से आया.",
+            "caption": "Us dost ko bhejo jiska feed sirf paneer hai! Kal: ChatGPT ka 'T' kahaan se aaya.",
+            "onscreen": "Kal: ChatGPT ka 'T'?",
+            "emoji": "😉🍳",
+            "delivery": "warm, teasing cliffhanger",
+            "footage": [
+              "friends laughing at phone",
+              "sharing phone friends",
+              "paneer tikka plate"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          }
+        ]
+      },
+      "video": "out/20261016-140530/reel.mp4"
+    },
+    {
+      "title": "ChatGPT ka 'T' kisne banaya? Transformer ki kahaani",
+      "era": "2017 ('Attention Is All You Need')",
+      "brief": "0-1.5s HOOK: \"ChatGPT ka asli engine OpenAI ne nahi, Google ke researchers ne banaya tha.\" Galat lagta hai - sach hai.\n1.5-5s SELF-RELEVANCE + OPEN LOOP: Aap jo bhi AI chatbot use karte ho - ChatGPT, Gemini - sabke andar ek hi idea hai. Aur 'GPT' ka 'T' wahi hai - matlab 30 second mein.\n5-10s CONCEPT IN ONE SENTENCE: Transformer AI ko poora vaakya ek saath padh kar har shabd ka baaki shabdon se rishta samajhna sikhata hai - isse 'attention' kehte hain.\n10-17s REAL-LIFE ANALOGY: 'Main bank gaya aur paise nikaale' vs 'Main nadi ke bank pe baitha.' Shabd ek, matlab do. Aap 'paise' aur 'nadi' pe dhyaan dekar samajh jaate ho - Transformer bhi yahi karta hai.\n17-28s HOW IT WORKS (screen pe banta hai): 1) Vaakya ke saare shabd ek saath andar. 2) Har shabd baaki sab shabdon pe 'dhyaan' deta hai. 3) Zaroori rishton ko zyada wazan ('bank' <-> 'paise'). 4) Ab agla shabd sahi andaaze se.\n28-34s LOCAL NEWS EXAMPLE (loop payoff): 'GPT' = Generative Pre-trained Transformer - 'T' isi 2017 ke Google paper 'Attention Is All You Need' ka hai. Aaj ke bade language AI isi design pe chalte hain - jaise Sarvam AI ke Indic agents, jinke liye company $3 billion valuation pe funding ki baat kar rahi hai aur LIC, SBI Life jaisi sansthaon ke liye agents bana rahi hai (Source: The Economic Times, 13 Oct 2026).\n34-38s MYTH vs TRUTH: Aap soch rahe ho - 'AI hamari tarah samajhta hai.' Nahi - wo shabdon ke rishton ka pattern pakad ke agla shabd andaaza lagata hai. Bahut achha andaaza - par andaaza.\n38-42s YAAD RAKHO: \"Transformer = poora vaakya ek saath padho, zaroori shabd pe dhyaan do.\" Ab aap 'GPT' ka full form jaante ho - zyaadatar log nahi jaante.\n42-45s SIGN-OFF: Ye us dost ko bhejo jo sochta hai ChatGPT achanak aasmaan se gira. Engine 2017 mein ban gaya - 2022 mein kisi ne ise sabke haath mein de diya. Kal: ChatGPT.\nEXAMPLE: 'Bank' - paise wala ya nadi wala? Aas-paas ke shabdon pe dhyaan dekar pata chalta hai = attention.\nVISUALS: Stock: nadi ka kinaara, bank ke ATM pe haath, laptop pe typing. Drawn: vaakya ke shabdon ke beech chamakti lines (moti = zyada dhyaan), 'G-P-T' tootke 'Transformer' highlight, 2017 timeline marker, ET news card.\nWHY NOW: Har jagah 'ChatGPT vs AI Agent' ki baat ho rahi hai - dono ke andar yahi Transformer engine hai; ise samjhe bina agents samajh nahi aayenge.",
+      "builds_on": [
+        4
+      ],
+      "arc": 1,
+      "status": "posted",
+      "script": {
+        "title": "ChatGPT ka 'T' kisne banaya? Transformer ki kahaani",
+        "genre": "AI explainer - detective case file (beginner Hindi)",
+        "case_title": "GPT ka 'T'",
+        "hook": "Transformer: ChatGPT ka asli engine?",
+        "music_mood": "warm curious lo-fi with soft detective plucks",
+        "caption_ig": "Transformer kya hai? AI ka wo engine jo poora vaakya ek saath padhna sikhata hai — yahi hai ChatGPT ka 'T'!\n\nYAAD RAKHO: Poora vaakya, zaroori shabd!\n\n'Bank' jaise shabdon ke alag matlab AI 'attention' se kaise pehchaanta hai, samjho 40 second mein.\n\nSave karo aur us dost ko bhejo jo sochta hai ChatGPT achanak aasmaan se gira 😄",
+        "seo": {
+          "keywords": [
+            "Transformer kya hai",
+            "GPT full form in Hindi",
+            "ChatGPT kaise kaam karta hai",
+            "Attention Is All You Need Hindi",
+            "AI explained for beginners in Hindi",
+            "Transformer AI simple explanation",
+            "AI kya hai bilkul shuruat se"
+          ],
+          "hashtags": [
+            "#AIExplained",
+            "#TechInHindi",
+            "#ChatGPT",
+            "#Transformer",
+            "#AIKiAtoZ"
+          ],
+          "alt_text": "A beginner-friendly Hindi reel explaining what a Transformer is in AI, using the word 'bank' to show how attention works and why it is the 'T' in ChatGPT.",
+          "first_comment": "Chhota sa test 😄 'Mummy ne aam kaata, aam aadmi khush hua' - dono 'aam' alag kaise pehchaane? Comment mein batao kaunsa shabd dekhkar!",
+          "story_text": "ChatGPT ka engine OpenAI ne nahi banaya tha... yakeen nahi? 👀",
+          "broadcast_text": "Case #6 solved! 🔎 Aaj ka sawaal: GPT ka 'T' kya hai aur kisne banaya? 40 second mein jawab."
+        },
+        "lines": [
+          {
+            "text": "ChatGPT का engine... OpenAI ने नहीं, Google ने बनाया था!",
+            "caption": "ChatGPT ka engine... OpenAI ne nahi, Google ne banaya tha!",
+            "onscreen": "Engine Google ka?!",
+            "emoji": "😱",
+            "delivery": "whispered secret, then shocked",
+            "footage": [
+              "person using chatgpt phone",
+              "typing on laptop night",
+              "phone screen glow"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "ये है AI की Chai-Break Class — चालीस second, एक concept, ज़िंदगी भर याद!",
+            "caption": "Ye hai AI ki Chai-Break Class — 40 second, ek concept, zindagi bhar yaad!",
+            "onscreen": "AI ki Chai-Break Class",
+            "emoji": "☕",
+            "delivery": "bright, warm, signature tone, smiling",
+            "footage": [],
+            "visual": {
+              "type": "brand",
+              "title": "AI ki Chai-Break Class",
+              "items": [
+                "40 sec · 1 concept · zindagi bhar yaad"
+              ],
+              "number": 0,
+              "suffix": "☕",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Transformer — AI को वाक्य के शब्दों के रिश्ते समझाता है।",
+            "caption": "Transformer — AI ko vaakya ke shabdon ke rishte samjhata hai.",
+            "onscreen": "Transformer = ?",
+            "emoji": "🧠💡",
+            "delivery": "slow, clear, warm",
+            "footage": [
+              "student reading book",
+              "reading newspaper",
+              "open book"
+            ],
+            "visual": {
+              "type": "define",
+              "title": "Transformer",
+              "items": [
+                "Shabdon ke rishte samajhna"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "'Bank से पैसे' या 'नदी का bank'? AI 'ध्यान' से पहचानता है।",
+            "caption": "'Bank se paise' ya 'nadi ka bank'? AI 'dhyaan' se pehchaanta hai.",
+            "onscreen": "Bank: paise ya nadi?",
+            "emoji": "🤔",
+            "delivery": "suspense, teasing",
+            "footage": [
+              "hand using atm india",
+              "person sitting river bank",
+              "bank building"
+            ],
+            "visual": {
+              "type": "compare",
+              "title": "Ek shabd, do matlab",
+              "items": [
+                "🏦 Paise wala bank",
+                "🌊 Nadi ka kinaara"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "शब्द अंदर, सब पे ध्यान, ज़रूरी रिश्ता, फिर नया शब्द।",
+            "caption": "Shabd andar, sab pe dhyaan, zaroori rishta, phir naya shabd.",
+            "onscreen": "4 kadam",
+            "emoji": "⚙️",
+            "delivery": "measured, step by step",
+            "footage": [
+              "laptop typing closeup",
+              "keyboard typing",
+              "computer screen"
+            ],
+            "visual": {
+              "type": "flow",
+              "title": "Transformer kaise chalta hai",
+              "items": [
+                "📥 Shabd andar",
+                "👀 Sab pe dhyaan",
+                "⚖️ Zaroori rishta",
+                "✍️ Naya shabd"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Twist... GPT का 'T' यही Transformer है — 2017 में Google ने दिया!",
+            "caption": "Twist... GPT ka 'T' yahi Transformer hai — 2017 mein Google ne diya!",
+            "onscreen": "T = Transformer",
+            "emoji": "💥",
+            "delivery": "dramatic pause, big reveal",
+            "footage": [
+              "research paper printout",
+              "scientist office desk",
+              "documents on table"
+            ],
+            "visual": {
+              "type": "list",
+              "title": "G-P-T ka full form",
+              "items": [
+                "G = Generative",
+                "P = Pre-trained",
+                "T = Transformer (2017)"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": "Attention Is All You Need · 2017"
+          },
+          {
+            "text": "Sarvam AI के Indic agents भी इसी पे, LIC-SBI जैसे।",
+            "caption": "Sarvam AI ke Indic agents bhi isi pe, LIC-SBI jaise.",
+            "onscreen": "Desi AI, wahi engine",
+            "emoji": "🚀",
+            "delivery": "proud, punchy",
+            "footage": [
+              "indian office team laptops",
+              "insurance office india",
+              "office meeting"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": "Economic Times · 13 Oct 2026"
+          },
+          {
+            "text": "AI समझता नहीं, बस अंदाज़ा लगाता है।",
+            "caption": "AI samajhta nahi, bas andaaza lagata hai.",
+            "onscreen": "Samajh nahi, andaaza",
+            "emoji": "🧐",
+            "delivery": "serious, honest",
+            "footage": [
+              "father reading phone",
+              "man looking at phone",
+              "phone in hand"
+            ],
+            "visual": {
+              "type": "stamp",
+              "title": "AI insaan jaisa samajhta hai",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": false,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "याद रखो: पूरा वाक्य, ज़रूरी शब्द!",
+            "caption": "Yaad rakho: poora vaakya, zaroori shabd!",
+            "onscreen": "CASE SOLVED",
+            "emoji": "✅",
+            "delivery": "rhythmic, smiling",
+            "footage": [
+              "teacher chalkboard classroom",
+              "classroom india",
+              "chalkboard"
+            ],
+            "visual": {
+              "type": "recap",
+              "title": "Poora vaakya, zaroori shabd!",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "ये उसे भेजो जो सोचे ChatGPT जादू है। कल: ChatGPT काम कैसे!",
+            "caption": "Ye use bhejo jo soche ChatGPT jaadu hai. Kal: ChatGPT kaam kaise!",
+            "onscreen": "Kal: ChatGPT ka case",
+            "emoji": "😉",
+            "delivery": "laughing, teasing",
+            "footage": [
+              "friends laughing phone",
+              "sharing phone friends",
+              "friends chatting"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          }
+        ]
+      },
+      "video": "out/20261016-143333/reel.mp4"
+    },
+    {
+      "title": "ChatGPT: AI ne bolna seekha - par kaam nahi",
+      "era": "2022-2023",
+      "brief": "0-1.5s HOOK: \"Aapke bachche ka homework, boss ka email, shaadi ka card - 2022 ke baad sab ek chatbot likh raha hai.\"\n1.5-5s SELF-RELEVANCE + OPEN LOOP: Shayad aapne bhi ChatGPT se kuch likhwaya ho. Par iski ek kamzori hai - wahi kamzori 2026 ka sabse bada AI trend ban gayi. 30 second mein.\n5-10s CONCEPT IN ONE SENTENCE: Generative AI naya content banata hai - likhta hai, jawaab deta hai - Episode 6 wale Transformer se agla-agla shabd jodkar.\n10-17s REAL-LIFE ANALOGY: Dukaan ka super-gyaani munshi - 'Cheeni ka daam kya hai?' turant bataega, chitthi bhi likh dega. Par dukaan se bahar jaakar cheeni khareedega nahi.\n17-28s HOW IT WORKS (screen pe banta hai): 1) Aap sawaal (prompt) likhte ho. 2) Model andaaza lagata hai agla shabd kya hoga. 3) Shabd pe shabd judte jaate hain. 4) Jawaab taiyaar - par sirf text, koi kaam nahi.\n28-34s LOCAL NEWS EXAMPLE (loop payoff): Kamzori: ChatGPT sirf bolta hai, karta nahi. Isliye Gartner aur IDC ka andaaza hai ki 2026-27 tak 40% se zyada customer support aur IT ke kaam sawaal-jawaab wale chatbots se hatkar khud kaam karne wale AI agents pe chale jaayenge (Source: Gartner Enterprise Tech Briefings, 2025/2026).\n34-38s MYTH vs TRUTH: Aap soch rahe ho - 'ChatGPT ne likha hai to sach hoga.' Nahi - wo andaaze se likhta hai, aur galat baat bhi poore bharose se bol sakta hai. Zaroori cheez hamesha khud check karo.\n38-42s YAAD RAKHO: \"ChatGPT gyaan deta hai, guarantee nahi.\" Ab aap un logon mein ho jo AI ka jawaab aankh band karke nahi maante.\n42-45s SIGN-OFF: Ye us dost ko bhejo jo ChatGPT ki har baat forward kar deta hai. Par ye AI dadi ki bhasha mein? Kal: jab AI ne Tamil, Marathi, Bhojpuri bolna seekha.\nEXAMPLE: Gyaani munshi jo cheeni ka daam bata de, chitthi likh de - par mandi nahi jaata = chatbot.\nVISUALS: Stock: laptop pe tezi se text aata hua (screen close-up), homework copy pe pen, dukaan ka galla aur bahi-khata. Drawn: shabd ek-ek karke judte hue (typing animation), 'BOLTA HAI' tick vs 'KARTA HAI' cross, Gartner 40% stat card.\nWHY NOW: 'ChatGPT sirf bolta hai, naya AI kaam kar deta hai' reels viral hain aur 'ChatGPT vs AI Agents' search badh raha hai - pehle samjho ChatGPT kya hai, kya nahi.",
+      "builds_on": [
+        6
+      ],
+      "arc": 2,
+      "status": "posted",
+      "script": {
+        "title": "AI ki A to Z: ChatGPT - sirf bolta hai, kaam nahi",
+        "genre": "Educational Tech Explained",
+        "case_title": "ChatGPT: Bolta, Karta Nahi",
+        "hook": "Aapke bachche ka homework, boss ka email, sab AI likh raha hai! Kaise?",
+        "music_mood": "warm curious lo-fi",
+        "caption_ig": "ChatGPT kya hai? AI jo sirf likhta hai, kaam nahi karta.\n\"ChatGPT gyaan deta hai, guarantee nahi!\"\nSamjho iski kamzori, taki aap na banen bewakoof.\nSave karo aur us dost ko bhejo!",
+        "seo": {
+          "keywords": [
+            "AI kya hai bilkul shuruat se",
+            "AI agent kya hota hai",
+            "ChatGPT vs AI Agent",
+            "AI explained for beginners",
+            "Generative AI in Hindi",
+            "How ChatGPT works",
+            "AI ki kamzori",
+            "Artificial Intelligence A to Z in Hindi"
+          ],
+          "hashtags": [
+            "#AIAgents",
+            "#AIExplained",
+            "#TechInHindi",
+            "#GenerativeAI",
+            "#FutureTech"
+          ],
+          "alt_text": "An Instagram Reel explaining what ChatGPT is and how it works, using everyday Indian examples for beginners.",
+          "first_comment": "Kya aapne kabhi ChatGPT se kuch likhwaya hai? Kya aapko laga tha ki woh khud kaam bhi kar sakta hai? Batao!",
+          "story_text": "Kya aapko pata hai ChatGPT ki sabse badi kamzori kya hai? 🤔",
+          "broadcast_text": "Aaj hum \"AI CASE FILE\" mein ek naya raaz suljhayenge: ChatGPT bolta hai, par kaam nahi karta. Seekho 30 second mein! 🕵️‍♀️"
+        },
+        "lines": [
+          {
+            "text": "Aapke bachche ka homework, boss ka email, sab AI likh raha hai! Kaise?",
+            "caption": "Aapke bachche ka homework, boss ka email, sab AI likh raha hai! Kaise?",
+            "onscreen": "AI likh raha hai?",
+            "emoji": "📚✉️🤔",
+            "delivery": "suspense, whispering",
+            "footage": [
+              "student doing homework on laptop",
+              "man typing professional email",
+              "wedding invitation design"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "ये है AI की Chai-Break Class — चालीस second, एक concept, ज़िंदगी भर याद!",
+            "caption": "Ye hai AI ki Chai-Break Class — 40 second, ek concept, zindagi bhar yaad!",
+            "onscreen": "AI ki Chai-Break Class",
+            "emoji": "☕",
+            "delivery": "bright, warm, signature tone, smiling",
+            "footage": [],
+            "visual": {
+              "type": "brand",
+              "title": "AI ki Chai-Break Class",
+              "items": [
+                "40 sec · 1 concept · zindagi bhar yaad"
+              ],
+              "number": 0,
+              "suffix": "☕",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Ye hai Generative AI. Pichle Transformer se agla shabd jodkar naya content banata hai. Shayad aapne bhi ChatGPT use kiya ho. Par iski kamzori kya hai?",
+            "caption": "Ye hai Generative AI. Pichle Transformer se agla shabd jodkar naya content banata hai. Shayad aapne bhi ChatGPT use kiya ho. Par iski kamzori kya hai?",
+            "onscreen": "Generative AI ki kamzori",
+            "emoji": "🧠💡❓",
+            "delivery": "big excited reveal",
+            "footage": [
+              "AI generated text on screen",
+              "person typing on laptop fast",
+              "question mark animation"
+            ],
+            "visual": {
+              "type": "define",
+              "title": "Generative AI",
+              "items": [
+                "Naya content banata hai"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Socho, ye dukaan ka super-gyaani munshi hai. Daam bataega, chitthi likh dega. Par dukaan se bahar jaakar cheeni khareedega nahi!",
+            "caption": "Socho, ye dukaan ka super-gyaani munshi hai. Daam bataega, chitthi likh dega. Par dukaan se bahar jaakar cheeni khareedega nahi!",
+            "onscreen": "Gyaani Munshi",
+            "emoji": "🤓💰🚫",
+            "delivery": "teasing, playful",
+            "footage": [
+              "kirana shop owner talking customer",
+              "man writing a letter",
+              "empty grocery shelf"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Aap prompt likho. AI andaaza lagaata hai agla shabd. Shabd pe shabd judte jaate hain. Jawaab taiyaar – bas text. Koi kaam nahi!",
+            "caption": "Aap prompt likho. AI andaaza lagaata hai agla shabd. Shabd pe shabd judte jaate hain. Jawaab taiyaar – bas text. Koi kaam nahi!",
+            "onscreen": "ChatGPT: Sirf text",
+            "emoji": "💬➡️🧠✍️",
+            "delivery": "clear, instructional",
+            "footage": [
+              "finger typing on phone",
+              "digital words appearing",
+              "text scrolling on screen"
+            ],
+            "visual": {
+              "type": "flow",
+              "title": "ChatGPT kaise?",
+              "items": [
+                "Aapka Prompt",
+                "Agla Shabd Andaaza",
+                "Shabd Judte Hain",
+                "Jawaab Taiyaar (Text)"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Yahi kamzori hai. ChatGPT sirf bolta hai, karta nahi. Isiliye, 2026-27 tak 40% customer support ab 'kaam karne wale' AI Agents ko mil jayega!",
+            "caption": "Yahi kamzori hai. ChatGPT sirf bolta hai, karta nahi. Isiliye, 2026-27 tak 40% customer support ab 'kaam karne wale' AI Agents ko mil jayega!",
+            "onscreen": "AI Agents: 40% काम",
+            "emoji": "📉🤖💪",
+            "delivery": "slow build, then excited",
+            "footage": [
+              "person frustrated with chatbot",
+              "customer service call center",
+              "animated workflow diagram"
+            ],
+            "visual": {
+              "type": "counter",
+              "title": "Customer Support to AI Agents",
+              "items": [],
+              "number": 40.0,
+              "suffix": "%",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": "Gartner Enterprise Tech Briefings, 2025/2026"
+          },
+          {
+            "text": "Aap sochoge, 'ChatGPT ne likha hai to sach hoga?' Nahi! Ye andaaze se likhta hai, galat baat bhi poore bharose se bol sakta hai. Hamesha khud check karo!",
+            "caption": "Aap sochoge, 'ChatGPT ne likha hai to sach hoga?' Nahi! Ye andaaze se likhta hai, galat baat bhi poore bharose se bol sakta hai. Hamesha khud check karo!",
+            "onscreen": "ChatGPT Hamesha Sach?",
+            "emoji": "🤥❌🧐",
+            "delivery": "serious, warning",
+            "footage": [
+              "person looking confused at screen",
+              "fact check stamp animation",
+              "magnifying glass on document"
+            ],
+            "visual": {
+              "type": "stamp",
+              "title": "ChatGPT Hamesha Sach?",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": false,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Isliye, yaad rakho: \"ChatGPT gyaan deta hai, guarantee nahi!\"",
+            "caption": "Isliye, yaad rakho: \"ChatGPT gyaan deta hai, guarantee nahi!\"",
+            "onscreen": "CASE SOLVED!",
+            "emoji": "🎯🏆",
+            "delivery": "big proud verdict",
+            "footage": [
+              "person checking phone for info",
+              "verified tick mark animation"
+            ],
+            "visual": {
+              "type": "recap",
+              "title": "YAAD RAKHO",
+              "items": [
+                "ChatGPT gyaan deta hai, guarantee nahi!"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Ab aap AI ka jawaab aankh band karke nahi maante! Us dost ko bhejo jo ChatGPT ki har baat forward karta hai. Kal milenge, jab AI ne Desi bhasha bolna seekha!",
+            "caption": "Ab aap AI ka jawaab aankh band karke nahi maante! Us dost ko bhejo jo ChatGPT ki har baat forward karta hai. Kal milenge, jab AI ne Desi bhasha bolna seekha!",
+            "onscreen": "Next: Desi AI!",
+            "emoji": "😎🤝🗣️",
+            "delivery": "warm, encouraging",
+            "footage": [
+              "friends sharing phone screen",
+              "group of people discussing",
+              "map of India with language symbols"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          }
+        ]
+      },
+      "video": "out/20261016-145231/reel.mp4"
+    },
+    {
+      "title": "AI ab aapki bhasha bolta hai: Sarvam, Bhashini aur Bharat",
+      "era": "2024-2026",
+      "brief": "0-1.5s HOOK: \"Airline ko call kiya, Tamil mein sawaal poocha, Tamil mein jawaab mila - aur saamne insaan nahi tha.\"\n1.5-5s SELF-RELEVANCE + OPEN LOOP: Aapke mummy-papa jo English nahi bolte - ab AI unki bhasha mein unse baat kar raha hai. Aur ek Indian company ise itna bada bana rahi hai ki uski keemat sunke chaunk jaoge - 30 second mein.\n5-10s CONCEPT IN ONE SENTENCE: Indic AI wo AI hai jo Bharat ki bhashaon ke data pe sikhaya gaya hai, taaki aapki boli aur lehja samjhe.\n10-17s REAL-LIFE ANALOGY: Bade sheher ka doctor jo sirf English bole vs mohalle ka doctor jo aapki boli mein 'pet mein marod' samajh le. Dawai dono ke paas - bharosa mohalle wale pe.\n17-28s HOW IT WORKS (screen pe banta hai): 1) Indian bhashaon ka dher saara text aur aawaz (Sarvam ke models 10+ bhashaon pe trained). 2) Model seekhta hai (Episode 6-7 jaisa). 3) Aapki aawaz -> text -> samjho -> jawaab -> wapas aawaz. 4) Bank, airline, sarkari seva mein lagao (Bhashini, BharatGPT jaise prayas bhi).\n28-34s LOCAL NEWS EXAMPLE (loop payoff): IndiGo ne Sarvam AI ke multilingual voice agents airline calls mein lagaye (Source: Reddit AI India / Tech Portal reports, 2 Sept 2026). Aur Sarvam AI $3 billion valuation pe funding ki baat kar raha hai - LIC aur SBI Life jaisi sansthaon ke liye Indian bhasha ke AI agents banane ko (Source: The Economic Times, 13 Oct 2026).\n34-38s MYTH vs TRUTH: Aap soch rahe ho - 'AI to English walon ke liye hai.' Nahi - 90% se zyada Indians internet apni bhasha mein chalate hain (Sarvam AI, Aug 2024 / Aug 2026), isliye ab AI unki taraf aa raha hai.\n38-42s YAAD RAKHO: \"Jo AI aapki boli samjhe, wahi Bharat ka AI.\"\n42-45s SIGN-OFF: Ye video ghar ke family group mein bhejo - mummy-papa ko bhi pata chale AI unki bhasha bolta hai. Ab AI sunta bhi hai, bolta bhi hai. Par agar wo aapka kaam bhi kar de - ration order, payment? Kal: AI Agents.\nEXAMPLE: Mohalle ka doctor jo aapki boli mein dard samajhta hai = Indic AI.\nVISUALS: Stock: airport ke boards aur jahaaz (bina chehron ke), phone pe voice note record karte haath, gaon ki galiyaan, alag-alag lipiyon ke signboards. Drawn: aawaz-wave -> text -> jawaab -> aawaz chakra, India map pe bhashaon ke naam chamakte, IndiGo aur ET news cards.\nWHY NOW: IndiGo-Sarvam voice agents (2 Sept 2026) aur Sarvam ki $3B funding talks (13 Oct 2026) - Indian AI abhi news mein hai.",
+      "builds_on": [
+        7
+      ],
+      "arc": 2,
+      "status": "posted",
+      "script": {
+        "title": "AI ki A to Z: bilkul zero se - AI kya hai se lekar AI agents tak",
+        "genre": "educational",
+        "case_title": "AI Bolta Bharat",
+        "hook": "Airline ko call kiya? Tamil mein jawaab mila, saamne AI tha!",
+        "music_mood": "warm curious lo-fi",
+        "caption_ig": "Indic AI kya hai? Ab AI aapki bhasha samjhta hai! Jo AI aapki boli samjhe, wahi Bharat ka AI. Us dost ko bhejo jo soche AI sirf English ke liye hai!",
+        "seo": {
+          "keywords": [
+            "AI kya hai bilkul shuruat se",
+            "AI agent kya hota hai",
+            "What is Indic AI in Hindi",
+            "Indian language AI explained",
+            "How Sarvam AI works",
+            "AI explained for beginners in Hindi",
+            "AI agents for parents",
+            "Artificial Intelligence A to Z in Hindi"
+          ],
+          "hashtags": [
+            "#AIAgents",
+            "#AIExplained",
+            "#TechInHindi",
+            "#DigitalBharat",
+            "#FutureTech"
+          ],
+          "alt_text": "A teacher explains what Indic AI is, showing how AI now understands and speaks Indian languages like Tamil and Hindi, making technology accessible to everyone in India.",
+          "first_comment": "Kya aapke ghar mein bhi mummy-papa ko AI apni bhasha mein baat karte dekh kar achha lagega? Aapko kaun si bhasha mein AI chahiye?",
+          "story_text": "AI ab aapki bhasha bolta hai? Jaanne ke liye dekho!",
+          "broadcast_text": "Aaj ka case: 'AI Bolta Bharat'! Kaise AI ab aapki bhasha samajhta hai. Reels mein dekho!"
+        },
+        "lines": [
+          {
+            "text": "Airline ko call kiya? Tamil mein jawaab mila, saamne AI tha!",
+            "caption": "Airline ko call kiya? Tamil mein jawaab mila, saamne AI tha!",
+            "onscreen": "AI Bolta Bharat?",
+            "emoji": "🤔✈️",
+            "delivery": "suspense, wondering",
+            "footage": [
+              "woman calling customer service",
+              "tamil speaking woman on phone",
+              "person surprised by AI voice"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "ये है AI की Chai-Break Class — चालीस second, एक concept, ज़िंदगी भर याद!",
+            "caption": "Ye hai AI ki Chai-Break Class — 40 second, ek concept, zindagi bhar yaad!",
+            "onscreen": "AI ki Chai-Break Class",
+            "emoji": "☕",
+            "delivery": "bright, warm, signature tone, smiling",
+            "footage": [],
+            "visual": {
+              "type": "brand",
+              "title": "AI ki Chai-Break Class",
+              "items": [
+                "40 sec · 1 concept · zindagi bhar yaad"
+              ],
+              "number": 0,
+              "suffix": "☕",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Ye hai Indic AI. Jo Bharat ki bhashaon pe seekha, aapki boli samjhe.",
+            "caption": "Ye hai Indic AI. Jo Bharat ki bhashaon pe seekha, aapki boli samjhe.",
+            "onscreen": "Indic AI Kya Hai?",
+            "emoji": "🇮🇳🗣️",
+            "delivery": "excited, warm",
+            "footage": [
+              "elderly indian couple talking",
+              "indian family phone call",
+              "people speaking regional language"
+            ],
+            "visual": {
+              "type": "define",
+              "title": "Indic AI",
+              "items": [
+                "Bharat ki Bhasha Samjhe"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "English doctor ya mohalle ka vaid jo aapki boli mein 'pet mein marod' samjhe? Bharosa kispe?",
+            "caption": "English doctor ya mohalle ka vaid jo aapki boli mein 'pet mein marod' samjhe? Bharosa kispe?",
+            "onscreen": "Mohalle ka Vaid",
+            "emoji": "👨‍⚕️🤝",
+            "delivery": "teasing, playful",
+            "footage": [
+              "local indian doctor clinic",
+              "doctor talking to rural patient",
+              "small town doctor"
+            ],
+            "visual": {
+              "type": "compare",
+              "title": "AI: English vs. Indian",
+              "items": [
+                "English Doctor",
+                "Mohalle ka Vaid"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Kaise? Indian bhasha data se AI seekha. Aawaz text bani, samjha, jawaab diya.",
+            "caption": "Kaise? Indian bhasha data se AI seekha. Aawaz text bani, samjha, jawaab diya.",
+            "onscreen": "AI Ka Tareeka",
+            "emoji": "📖🔊💡",
+            "delivery": "slow build, then excited",
+            "footage": [
+              "speech to text on phone",
+              "voice recognition software",
+              "person talking to smart device"
+            ],
+            "visual": {
+              "type": "flow",
+              "title": "AI Ka Tareeka",
+              "items": [
+                "📚 Indian Data",
+                "🗣️ Aawaz -> Text",
+                "🧠 AI Samjhe",
+                "✅ Jawaab"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Proof? IndiGo ne Sarvam AI voice agents lagaye, regional calls samjhe. Sarvam ab ₹25,000 crore ka!",
+            "caption": "Proof? IndiGo ne Sarvam AI voice agents lagaye, regional calls samjhe. Sarvam ab ₹25,000 crore ka!",
+            "onscreen": "IndiGo ka AI",
+            "emoji": "✈️🗣️💰",
+            "delivery": "gasp, excited",
+            "footage": [
+              "indigo customer service",
+              "person on phone happy",
+              "airline customer support"
+            ],
+            "visual": {
+              "type": "list",
+              "title": "Latest News",
+              "items": [
+                "IndiGo: Sarvam AI",
+                "₹25,000 Crore Valuation"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": "Reddit AI India / Tech Portal · Sept 2026; The Economic Times · Oct 2026"
+          },
+          {
+            "text": "Galatfehmi? 'AI sirf English hai.' Sach? 90% Indians apni bhasha mein internet chalate hain!",
+            "caption": "Galatfehmi? 'AI sirf English hai.' Sach? 90% Indians apni bhasha mein internet chalate hain!",
+            "onscreen": "AI sirf English?",
+            "emoji": "❌🇮🇳",
+            "delivery": "dramatic pause, then serious",
+            "footage": [
+              "people using phone in rural india",
+              "diverse indian internet users",
+              "language barrier"
+            ],
+            "visual": {
+              "type": "stamp",
+              "title": "AI sirf English?",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": false,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": "Sarvam AI · Aug 2024 / Aug 2026"
+          },
+          {
+            "text": "Yaad rakho: Jo AI aapki boli samjhe, wahi Bharat ka AI!",
+            "caption": "Yaad rakho: Jo AI aapki boli samjhe, wahi Bharat ka AI!",
+            "onscreen": "Bharat ka AI",
+            "emoji": "❤️🇮🇳",
+            "delivery": "proud, punchy",
+            "footage": [
+              "indian map animation",
+              "happy diverse indian faces",
+              "flag of india"
+            ],
+            "visual": {
+              "type": "recap",
+              "title": "YAAD RAKHO",
+              "items": [
+                "Jo AI aapki boli samjhe,",
+                "Wahi Bharat ka AI!"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Ye video family group mein bhejo! Mummy-papa ko batao, AI ab unki bhasha bolta hai. Agle case mein: AI kaam bhi karega!",
+            "caption": "Ye video family group mein bhejo! Mummy-papa ko batao, AI ab unki bhasha bolta hai. Agle case mein: AI kaam bhi karega!",
+            "onscreen": "Agle Case Mein...",
+            "emoji": "👨‍👩‍👧‍👦🤖",
+            "delivery": "warm, fun, looping",
+            "footage": [
+              "family using phone together",
+              "digital india concept",
+              "ai agent concept"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          }
+        ]
+      },
+      "video": "out/20261016-150622/reel.mp4"
+    },
+    {
+      "title": "ChatGPT bolta hai, Agent kar deta hai: AI ka naya avtaar",
+      "era": "2025-2026",
+      "brief": "0-1.5s HOOK: \"Ghar ka aata khatam - aur bina aapke PIN daale, AI ne order bhi kar diya, UPI se pay bhi.\" (Khaali dabba, phir doorbell)\n1.5-5s SELF-RELEVANCE + OPEN LOOP: Aapka UPI, aapka paisa. Aur pehla sawaal jo aapke mann mein aaya - 'bank account khaali to nahi karega?' - iska jawaab 30 second pe.\n5-10s CONCEPT IN ONE SENTENCE: AI Agent aapka goal sunke khud steps plan karta hai aur apps chalakar poora kaam kar deta hai - sirf bolta nahi.\n10-17s REAL-LIFE ANALOGY: Episode 7 ka munshi sirf daam batata tha. Agent wala chhotu dekhta hai cheeni ki bori khaali hai, mandi jaata hai, mol-bhaav karta hai, ₹2,000 ke budget mein khareedta hai aur dukaan mein rakh deta hai.\n17-28s HOW IT WORKS (screen pe banta hai): 1) Aap goal + budget do ('mahine ka ration, limit itni'). 2) Agent plan banata hai - kya, kahaan se, kitna. 3) Tools chalata hai - grocery app, UPI. 4) Result check karta hai; gadbad ho to khud sudhaarta hai - jaise captain jo run leak hone pe bowler badal deta hai.\n28-34s LOCAL NEWS EXAMPLE (loop payoff): NPCI 'Unified Agent Protocol' bana raha hai - verified AI agents chhote UPI payments kar sakenge, par sirf aapki pehle se tay budget limit ke andar (Source: Reuters / Times of India, 9 Sept 2026). Matlab chaabi aapke haath, limit aap tay karte ho. Aur ye rail kitni badi hai? Aug 2026 mein 24.51 billion UPI transactions (NPCI / TOI, Sept 2026).\n34-38s MYTH vs TRUTH: Aap soch rahe ho - 'Agent matlab Terminator robot jo insaanon ko hata dega.' Nahi - Agent ek software hai jo browser aur apps chalata hai, taaki boring kaam - bill, email, data entry - apne aap ho.\n38-42s YAAD RAKHO: \"Chatbot batata hai, Agent nibtaata hai.\" Ab aap zyaadatar logon se zyada jaante ho - kyunki aap AI ki poori kahaani 1950 se yahaan tak jaante ho.\n42-45s SIGN-OFF: Ye video us dost ko bhejo jo abhi bhi sochta hai ChatGPT hi AI ka last level hai. Kamment mein batao: kya aap apne UPI ki limit AI ko doge? Par Agent abhi screen ke andar hai - jab ise haath-pair mil jaayein? Kal finale.\nEXAMPLE: Kirana ka chhotu jo khaali bori dekhe, mandi jaaye, ₹2,000 budget mein cheeni laaye = AI Agent.\nVISUALS: Stock: khaali aate ka dabba, phone pe grocery app scroll aur UPI success screen (haath), mandi mein boriyaan, cricket field ka wide shot (bina chehron ke). Drawn: Chatbot (sirf speech bubble) vs Agent (checklist ticks + app icons) split screen, budget-limit wala taala icon, 4-step loop, NPCI news card.\nWHY NOW: NPCI ka AI agent UPI plan (9 Sept 2026), 'AI agent kya hota hai' aur 'UPI AI auto payment' searches badh rahe hain, aur parents WhatsApp pe poochh rahe hain 'account khaali to nahi karega?'",
+      "builds_on": [
+        7,
+        8
+      ],
+      "arc": 2,
+      "status": "posted",
+      "script": {
+        "title": "AI ki A to Z: bilkul zero se - AI kya hai se lekar AI agents tak",
+        "genre": "educational",
+        "case_title": "AI Agent Ka Avtaar",
+        "hook": "AI KA UPI PAYMENT?",
+        "music_mood": "warm curious lo-fi",
+        "caption_ig": "AI Agent kya hai? आपका AI अब खुद ऑर्डर करेगा और UPI से पेमेंट भी! 'Chatbot batata hai, Agent nibtaata hai.' समझो 40 sec में. #AIAgents #AIExplained #TechInHindi #DigitalBharat #FutureTech",
+        "seo": {
+          "keywords": [
+            "AI agent kya hota hai",
+            "AI explained for beginners",
+            "ChatGPT vs AI agent",
+            "AI UPI payment",
+            "Artificial Intelligence basics",
+            "future of AI in India",
+            "AI agents in Hindi",
+            "auto payment AI"
+          ],
+          "hashtags": [
+            "#AIAgents",
+            "#AIExplained",
+            "#TechInHindi",
+            "#DigitalBharat",
+            "#FutureTech"
+          ],
+          "alt_text": "An Instagram Reel explaining what AI Agents are, how they work, and their difference from traditional AI, using everyday Indian examples like UPI payments.",
+          "first_comment": "ये AI Agent वाला UPI आपको डरा रहा है या एक्साइट कर रहा है? 🤔 अपनी राय बताओ!",
+          "story_text": "😱 आपका AI अब UPI से पेमेंट भी करेगा! क्या है ये नया 'AI Agent'?",
+          "broadcast_text": "आज AI की कहानी में नया मोड़! 🤖 'AI Agent' क्या है और कैसे ये आपका काम आसान करेगा? 💸 देखो 'AI Case File #9'!"
+        },
+        "lines": [
+          {
+            "text": "Aata khatam! Bina PIN daale, AI ne order kiya, pay bhi. Kaise?",
+            "caption": "Aata khatam! Bina PIN daale, AI ne order kiya, pay bhi. Kaise?",
+            "onscreen": "AI KA UPI PAYMENT?",
+            "emoji": "🤯🛒",
+            "delivery": "suspense, curious",
+            "footage": [
+              "empty flour container",
+              "doorbell ringing parcel delivery",
+              "UPI payment success screen"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "ये है AI की Chai-Break Class — चालीस second, एक concept, ज़िंदगी भर याद!",
+            "caption": "Ye hai AI ki Chai-Break Class — 40 second, ek concept, zindagi bhar yaad!",
+            "onscreen": "AI ki Chai-Break Class",
+            "emoji": "☕",
+            "delivery": "bright, warm, signature tone, smiling",
+            "footage": [],
+            "visual": {
+              "type": "brand",
+              "title": "AI ki Chai-Break Class",
+              "items": [
+                "40 sec · 1 concept · zindagi bhar yaad"
+              ],
+              "number": 0,
+              "suffix": "☕",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Ye hai AI Agent. Aapka goal sunke, apps chalakar poora kaam karta hai.",
+            "caption": "Ye hai AI Agent. Aapka goal sunke, apps chalakar poora kaam karta hai.",
+            "onscreen": "AI AGENT: KYA HAI?",
+            "emoji": "🤖💡",
+            "delivery": "big excited reveal",
+            "footage": [
+              "digital assistant working on tablet",
+              "AI robot planning actions",
+              "person looking at screen"
+            ],
+            "visual": {
+              "type": "define",
+              "title": "AI AGENT",
+              "items": [
+                "Goal sunke khud kaam",
+                "Apps chalakar poora"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Pehle AI sirf batata tha. Agent Kirana ka chhotu: cheeni khaali dekhi, mandi gaya, ₹2000 mein laaya!",
+            "caption": "Pehle AI sirf batata tha. Agent Kirana ka chhotu: cheeni khaali dekhi, mandi gaya, ₹2000 mein laaya!",
+            "onscreen": "KIRANA KA CHHOTU",
+            "emoji": "🧑‍💻💰",
+            "delivery": "slow build, then excited",
+            "footage": [
+              "empty sugar sack in kirana store",
+              "bustling Indian vegetable market",
+              "shopkeeper bargaining with vendor"
+            ],
+            "visual": {
+              "type": "compare",
+              "title": "PEHLE AI vs AGENT",
+              "items": [
+                "Sirf batata tha",
+                "Khud karta hai"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Kaise? Goal+Budget do. Agent plan bana, apps chalata, gadbad sudharta!",
+            "caption": "Kaise? Goal+Budget do. Agent plan bana, apps chalata, gadbad sudharta!",
+            "onscreen": "AI AGENT STEPS",
+            "emoji": "🧠📱",
+            "delivery": "excited, detailed",
+            "footage": [
+              "person setting budget on phone",
+              "hand using grocery shopping app",
+              "animated robot adjusting plan"
+            ],
+            "visual": {
+              "type": "flow",
+              "title": "AI AGENT STEPS",
+              "items": [
+                "🎯 Goal + Budget",
+                "🧠 Plan & Apps",
+                "🔄 Khud Sudharta"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "NPCI Protocol bana raha. Verified AI agents chhote UPI payments karenge, तय limit में.",
+            "caption": "NPCI Protocol bana raha. Verified AI agents chhote UPI payments karenge, tay limit mein.",
+            "onscreen": "UPI AI PAYMENTS",
+            "emoji": "🏦🔒",
+            "delivery": "proud, punchy",
+            "footage": [
+              "UPI logo animated",
+              "secure digital transaction icon",
+              "person setting budget on phone"
+            ],
+            "visual": {
+              "type": "list",
+              "title": "UPI AI AGENTS",
+              "items": [
+                "Verified AI only",
+                "Pre-set budget limit"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": "Reuters / The Times of India · Sept 2026"
+          },
+          {
+            "text": "Aug 2026 mein 2,451 crore UPI transactions! Bada network!",
+            "caption": "Aug 2026 mein 2,451 crore UPI transactions! Bada network!",
+            "onscreen": "INDIA'S UPI POWER",
+            "emoji": "📈🇮🇳",
+            "delivery": "gasp, shocked",
+            "footage": [
+              "animated graph rising",
+              "India map with digital lines",
+              "crowd of people using phones"
+            ],
+            "visual": {
+              "type": "counter",
+              "title": "UPI Transactions (Aug 2026)",
+              "items": [],
+              "number": 2451.0,
+              "suffix": "Crore",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": "NPCI / The Times of India · Sept 2026"
+          },
+          {
+            "text": "Agent Terminator robot? Nahi! Software hai, boring kaam khud karega.",
+            "caption": "Agent Terminator robot? Nahi! Software hai, boring kaam khud karega.",
+            "onscreen": "AGENT ROBOT? MYTH!",
+            "emoji": "🤖❌",
+            "delivery": "dramatic pause, then serious",
+            "footage": [
+              "sci-fi robot fighting",
+              "person doing repetitive data entry",
+              "computer screen showing automated tasks"
+            ],
+            "visual": {
+              "type": "stamp",
+              "title": "AGENT = ROBOT?",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": false,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Yaad rakho: ‘Chatbot batata hai, Agent nibtaata hai.’",
+            "caption": "Yaad rakho: ‘Chatbot batata hai, Agent nibtaata hai.’",
+            "onscreen": "YAAD RAKHO!",
+            "emoji": "🧠🏆",
+            "delivery": "proud, punchy",
+            "footage": [
+              "person looking confident",
+              "graduation cap falling on head",
+              "group of friends discussing"
+            ],
+            "visual": {
+              "type": "recap",
+              "title": "CHATBOT BATATA HAI, AGENT NIBTAATA HAI",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Usko bhejo jo sochta hai ChatGPT hi AI ka last level hai. Comment: AI ko UPI limit doge? Kal finale!",
+            "caption": "Usko bhejo jo sochta hai ChatGPT hi AI ka last level hai. Comment: AI ko UPI limit doge? Kal finale!",
+            "onscreen": "SHARE & NEXT!",
+            "emoji": "🤗🔜",
+            "delivery": "warm and fun",
+            "footage": [
+              "people sharing phone screen",
+              "friends talking excitedly",
+              "futuristic robot hand reaching out"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          }
+        ]
+      },
+      "video": "out/20261016-152231/reel.mp4"
+    },
+    {
+      "title": "Agent ko haath-pair mil gaye to? AI ka agla chapter",
+      "era": "2026 aur aage (Future)",
+      "brief": "0-1.5s HOOK: \"Aaj AI aapka ration order karta hai. Kal shayad wahi ration shelf pe bhi rakhe.\" (Factory mein robotic haath)\n1.5-5s SELF-RELEVANCE + OPEN LOOP: Har college reel ka sawaal: 'AI hamari naukri khaayega?' Seedha jawaab dunga - 30 second pe.\n5-10s CONCEPT IN ONE SENTENCE: Physical AI matlab Agent ka dimaag + machine ka shareer, jo asli duniya mein kaam kare; aur AGI ek aisa AI jo har dimaagi kaam insaan jaisa kar sake - jo abhi sirf lakshya hai, bana nahi.\n10-17s REAL-LIFE ANALOGY: Episode 9 ka chhotu ab tak phone se order karta tha. Physical AI wala chhotu khud bori uthaata, shelf pe lagata hai.\n17-28s HOW IT WORKS (poori series ek tree mein, screen pe): 1) Aankhein - camera + deep learning (Ep 4). 2) Samajh - Transformer aur language model (Ep 6-7), aapki bhasha mein (Ep 8). 3) Dimaag - Agent ki planning (Ep 9). 4) Haath - motors aur robot ka shareer. Sab jodo = physical AI.\n28-34s LOCAL NEWS EXAMPLE (loop payoff): Naukri ka sach: Gartner/IDC ka andaaza hai ki 2026-27 tak 40% se zyada customer support aur IT kaam khud kaam karne wale agents pe jaayenge (Gartner, 2025/2026). Matlab boring, dohraane wala kaam pehle badlega. Aur NPCI ka model dikhata hai future kaisa hoga - AI kaam karega, par limit insaan tay karega (Reuters / TOI, 9 Sept 2026). Jo AI chalana jaanta hai, uski value badhegi.\n34-38s MYTH vs TRUTH: Aap soch rahe ho - 'robot kal se ghar mein aa jaayenge, AGI aa chuka hai.' Nahi - physical robots abhi zyada-tar labs aur factories mein shuruaati daur mein hain, aur AGI ab bhi ek sapna hai, sach nahi.\n38-42s YAAD RAKHO: \"AI naukri nahi khaata - boring kaam khaata hai. AI chalana seekho.\" Aap ab 1950 ke Turing se 2026 ke UPI agent tak poori kahaani jaante ho - ye zyaadatar log nahi jaante.\n42-45s SIGN-OFF: Ye series us dost ko bhejo jo AI se darta hai - 10 reels mein wo zero se hero ban jaayega. Par jaanna kaafi nahi, chalana zaroori hai. Agla season: apna pehla kaam AI se khud karwaao - step by step. Follow karo, chhootna nahi.\nEXAMPLE: Wahi kirana chhotu - pehle sirf daam batata (chatbot), phir phone se order karta (agent), ab khud bori uthaata (physical AI).\nVISUALS: Stock: factory mein robotic arms, warehouse mein automated machines, kirana shelf, college campus ka wide shot (bina chehron ke). Drawn: poori series ka learning tree - jad (1950) se patton (Agents) tak, har episode ek patta jo chamakta hai; aankh-samajh-dimaag-haath ke 4 icons judte hue; Gartner 40% aur NPCI news cards.\nWHY NOW: 'AI hamari naukri khaayega?' Indian college reels ka sabse bada sawaal hai, aur NPCI ke agent payments (9 Sept 2026) dikhate hain ki AI ab sach mein kaam karne laga hai.",
+      "builds_on": [
+        9
+      ],
+      "arc": 3,
+      "status": "posted",
+      "script": {
+        "title": "AI ki A to Z: bilkul zero se - AI kya hai se lekar AI agents tak",
+        "genre": "Educational",
+        "case_title": "AI Ka Agla Chapter",
+        "hook": "AI अब राशन order करता है। सोचे, वो खुद shelf पे रखे तो?",
+        "music_mood": "warm curious lo-fi",
+        "caption_ig": "Physical AI क्या है? 🤔 'AI नौकरी खाएगा?' नहीं! AI बोरिंग काम खाता है। AI चलाना सीखो! 🚀 ये वीडियो उस दोस्त को भेजो जो AI से डरा है।",
+        "seo": {
+          "keywords": [
+            "Physical AI explained",
+            "AI agent kya hai",
+            "AI jobs future India",
+            "Robot in daily life",
+            "AI technology for beginners",
+            "AGI meaning in Hindi",
+            "AI future jobs"
+          ],
+          "hashtags": [
+            "#PhysicalAI",
+            "#AIExplained",
+            "#FutureOfWork",
+            "#DigitalBharat",
+            "#TechInHindi"
+          ],
+          "alt_text": "A video explaining Physical AI and AGI, how they work, their job impact, using relatable Indian examples for beginners.",
+          "first_comment": "क्या आप चाहते हो कि एक Physical AI Agent आपके सारे बोरिंग घर के काम कर दे? या डर लगता है?",
+          "story_text": "AI अब खुद सामान रखेगा? जानें Physical AI कैसे काम करता है! 😱",
+          "broadcast_text": "नमस्ते दोस्तों! 👋 AI Explained series का finale आ गया है! आज समझेंगे Physical AI क्या है और क्या AI हमारी नौकरी खाएगा? 🤖"
+        },
+        "lines": [
+          {
+            "text": "AI अब राशन order करता है। सोचे, वो खुद shelf पे रखे तो?",
+            "caption": "AI ab ration order karta hai. Soche, wo khud shelf pe rakhe toh?",
+            "onscreen": "AI Ka Agla Kadam?",
+            "emoji": "🤔",
+            "delivery": "Suspense, curious",
+            "footage": [
+              "factory robotic arm lifting box",
+              "warehouse automation",
+              "robot picking groceries"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "ये है AI की Chai-Break Class — चालीस second, एक concept, ज़िंदगी भर याद!",
+            "caption": "Ye hai AI ki Chai-Break Class — 40 second, ek concept, zindagi bhar yaad!",
+            "onscreen": "AI ki Chai-Break Class",
+            "emoji": "☕",
+            "delivery": "bright, warm, signature tone, smiling",
+            "footage": [],
+            "visual": {
+              "type": "brand",
+              "title": "AI ki Chai-Break Class",
+              "items": [
+                "40 sec · 1 concept · zindagi bhar yaad"
+              ],
+              "number": 0,
+              "suffix": "☕",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "Physical AI: Agent का दिमाग 🧠 + रोबोट का शरीर 🦾, असली दुनिया में काम!",
+            "caption": "Physical AI: Agent ka dimaag 🧠 + robot ka shareer 🦾, asli duniya mein kaam!",
+            "onscreen": "Physical AI Kya?",
+            "emoji": "🧠🦾",
+            "delivery": "Clear, explanatory",
+            "footage": [
+              "humanoid robot moving",
+              "robot interacting with objects",
+              "futuristic AI concept art"
+            ],
+            "visual": {
+              "type": "define",
+              "title": "Physical AI",
+              "items": [
+                "Agent ka dimaag",
+                "Robot ka shareer",
+                "Asli duniya mein kaam"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "पहले Agent order करता. अब 'छोटू' खुद बोरी उठाएगा, shelf पर रखेगा!",
+            "caption": "Pehle Agent order karta. Ab 'Chhotu' khud bori uthayega, shelf par rakhega!",
+            "onscreen": "Chhotu ki Upgrade!",
+            "emoji": "📱💪",
+            "delivery": "Playful, excited",
+            "footage": [
+              "kirana shopkeeper stocking shelves",
+              "worker carrying heavy bags in market",
+              "small grocery store in India"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "कैसे? 👁️ देखेगा, 🧠 समझेगा, 💡 plan, फिर 🦾 काम!",
+            "caption": "Kaise? 👁️ dekhega, 🧠 samjhega, 💡 plan, phir 🦾 kaam!",
+            "onscreen": "Kaise Kaam?",
+            "emoji": "👁️🧠💡🦾",
+            "delivery": "Big excited reveal",
+            "footage": [
+              "robot arm assembling product",
+              "gears turning smoothly",
+              "robot hand grasping object"
+            ],
+            "visual": {
+              "type": "flow",
+              "title": "Physical AI Kaise?",
+              "items": [
+                "👁️ Dekhega",
+                "🧠 Samjhega",
+                "💡 Plan karega",
+                "🦾 Kaam karega"
+              ],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "2026 तक 40% बोरिंग काम AI Agent करेंगे! AI काम करेगा, LIMIT इंसान तय करेगा!",
+            "caption": "2026 tak 40% boring kaam AI Agent karenge! AI kaam karega, LIMIT insaan tay karega!",
+            "onscreen": "Boring Kaam Out!",
+            "emoji": "📊🔒",
+            "delivery": "Serious, reassuring",
+            "footage": [
+              "people working in call center",
+              "person typing on computer repetitively",
+              "office automation"
+            ],
+            "visual": {
+              "type": "counter",
+              "title": "Boring Kaam AI Karega",
+              "items": [],
+              "number": 40.0,
+              "suffix": "%",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": "Gartner, 2025/2026; Reuters / TOI, Sept 2026"
+          },
+          {
+            "text": "Myth: 'रोबोट आ गए!' ❌ सच: Robots Labs में, AGI सपना है!",
+            "caption": "Myth: 'Robot aa gaye!' ❌ Sach: Robots Labs mein, AGI sapna hai!",
+            "onscreen": "AGI - Sach Ya Sapna?",
+            "emoji": "🤯",
+            "delivery": "Firm, myth-busting",
+            "footage": [
+              "sci-fi robot in home",
+              "futuristic AI city",
+              "research lab with robots"
+            ],
+            "visual": {
+              "type": "stamp",
+              "title": "AGI Aaya?",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": false,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "याद रखो: 'AI नौकरी नहीं खाता – boring काम खाता है। AI चलाना सीखो!'",
+            "caption": "Yaad Rakho: 'AI naukri nahi khata – boring kaam khata hai. AI chalana seekho!'",
+            "onscreen": "YAAD RAKHO!",
+            "emoji": "💡",
+            "delivery": "Proud, punchy",
+            "footage": [
+              "person learning on laptop",
+              "people collaborating",
+              "smart student smiling"
+            ],
+            "visual": {
+              "type": "recap",
+              "title": "AI naukri nahi khaata – boring kaam khaata hai. AI chalana seekho!",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          },
+          {
+            "text": "दोस्त को भेजो. अगले season: AI से काम करवाओ! Follow!",
+            "caption": "Dost ko bhejo. Agle season: AI se kaam karwaao! Follow!",
+            "onscreen": "AI Se Kaam Karwao!",
+            "emoji": "🚀",
+            "delivery": "Warm, excited, promising",
+            "footage": [
+              "people sharing phone screen",
+              "friends talking excitedly",
+              "futuristic digital interface"
+            ],
+            "visual": {
+              "type": "none",
+              "title": "",
+              "items": [],
+              "number": 0,
+              "suffix": "",
+              "good": true,
+              "values": [],
+              "chart": "bar"
+            },
+            "source": ""
+          }
+        ]
+      },
+      "video": "out/20261016-153518/reel.mp4"
+    }
+  ],
+  "planning_usage": {
+    "gemini_usd": 0.6949,
+    "claude_usd_equivalent": 4.7396,
+    "calls": 38,
+    "steps": {
+      "research (Google Search)": {
+        "calls": 1,
+        "in": 1072,
+        "out": 4117,
+        "usd": 0.03024,
+        "model": "gemini-3.8-flash"
+      },
+      "series (Claude)": {
+        "calls": 1,
+        "in": 13091,
+        "out": 20762,
+        "usd": 0.51996,
+        "model": "claude"
+      },
+      "script (Claude)": {
+        "calls": 15,
+        "in": 345805,
+        "out": 101701,
+        "usd": 4.21968,
+        "model": "claude"
+      },
+      "script (Gemini fallback)": {
+        "calls": 21,
+        "in": 242614,
+        "out": 236744,
+        "usd": 0.66463,
+        "model": "gemini-2.5-flash"
+      }
+    }
+  }
+}

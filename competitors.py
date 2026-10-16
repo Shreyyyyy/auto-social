@@ -22,7 +22,7 @@ MIN_VIEWS = int(E("COMPETITOR_MIN_VIEWS", "1000000"))
 
 
 # ---------- YouTube sign-in for research: OAuth desktop flow, READ-ONLY scope, refresh token kept locally ----------
-TOKEN = Path(".youtube_token.json")
+TOKEN = Path(E("YOUTUBE_TOKEN_FILE", ".youtube_token.json"))
 SCOPE = "https://www.googleapis.com/auth/youtube.readonly"  # can search/read; can never upload or change anything
 
 

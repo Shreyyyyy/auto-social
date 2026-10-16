@@ -1,0 +1,32 @@
+# ./start.sh  (or: docker compose up --build -d)  ->  http://localhost:3737
+# Everything is configured through .env. Your reels, playlists, research and footage cache stay in this folder.
+services:
+  api:
+    build: .
+    env_file: .env
+    environment:
+      API_HOST: 0.0.0.0
+      YOUTUBE_TOKEN_FILE: /app/research/.youtube_token.json
+    volumes:
+      - ./out:/app/out
+      - ./series:/app/series
+      - ./research:/app/research
+      - ./assets:/app/assets
+      - ./config.json:/app/config.json
+    ports:
+      - "127.0.0.1:${API_PORT:-8787}:8787"   # this computer only - phones go through the web app
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ./web
+      args:
+        API_URL: http://api:8787
+    environment:
+      STUDIO_PASSWORD: ${STUDIO_PASSWORD:-}
+    ports:
+      - "${WEB_BIND:-0.0.0.0}:${PORT:-3737}:3737"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped

@@ -13,6 +13,16 @@ export default function Playlists() {
   useEffect(() => { load(); }, []);
   const onDone = useCallback((j: Job) => { load(); if (j.status === "done" && j.result?.playlist) window.location.href = `/playlists/${j.result.playlist}`; }, []);
   const create = async () => { setErr(""); try { await api.newPlaylist(subject, n); } catch (e: any) { setErr(e.message); } };
+  const handleDelete = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to delete "${name}"?`)) return;
+    setErr("");
+    try {
+      await api.deletePlaylist(id);
+      load();
+    } catch (e: any) {
+      setErr(e.message);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -38,12 +48,30 @@ export default function Playlists() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         {list.map((p) => (
-          <Link key={p.id} href={`/playlists/${p.id}`} className="card group p-5 transition hover:border-case-400/40">
-            <p className="font-semibold leading-snug group-hover:text-white">{p.name}</p>
-            <p className="mt-1 text-xs text-zinc-500">{p.created || ""}</p>
-            <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full bg-case-500" style={{width: `${(100 * p.made) / p.episodes}%`}} /></div>
-            <p className="mt-2 text-xs text-zinc-400">{p.made}/{p.episodes} videos made · {p.scripted} scripts</p>
-          </Link>
+          <div key={p.id} className="card group relative p-5 transition hover:border-case-400/40">
+            <div className="flex items-start justify-between gap-3">
+              <Link href={`/playlists/${p.id}`} className="min-w-0 flex-1">
+                <p className="font-semibold leading-snug group-hover:text-white">{p.name}</p>
+                <p className="mt-1 text-xs text-zinc-500">{p.created || ""}</p>
+              </Link>
+              <button
+                type="button"
+                title="Delete project"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleDelete(p.id, p.name);
+                }}
+                className="rounded-lg p-1.5 text-zinc-400 transition hover:bg-red-500/15 hover:text-red-300"
+              >
+                🗑️
+              </button>
+            </div>
+            <Link href={`/playlists/${p.id}`} className="block">
+              <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full bg-case-500" style={{width: `${(100 * p.made) / p.episodes}%`}} /></div>
+              <p className="mt-2 text-xs text-zinc-400">{p.made}/{p.episodes} videos made · {p.scripted} scripts</p>
+            </Link>
+          </div>
         ))}
       </div>
     </div>

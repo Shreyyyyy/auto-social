@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import {use, useCallback, useEffect, useState} from "react";
+import ChannelPicker, {NET, useChannels} from "@/components/ChannelPicker";
 import JobPanel from "@/components/JobPanel";
 import {StatusChip} from "@/components/ReelView";
 import {api, Episode, Job, Playlist} from "@/lib/api";
@@ -14,20 +15,58 @@ export default function PlaylistPage({params}: {params: Promise<{id: string}>}) 
   const [pl, setPl] = useState<Playlist | null>(null);
   const [open, setOpen] = useState<number | null>(null);
   const [err, setErr] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const {channels, picked, toggle} = useChannels();
+  const everywhere = picked.length === (channels?.length || 3);
+  const rocket = (n: number) => {
+    const names = picked.map((s) => NET[s]?.name || s).join(", ");
+    if (!confirm(`Make case #${n} and send it straight to ${names} via Buffer — no review step. Go?`)) return;
+    go(() => api.autopilotEpisode(id, n, picked));
+  };
+  const [posting, setPosting] = useState<number | null>(null);
+  const [note, setNote] = useState("");
+  const postMade = async (e: Episode) => {
+    if (!e.run) return;
+    setErr(""); setNote(""); setPosting(e.n);
+    try { const r = await api.run(e.run); setNote(`Case #${e.n}: ` + (await api.post(e.run, r.caption, picked)).message); load(); }
+    catch (x: any) { setErr(`Case #${e.n}: ${x.message}`); }
+    setPosting(null);
+  };
   const load = useCallback(() => api.playlist(id).then(setPl).catch((e) => setErr(e.message)), [id]);
   useEffect(() => { load(); }, [load]);
   const onDone = useCallback((_: Job) => load(), [load]);
   const go = async (fn: () => Promise<Job>) => { setErr(""); try { await fn(); } catch (e: any) { setErr(e.message); } };
+  const deleteThisPlaylist = async () => {
+    if (!pl || !window.confirm(`Are you sure you want to delete the project "${pl.name}"?`)) return;
+    setDeleting(true);
+    setErr("");
+    try {
+      await api.deletePlaylist(id);
+      window.location.href = "/playlists";
+    } catch (e: any) {
+      setErr(e.message);
+      setDeleting(false);
+    }
+  };
   if (!pl) return <div className="card h-96 animate-pulse" />;
   const next = pl.episodes.find((e) => !e.run);
   const jump = (n: number) => document.getElementById(`ep-${n}`)?.scrollIntoView({behavior: "smooth", block: "center"});
 
   return (
     <div className="space-y-6">
-      <header>
-        <Link href="/playlists" className="text-sm text-zinc-400 hover:text-white">← Playlists</Link>
-        <h1 className="mt-2 text-3xl font-bold tracking-tight">{pl.name}</h1>
-        <p className="mt-2 text-sm text-zinc-400">{pl.arcs.length} chapters · {pl.episodes.length} episodes · {pl.made} made · {next ? `next up: case #${next.n}` : "all done 🎉"}</p>
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <Link href="/playlists" className="text-sm text-zinc-400 hover:text-white">← Playlists</Link>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight">{pl.name}</h1>
+          <p className="mt-2 text-sm text-zinc-400">{pl.arcs.length} chapters · {pl.episodes.length} episodes · {pl.made} made · {next ? `next up: case #${next.n}` : "all done 🎉"}</p>
+        </div>
+        <button
+          onClick={deleteThisPlaylist}
+          disabled={deleting}
+          className="btn-danger py-2 px-3.5 text-xs"
+        >
+          {deleting ? "Deleting…" : "🗑️ Delete project"}
+        </button>
       </header>
 
       {/* map of the whole tree */}
@@ -58,7 +97,14 @@ export default function PlaylistPage({params}: {params: Promise<{id: string}>}) 
         </div>
       </div>
 
+      <div className="card-glow flex flex-wrap items-center justify-between gap-4 p-5">
+        <ChannelPicker channels={channels} picked={picked} toggle={toggle} />
+        {next && <button className="btn-hyper" disabled={!picked.length} onClick={() => rocket(next.n)}>
+          🚀 Make &amp; post case #{next.n} <span className="text-sm">{picked.map((s) => NET[s]?.icon).join(" ")}</span></button>}
+      </div>
+
       {err && <p className="rounded-xl bg-red-500/10 p-3 text-sm text-red-300">{err}</p>}
+      {note && <p className="whitespace-pre-wrap rounded-xl bg-emerald-500/10 p-3 text-sm text-emerald-300">{note}</p>}
       <JobPanel onDone={onDone} />
 
       {/* chapters as branches, episodes hanging off them */}
@@ -87,7 +133,14 @@ export default function PlaylistPage({params}: {params: Promise<{id: string}>}) 
                       {e.builds_on.map((b) => <button key={b} onClick={() => jump(b)} className="chip bg-white/5 text-zinc-300 hover:bg-white/10">#{b} {pl.episodes[b - 1]?.title.slice(0, 28)}…</button>)}</div>}
                     <div className="mt-3 flex flex-wrap gap-2">
                       {e.run ? <Link href={`/reel/${e.run}`} className="btn-ghost">🎬 Open video</Link>
-                        : <button className="btn-primary" onClick={() => go(() => api.runEpisode(id, e.n))}>▶ Run case #{e.n}</button>}
+                        : <button className="btn-ghost" onClick={() => go(() => api.runEpisode(id, e.n))}>▶ Make case #{e.n}</button>}
+                      {!e.run && <button className="btn-hyper" disabled={!picked.length} onClick={() => rocket(e.n)}
+                        title={`Make case #${e.n} and post to ${picked.map((s) => NET[s]?.name || s).join(", ") || "nothing - pick a channel"}`}>
+                        🚀 {everywhere ? "Make & post everywhere" : picked.length ? "Make & post" : "Pick a channel"}
+                        {picked.length > 0 && <span className="text-sm">{picked.map((s) => NET[s]?.icon).join(" ")}</span>}</button>}
+                      {e.run && <button className="btn-primary" disabled={!picked.length || posting !== null} onClick={() => postMade(e)}
+                        title="Send this video to the selected channels that don't have it yet">
+                        {posting === e.n ? "Posting…" : <>📤 Post <span className="text-sm">{picked.map((s) => NET[s]?.icon).join(" ")}</span></>}</button>}
                       {e.run && <button className="btn-ghost" onClick={() => go(() => api.runEpisode(id, e.n))}>↻ Remake</button>}
                       {e.script.length > 0 && <button className="btn-ghost" onClick={() => setOpen(open === e.n ? null : e.n)}>{open === e.n ? "Hide script" : "Read script"}</button>}
                       {!e.run && <button className="btn-ghost" onClick={() => go(() => api.rewriteScript(id, e.n))}>✏️ {e.script.length ? "Rewrite" : "Write"} script</button>}

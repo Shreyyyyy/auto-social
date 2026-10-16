@@ -1,0 +1,13 @@
+.git
+.env
+.env.*
+out
+series
+research
+assets
+__pycache__
+*.log
+.reel.lock
+.youtube_token.json
+video/node_modules
+web

@@ -132,14 +132,14 @@ AI Warehouse - see research/competitors_10M.json). Follow it:
 - Escalate the reveals ("pehle ye... lekin asli kamaal ye hai...") with a tiny pause before each one.
 - Proof on screen: real numbers with sources, real-world examples, side-by-side before/after.
 - Personal stakes in Indian terms: money (₹), job, time, safety, family.
-- PACE: slow and clear (about 2 spoken words per second) but EXCITING: every line either builds suspense or pays it
-  off. Use story tension - "Ruko...", "Aur yahan twist hai...", "Socho zara...", "Ab dhyaan se suno..." - a dramatic pause
-  before each reveal, then a big "aha" payoff. Mini-cliffhangers between lines so the viewer can't scroll away.
-  Emotional contrast line to line (whisper -> excited, serious -> laughing). Never flat, never rushed, zero filler.
+- PACE: natural talking speed (about 2.6 spoken words per second), clear, never rushed, and EXCITING: every line either
+  builds curiosity or pays it off. Use real conversational tension - "Ruko...", "Aur yahan twist hai...", "Socho zara...",
+  "Ab dhyaan se suno..." - then the "aha" payoff. Mini-cliffhangers between lines so the viewer can't scroll away.
+  Emotional contrast line to line, the way a real person's mood shifts while telling a friend something cool.
 - End with a clear payoff or verdict whose last words echo the hook (so the loop replays), or a debate question.
 - Give a reason to send it ("us dost ko bhejo jo...").
 
-TEACHING ARC (in this order, one idea per line, 9-12 short lines, total spoken words about {int(TARGET * 2.0)}):
+TEACHING ARC (in this order, one idea per line, 8-10 lines, total spoken words about {int(TARGET * 2.6)}):
 1. HOOK - a specific moment from the viewer's own life (or today's news) where they already met this concept, plus the
    promise: e.g. "Aapka phone aapki photo mein chehra kaise pehchaanta hai? 40 second mein samjho."
 2. CONCEPT - say what it is in ONE simple sentence, zero jargon. Show a define card: TERM = meaning in 3-6 everyday words.
@@ -153,15 +153,24 @@ TEACHING ARC (in this order, one idea per line, 9-12 short lines, total spoken w
 Any technical word must be explained the moment it appears. Speak like a fun teacher: warm, soft, a little playful, smiling.
 
 FIELDS
-- text: what you say, in {C['spoken_language']}. caption: the SAME words in {C['caption_language']}.
+- text: what you SAY, in {C['spoken_language']}. A voice actor reads it aloud, so write it exactly the way a real Indian
+  creator talks to a friend: complete, flowing sentences (usually 6-14 words each) with natural connectors and the little
+  spoken words real people use - "dekho", "matlab", "na?", "yaar", "acha suno", "simple si baat hai". NEVER caption-style
+  fragments or note-form ("Goal + budget do. Agent plan chala, sudhare!" is WRONG; "Aap bas goal aur budget bata do -
+  baaki agent khud plan banata hai, kaam karta hai, aur galti ho toh khud sudhaarta hai." is RIGHT).
+  Text is spoken only: no emoji, no symbols (+ = -> / ❌ ✅ ₹ %), no quotes or brackets, no labels like "Myth:" / "Truth:"
+  / "Step 1:" (say it: "Log sochte hain ki... lekin sach ye hai..."). Write every number in words as it is said
+  ("पच्चीस हज़ार करोड़ रुपये", "दो हज़ार सत्रह में"). Hindi always in Devanagari, English tech words in English
+  letters (AI, ChatGPT, UPI) - never mix Roman-script Hindi into text.
+  caption: the SAME words in {C['caption_language']} (digits, ₹ and symbols are fine here).
 - Timing: a flow/diagram/list needs about 1.2 seconds per item, so give that line enough words; keep the whole reel
   close to {TARGET:.0f} seconds (never above {TARGET + 10:.0f}).
 - emoji: 1-2 emoji that act out this line as ANIMATED characters/objects (e.g. "🤖", "🧠💡", "📚", "🤔", "🚀", "💸").
   Pick only from this animated set: ANIM_SET
 - onscreen: the line's key idea in 2-5 words (shown big when the line has no footage or card) - never the full sentence.
-- delivery: the emotion for this line, 1-5 words, BIG and varied like a great storyteller: "suspense, whispering",
-  "gasp, shocked", "slow build, then excited", "laughing", "big excited reveal", "dramatic pause, then serious",
-  "proud, punchy", "teasing, playful". Never repeat the same delivery twice in a row.
+- delivery: how a real person would say this line, 1-5 words, honest and varied: "curious, leaning in", "amused, little
+  laugh", "lowered voice, secret", "genuinely surprised", "warm, explaining", "matter-of-fact, confident", "teasing",
+  "proud, punchy". Real emotion, never theatrical. Never repeat the same delivery twice in a row.
 - hook: <= 6 words shown big during line 1 - the concept's name + the curious part.
 - footage: 3 STOCK VIDEO search options (2-3 English words each), most specific first, then broader, then a simpler
   scene that still clearly relates - e.g. ["woman shopping vegetables", "vegetable market", "market"]. Describe what a
@@ -289,8 +298,17 @@ def check_script(reel):
     for need, why in (("define", "a define card for the concept"), ("recap", "a recap (YAAD RAKHO) card")):
         if need not in types: issues.append(f"missing {why}")
     if not set(types) & {"diagram", "flow", "chart", "chat"}: issues.append("missing a diagram/flow/chart/chat showing how it works")
-    words = sum(len(l.text.split()) for l in reel.lines if l.visual.type != "brand"); cap = int(TARGET * 2.1)
-    if words > cap: issues.append(f"too long: {words} spoken words - cut to at most {cap} (about {TARGET:.0f} seconds at a slow, clear pace)")
+    for i, l in enumerate(reel.lines, 1):
+        if l.visual.type == "brand": continue
+        if (bad := set(re.findall(r"[0-9+=/→❌✅₹%\"“”‘’\[\]]|->|[\U0001F300-\U0001FAFF\u2600-\u27BF]", l.text))):
+            issues.append(f"line {i}: spoken text has {' '.join(sorted(bad))} - text is read aloud, write numbers as words and drop symbols/emoji/quotes")
+        if re.search(r"(^|[.!?।]\s*)(Myth|Truth|Fact|Step \d|सच|मिथक)\s*:", l.text):
+            issues.append(f"line {i}: spoken text has a label like 'Myth:' - say it as a sentence instead")
+        sents = [x for x in re.split(r"[.!?।…]+", l.text) if x.strip()]
+        if len(sents) > 1 and sum(len(x.split()) for x in sents) / len(sents) < 4.5:
+            issues.append(f"line {i}: sounds like note-form fragments ({l.text!r}) - rewrite as natural, flowing spoken sentences")
+    words = sum(len(l.text.split()) for l in reel.lines if l.visual.type != "brand"); cap = int(TARGET * 2.8)
+    if words > cap: issues.append(f"too long: {words} spoken words - cut to at most {cap} (about {TARGET:.0f} seconds at a natural talking pace) by cutting a line, never by turning sentences into fragments")
     return issues
 
 
@@ -448,44 +466,69 @@ CLOUD_TTS = E("TTS_ENGINE", "gemini") == "google"  # Chirp 3 HD voices have no e
 
 
 VOICE_JUDGE = ("You are a strict voice director for Indian Instagram creators. Listen to this take. Reply JSON: "
-               '{"brackets_or_directions_read_aloud": true/false, "sounds_like_real_teacher": 1-10, "emotion_range": 1-10, '
-               '"warmth": 1-10, "excitement": 1-10 (dynamic range, suspense, energy - 1 = monotone), "not_rushed": 1-10, '
-               '"pronunciation": 1-10, "worst_moment": "..."}')
+               '{"brackets_or_directions_read_aloud": true/false, "natural_human": 1-10 (10 = indistinguishable from a real person '
+               'talking; low if it sounds like TTS, an announcer, robotic/staccato, or over-acted), "sounds_like_real_teacher": 1-10, '
+               '"emotion_range": 1-10, "warmth": 1-10, "excitement": 1-10 (engaging, alive - 1 = monotone), "not_rushed": 1-10, '
+               '"pronunciation": 1-10 (Hindi and English words, numbers), "mispronounced_words": ["..."], "worst_moment": "..."}')
 
 
 VOICES = C.get("voices") or ["Puck", "Charon", "Kore", "Fenrir", "Aoede", "Leda", "Orus", "Zephyr", "Achird", "Sulafat",
                               "Sadachbia", "Algieba", "Iapetus", "Umbriel", "Laomedeia", "Gacrux", "Vindemiatrix", "Schedar", "Alnilam", "Rasalgethi"]
 
 
-def pick_voices(k=2):
-    """Different voices every reel: skip the voices used in the last few reels, then pick k at random."""
-    import random
-    recent = []
-    for f in sorted(OUT.glob("*/meta.json"), key=lambda f: f.stat().st_mtime, reverse=True)[:6]:
-        try: recent.append(json.loads(f.read_text()).get("voice"))
+def voice_record():
+    """Average past judge score per voice (pronunciation + human-ness), from every reel's voice_takes.json."""
+    seen = {}
+    for f in OUT.glob("*/voice_takes.json"):
+        try:
+            for t in json.loads(f.read_text()):
+                if t.get("score", 0) < 0 or not t.get("voice"): continue
+                seen.setdefault(t["voice"], []).append(t.get("pronunciation", 0) + t.get("natural_human", t.get("sounds_like_real_teacher", 0)))
         except Exception: pass
-    pool = [v for v in VOICES if v not in recent] or VOICES
-    return random.sample(pool, min(k, len(pool)))
+    return {v: sum(x) / len(x) for v, x in seen.items()}
+
+
+def pick_voices(k=3):
+    """Different voices every reel, biased to what has sounded best: the top past voices (skipping the last one used),
+    plus one voice that is new or rarely tried, so the pool keeps learning."""
+    import random
+    last = None
+    for f in sorted(OUT.glob("*/meta.json"), key=lambda f: f.stat().st_mtime, reverse=True)[:1]:
+        try: last = json.loads(f.read_text()).get("voice")
+        except Exception: pass
+    rec = voice_record()
+    good = [v for v in sorted(rec, key=rec.get, reverse=True) if v in VOICES and v != last and rec[v] >= 15][:5]
+    picks = random.sample(good, min(k - 1, len(good)))
+    rest = [v for v in VOICES if v not in picks and v != last and rec.get(v, 99) >= 12]  # never re-try proven-bad voices
+    picks += random.sample(rest, min(k - len(picks), len(rest)))
+    return picks
+
+
+def speakable(text):
+    """Last guard before TTS: emoji, check marks, quotes and arrows are never read aloud."""
+    text = re.sub("[\U0001F300-\U0001FAFF\u2600-\u27BF\uFE0F\\[\\]\"“”‘’']", "", text)
+    text = re.sub(r"\s*(->|→)\s*", ", phir ", text).replace("+", " aur ")
+    return re.sub(r"\s{2,}", " ", text).strip()
 
 
 def narrate_take(reel, path, n=0, voice=None):
     """One emotional take of the whole script, directed like a real teacher's voice session."""
-    script = "\n".join(f"[{l.delivery}] {l.text}" if l.delivery else l.text for l in reel.lines)
-    prompt = f"""# AUDIO PROFILE: {C['voice_style']}. Everyone's favourite teacher - the one who makes hard things feel easy.
-## SCENE: Sitting next to one curious student, explaining something cool with a big smile. Recording an Instagram
-reel, but talking to ONE person, never to an audience. Take {n + 1}.
+    script = "\n".join(f"[{l.delivery}] {speakable(l.text)}" if l.delivery else speakable(l.text) for l in reel.lines)
+    prompt = f"""# AUDIO PROFILE: {C['voice_style']}. A real Indian creator, not a voice-over artist.
+## SCENE: Recording a voice note for one close friend who asked "yaar, ye kya hota hai?". Phone in hand, relaxed,
+genuinely into the topic, smiling. Take {n + 1}.
 ### DIRECTOR'S NOTES
-Style: a real teacher, not an announcer. Smile while speaking - you can hear it. Change emotion line to line exactly as
-marked in [brackets]; never say the brackets aloud.
-PACE: slow, clear and deliberate - never rushed - but bursting with energy. Huge dynamic range: drop to a near-whisper
-for suspense, then explode with excitement on the reveal. A real dramatic pause (about one second) before every reveal
-and after every question, as if waiting for the student. Lean hard on key words. Real gasps, real laughs where marked.
-Teaching moments: slow and warm, then a bright "samjhe?!" feel. "Yaad rakho" line: slow, punchy, proud.
-Think of a thrilling storyteller telling kids a mystery: suspense -> surprise -> joy. Never flat, never monotone.
+Sound 100% like a real person talking, never like an announcer, a news reader or an over-acting storyteller.
+Natural conversational rhythm: words flow into each other, small natural breaths, the tiny pauses people make while
+thinking, a short pause before a surprise. Emotion follows each line's [bracket] note, but subtle and real - the way
+mood actually shifts in a chat (curious, amused, a lowered voice for a secret, real surprise). Never say the brackets aloud.
+Pace: relaxed and clear, like explaining across a chai table - not slow-motion, never rushed.
+Pronunciation: crisp, natural Hindi; English tech words (AI, ChatGPT, UPI, model, data) said the way educated Indians
+say them in everyday talk; numbers said fully and clearly. Read every word exactly as written - do not skip or add words.
 Accent: {C['accent']}.
 #### TRANSCRIPT
 {script}"""
-    plain = "Read this like a warm, exciting storyteller, slowly and clearly, with the emotion in [brackets] (never say them):\n" + script
+    plain = "Read this like a real person talking to a friend - natural, warm, clear - with the emotion in [brackets] (never say them):\n" + script
     last = None
     for model, text in ((TTS_MODEL, prompt), (LINE_TTS_MODEL, prompt), (LINE_TTS_MODEL, plain)):  # pro refused -> flash, same direction
         try:
@@ -502,18 +545,20 @@ def judge_voice(path):
         "generationConfig": {"responseMimeType": "application/json"}}).json()
     track("voice judge", RESEARCH_MODEL, r)
     j = json.loads(r["candidates"][0]["content"]["parts"][0]["text"])
-    j["score"] = -99 if j.get("brackets_or_directions_read_aloud") else sum(j.get(k, 0) for k in ("sounds_like_real_teacher", "emotion_range", "warmth", "pronunciation", "not_rushed")) + 2 * j.get("excitement", 0)
+    j["score"] = -99 if j.get("brackets_or_directions_read_aloud") else (3 * j.get("natural_human", 0) + 3 * j.get("pronunciation", 0) + 2 * j.get("excitement", 0)
+                                                                         + sum(j.get(k, 0) for k in ("sounds_like_real_teacher", "emotion_range", "warmth", "not_rushed")))
     return j
 
 
 def narrate(reel, path):
-    """VOICE_TAKES takes (default 2), each with a DIFFERENT voice; Gemini listens and the most human-sounding one is kept."""
-    takes, voices = [], pick_voices(int(E("VOICE_TAKES", "2")))
+    """VOICE_TAKES takes (default 3), each with a DIFFERENT voice; Gemini listens and the most human-sounding one is kept."""
+    takes, voices = [], pick_voices(int(E("VOICE_TAKES", "3")))
     for n, v in enumerate(voices):
         f = path.with_name(f"take{n}.wav")
         try:
             narrate_take(reel, f, n, v)
-            j = judge_voice(f) | {"voice": v}; takes.append((j["score"], f, j)); print(f"  take {n + 1} ({v}): teacher {j.get('sounds_like_real_teacher')}/10, emotion {j.get('emotion_range')}/10, excitement {j.get('excitement')}/10")
+            j = judge_voice(f) | {"voice": v}; takes.append((j["score"], f, j)); print(f"  take {n + 1} ({v}): natural {j.get('natural_human')}/10, pronunciation {j.get('pronunciation')}/10, excitement {j.get('excitement')}/10"
+                  + (f", mispronounced: {', '.join(j['mispronounced_words'][:5])}" if j.get("mispronounced_words") else ""))
         except Exception as e: print(f"  take {n + 1} failed: {e}")
     if not takes: raise RuntimeError("no voice take succeeded")
     best = max(takes, key=lambda x: x[0]); shutil.copy(best[1], path); path.with_name("voice.txt").write_text(best[2]["voice"])
@@ -1296,11 +1341,17 @@ def fingerprint(video):
     return hashlib.sha256(Path(video).read_bytes()).hexdigest()[:16]
 
 
-def already_posted(fp):
-    """Duplicate guard: has this exact video file already been sent to Buffer from any run?"""
+def sent_to(j):
+    """{network: Buffer post id} for a reel's meta (reels from before multi-channel posting went to Instagram only)."""
+    return j.get("buffer_posts") or ({"instagram": j["buffer_post_id"]} if j.get("posted") and j.get("buffer_post_id") else {})
+
+
+def already_posted(fp, channel=None):
+    """Duplicate guard: has this exact video file already been sent to Buffer (to this channel) from any run?"""
     for f in OUT.glob("*/meta.json"):
         j = json.loads(f.read_text())
-        if j.get("posted") and j.get("fingerprint") == fp: return f.parent.name
+        if j.get("fingerprint") != fp: continue
+        if channel is None and j.get("posted") or channel and channel in sent_to(j): return f.parent.name
     return None
 
 
@@ -1317,47 +1368,76 @@ def approve(video, caption):
     return f"✅ Approved for posting: {j['title']}"
 
 
-def post(video, caption):
-    """Queue the reel in Buffer (BUFFER_MODE=addToQueue uses your Buffer schedule; shareNow posts immediately).
-    The SEO first comment (engagement question) is posted with it. Refuses duplicates."""
-    m = Path(video).parent / "meta.json"
-    fp = fingerprint(video)
-    if (dup := already_posted(fp)): raise RuntimeError(f"already sent to Buffer from run {dup} - not posting it twice")
-    ig = {"type": "reel", "shouldShareToFeed": True, "isAiGenerated": True}
-    if m.exists() and json.loads(m.read_text()).get("first_comment") and E("BUFFER_FIRST_COMMENT", "1") == "1":
-        ig["firstComment"] = json.loads(m.read_text())["first_comment"]
-    url, note = upload(video), ""  # upload once, even if the post has to be retried
+def buffer_channels():
+    """Where reels go: BUFFER_CHANNEL_IDS (comma-separated) if set, else every channel connected in Buffer."""
+    want = [c.strip() for c in E("BUFFER_CHANNEL_IDS", "").split(",") if c.strip()]
+    found = [c for o in buffer("{ account { organizations { id } } }")["account"]["organizations"]
+             for c in buffer("query($o: OrganizationId!) { channels(input: {organizationId: $o}) { id name service } }", o=o["id"])["channels"]]
+    return [c for c in found if c["id"] in want] if want else found
 
-    def create(meta_ig):
+
+def channel_post(c, meta, caption, url):
+    """The per-network shape of one reel post: Instagram reel, YouTube Short, LinkedIn video."""
+    first = meta.get("first_comment") if E("BUFFER_FIRST_COMMENT", "1") == "1" else None
+    title = re.sub(r"\s+", " ", meta.get("title") or caption.split("\n")[0]).strip()
+    if c["service"] == "instagram":
+        md = {"instagram": {"type": "reel", "shouldShareToFeed": True, "isAiGenerated": True} | ({"firstComment": first} if first else {})}
+    elif c["service"] == "youtube":
+        md = {"youtube": {"title": (title[:91] + " #Shorts") if "#shorts" not in title.lower() else title[:100], "categoryId": E("YOUTUBE_CATEGORY", "27"),
+                          "privacy": E("YOUTUBE_PRIVACY", "public"), "madeForKids": False, "isAiGenerated": True, "notifySubscribers": True,
+                          "embeddable": True, "license": "youtube"}}
+    elif c["service"] == "linkedin":
+        md = {"linkedin": {"firstComment": first} if first else {}}
+    else: md = {}
+    return {"text": caption, "channelId": c["id"], "schedulingType": "automatic", "mode": E("BUFFER_MODE", "addToQueue"),
+            "assets": [{"video": {"url": url, "metadata": {"thumbnailOffset": 1333}}}], "metadata": md}
+
+
+def post(video, caption, only=None):
+    """Queue the reel on every Buffer channel (Instagram, YouTube, LinkedIn...), or just the networks in `only`. BUFFER_MODE=addToQueue uses your
+    Buffer schedule; shareNow posts immediately. Each channel gets the video once - a retry only resends the ones that failed."""
+    m = Path(video).parent / "meta.json"
+    meta = json.loads(m.read_text()) if m.exists() else {}
+    fp, done, notes = fingerprint(video), dict(sent_to(meta)), []
+    errors = {k: v for k, v in (meta.get("buffer_errors") or {}).items() if only and k not in only}  # keep unselected channels' last error
+    todo = []
+    for c in buffer_channels():
+        if c["service"] in done or only is not None and c["service"] not in only: continue
+        if (dup := already_posted(fp, c["service"])): errors[c["service"]] = f"already sent from run {dup}"; continue
+        todo.append(c)
+    if not todo and not errors: return f"✅ Already on {', '.join(done) or 'nothing'} - nothing to send"
+    url = upload(video) if todo else None  # upload once, shared by every channel
+
+    def create(inp):
         try:
-            r = buffer("""mutation($input: CreatePostInput!) { createPost(input: $input) {
-                ... on PostActionSuccess { post { id } } ... on MutationError { message } } }""", input={
-                "text": caption, "channelId": E("BUFFER_CHANNEL_ID"), "schedulingType": "automatic",
-                "mode": E("BUFFER_MODE", "addToQueue"),
-                "assets": [{"video": {"url": url, "metadata": {"thumbnailOffset": 1333}}}],
-                "metadata": {"instagram": meta_ig}})["createPost"]
-        except RuntimeError as e: r = {"message": str(e).removeprefix("Buffer: ")}
-        return r
-    p = create(ig)
-    if "post" not in p and "first comment" in str(p.get("message", "")).lower() and "firstComment" in ig:
-        # Buffer's free plan can't post first comments: post without it, the comment is in marketing.md to add by hand
-        ig.pop("firstComment"); p = create(ig)
-        note = "\n\n💬 Buffer's free plan can't add the first comment - post it yourself from the SEO & marketing pack and pin it."
-    if "post" not in p:
-        if m.exists(): set_status(video, status="failed", error=str(p.get("message", p))[:300])
-        raise RuntimeError(f"Buffer: {p.get('message', p)}")
-    if m.exists():  # remember it in history / series
-        j = set_status(video, posted=True, status="queued", fingerprint=fp, buffer_post_id=p["post"]["id"],
-                       caption=caption, posted_at=time.strftime("%Y-%m-%d %H:%M:%S %Z"))
-        if j.get("series"):
-            sr = load(j["series"]); sr["episodes"][j["ep"] - 1]["status"] = "posted"; save(sr)
-    return f"✅ Sent to Buffer ({E('BUFFER_MODE', 'addToQueue')}) - post id {p['post']['id']}" + note
+            return buffer("""mutation($input: CreatePostInput!) { createPost(input: $input) {
+                ... on PostActionSuccess { post { id } } ... on MutationError { message } } }""", input=inp)["createPost"]
+        except RuntimeError as e: return {"message": str(e).removeprefix("Buffer: ")}
+    for c in todo:
+        inp = channel_post(c, meta, caption, url); net = c["service"]
+        p = create(inp)
+        if "post" not in p and "first comment" in str(p.get("message", "")).lower() and inp["metadata"].get(net, {}).pop("firstComment", None):
+            p = create(inp)  # Buffer's free plan can't post first comments: post without it, add it by hand from the marketing pack
+            notes.append(f"{net}: first comment not allowed on Buffer's free plan - add it yourself from the SEO & marketing pack")
+        if "post" in p: done[net] = p["post"]["id"]; print(f"  {net}: queued ({p['post']['id']})")
+        else: errors[net] = str(p.get("message", p))[:300]; print(f"  {net}: failed - {errors[net]}")
+    if m.exists():
+        kv = {"buffer_posts": done, "buffer_errors": errors, "fingerprint": fp, "caption": caption}
+        if done:
+            j = set_status(video, posted=True, status="queued", posted_at=time.strftime("%Y-%m-%d %H:%M:%S %Z"), **kv)
+            if j.get("series"): sr = load(j["series"]); sr["episodes"][j["ep"] - 1]["status"] = "posted"; save(sr)
+        else: set_status(video, status="failed", error="; ".join(f"{k}: {v}" for k, v in errors.items())[:300], **kv)
+    if not done: raise RuntimeError("Buffer: " + "; ".join(f"{k}: {v}" for k, v in errors.items()))
+    msg = f"✅ Sent to Buffer ({E('BUFFER_MODE', 'addToQueue')}): " + ", ".join(done)
+    if errors: msg += "\n⚠ Not sent: " + "; ".join(f"{k}: {v}" for k, v in errors.items())
+    return msg + "".join(f"\n💬 {n}" for n in notes)
 
 
 def channels():
     for o in buffer("{ account { organizations { id name } } }")["account"]["organizations"]:
         for c in buffer("query($o: OrganizationId!) { channels(input: {organizationId: $o}) { id name service } }", o=o["id"])["channels"]:
-            print(f"{c['service']:10} {c['name']:25} BUFFER_CHANNEL_ID={c['id']}")
+            print(f"{c['service']:10} {c['name']:25} {c['id']}")
+    print("Reels go to all of these. To limit them: BUFFER_CHANNEL_IDS=<id>,<id> in .env")
 
 
 def slug(name):
