@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["gradio>=5", "requests", "python-dotenv", "opencv-python-headless", "numpy"]
+# dependencies = ["requests", "python-dotenv", "opencv-python-headless", "numpy"]
 # ///
 """Prompt -> ~30s news-explainer Reel (full-screen real footage, burned-in captions) -> Buffer, after your approval.
 Niche, audience, language, voice and theme come from config.json.
@@ -273,7 +273,9 @@ def check_script(reel):
             issues.append(f"line {i}: {v.type} card has no items")
     for need, why in (("define", "a define card for the concept"), ("recap", "a recap (YAAD RAKHO) card")):
         if need not in types: issues.append(f"missing {why}")
-    if not set(types) & {"diagram", "flow", "chart"}: issues.append("missing a diagram/flow/chart showing how it works")
+    if not set(types) & {"diagram", "flow", "chart", "chat"}: issues.append("missing a diagram/flow/chart/chat showing how it works")
+    words = sum(len(l.text.split()) for l in reel.lines if l.visual.type != "brand"); cap = int(TARGET * 2.1)
+    if words > cap: issues.append(f"too long: {words} spoken words - cut to at most {cap} (about {TARGET:.0f} seconds at a slow, clear pace)")
     return issues
 
 
@@ -573,7 +575,8 @@ def coverr(query):
     r = requests.get("https://api.coverr.co/videos", timeout=30, headers={"Authorization": f"Bearer {E('COVERR_KEY')}"},
                      params={"query": q, "page_size": 20, "urls": "true"})
     if r.status_code != 200:
-        COVERR_DOWN.append(r.status_code); print(f"  Coverr unavailable ({r.status_code}: {r.text[:60]}) -> using the local footage library")
+        with _CACHE_LOCK:
+            if not COVERR_DOWN: COVERR_DOWN.append(r.status_code); print(f"  Coverr unavailable ({r.status_code}: {r.text[:60]}) - using other sources")
         return []
     hits = [{k: h.get(k) for k in ("id", "title", "tags", "poster", "urls", "duration", "is_vertical")} for h in r.json().get("hits", [])]
     cache_put(q, hits)
@@ -621,11 +624,21 @@ def cache_put(key, value):
         seen[key] = value; tmp = f.with_suffix(".tmp"); tmp.write_text(json.dumps(seen)); tmp.replace(f)
 
 
+SOURCE_DOWN: set = set()
+NAMES = {"ov": "Openverse", "wm": "Wikimedia Commons", "ia": "Internet Archive", "pb": "Pixabay", "px": "Pexels"}
+
+
 def cached(key, fetch):
-    """Disk cache for every footage search (keeps free-tier API limits for new queries)."""
+    """Disk cache for every footage search (keeps free-tier API limits for new queries).
+    A source that fails once is skipped for the rest of this run."""
     if (hit := cache_get(key)) is not None: return hit
+    src = key.split(":")[0]
+    if src in SOURCE_DOWN: return []
     try: value = fetch()
-    except Exception as e: print(f"  {key.split(':')[0]} search failed ({e})"); return []
+    except Exception as e:
+        with _CACHE_LOCK:
+            if src not in SOURCE_DOWN: SOURCE_DOWN.add(src); print(f"  {NAMES.get(src, src)} unavailable ({str(e)[:60]}) - skipping it this run")
+        return []
     cache_put(key, value); return value
 
 
@@ -678,7 +691,8 @@ def pixabay(query):
         r = requests.get("https://pixabay.com/api/videos/", timeout=30, params={"key": E("PIXABAY_KEY"), "q": query, "per_page": 15, "safesearch": "true"}).json()
         out = []
         for v in r.get("hits", []):
-            f = (v.get("videos") or {}).get("large") or (v.get("videos") or {}).get("medium") or {}
+            vs = v.get("videos") or {}
+            f = next((vs[k] for k in ("medium", "large", "small") if (vs.get(k) or {}).get("url")), {})  # 1080p first; large can be empty
             if f.get("url"): out.append({"id": f"pb{v['id']}", "title": v.get("tags", ""), "tags": v.get("tags", "").split(", "),
                                          "poster": f.get("thumbnail"), "thumbnail": f.get("thumbnail"), "urls": {"mp4": f["url"]},
                                          "duration": v.get("duration"), "is_vertical": f.get("height", 0) > f.get("width", 1), "source": "pixabay"})
@@ -1505,5 +1519,5 @@ def ui():
 
 if __name__ == "__main__":
     cmd = sys.argv[1] if len(sys.argv) > 1 else "ui"
-    {"ui": ui, "auto": auto, "channels": channels, "make": lambda: make(" ".join(sys.argv[2:])),
+    {"ui": lambda: print("The UI is now the web app: run ./start.sh"), "auto": auto, "channels": channels, "make": lambda: make(" ".join(sys.argv[2:])),
      "resume": lambda: make("", d=sys.argv[2])}[cmd]()
