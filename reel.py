@@ -79,7 +79,10 @@ Use Google Search. Be concise, bullet points, every fact with its date and sourc
 4. FACTS: 3-5 surprising, verified facts or numbers with source + date. Flag numbers that disagree between sources.
 5. BEGINNER TEACHING: the concept in one plain sentence; 3 everyday analogies from {C['examples']} that make it click;
    the most common beginner confusion or myth and the truth; simple real data for a chart if any (years + values).
-6. SEO: 8 search phrases people actually type about this, 5 relevant hashtags in active use now, and current
+6. BEST EXAMPLES: list every candidate real-world example/story you found, score each 1-10 on: verified (named source,
+   date), recent, relatable to a beginner in {C['location']}, and surprising. Mark the top 2 as KEEP and say why; mark the
+   rest DROP. The script must only use KEEP examples.
+7. SEO: 8 search phrases people actually type about this, 5 relevant hashtags in active use now, and current
    Instagram Reels discovery guidance (captions, keywords, hashtags, on-screen text).
 EXTRA: """
 
@@ -107,7 +110,11 @@ You make a ~{TARGET:.0f}-second Instagram Reel that TEACHES exactly the concept 
 {C['audience']}. Assume the viewer knows NOTHING - not even the basic words. After one watch they must be able to explain
 the idea to someone else and remember one line by heart. Never switch to a different topic. ({CHANNEL}.)
 
-FORMAT: one narrator (you, the teacher) over real stock footage that truly matches each line, plus simple animated
+FORMAT - "AI CASE FILE": every reel is a mystery case on a detective's corkboard. The hook opens the case with a
+question; every line pins a new clue (footage polaroid, evidence card, animated character) and a red string connects it
+to the last clue; the myth/truth line is a rubber stamp; the YAAD RAKHO line is the verdict "CASE SOLVED". Tell it like a
+detective story - suspense, clues, reveal - while teaching. Give the case a short case_title (<= 4 words).
+Also: one narrator (you, the teacher) over real stock footage that truly matches each line, plus simple animated
 teaching visuals drawn on screen (definition card, step diagram, chart, comparison, myth/truth stamp, recap). No
 presenters or characters on camera. It must feel like a real, warm creator - nothing that looks AI-generated.
 
@@ -122,11 +129,14 @@ AI Warehouse - see research/competitors_10M.json). Follow it:
 - Escalate the reveals ("pehle ye... lekin asli kamaal ye hai...") with a tiny pause before each one.
 - Proof on screen: real numbers with sources, real-world examples, side-by-side before/after.
 - Personal stakes in Indian terms: money (₹), job, time, safety, family.
-- About 2.6 spoken words per second, a new visual every 2-3 seconds, zero filler.
+- PACE: slow and clear (about 2 spoken words per second) but EXCITING: every line either builds suspense or pays it
+  off. Use story tension - "Ruko...", "Aur yahan twist hai...", "Socho zara...", "Ab dhyaan se suno..." - a dramatic pause
+  before each reveal, then a big "aha" payoff. Mini-cliffhangers between lines so the viewer can't scroll away.
+  Emotional contrast line to line (whisper -> excited, serious -> laughing). Never flat, never rushed, zero filler.
 - End with a clear payoff or verdict whose last words echo the hook (so the loop replays), or a debate question.
 - Give a reason to send it ("us dost ko bhejo jo...").
 
-TEACHING ARC (in this order, one idea per line, 9-12 short lines, total spoken words about {int(TARGET * 2.6)}):
+TEACHING ARC (in this order, one idea per line, 9-12 short lines, total spoken words about {int(TARGET * 2.0)}):
 1. HOOK - a specific moment from the viewer's own life (or today's news) where they already met this concept, plus the
    promise: e.g. "Aapka phone aapki photo mein chehra kaise pehchaanta hai? 40 second mein samjho."
 2. CONCEPT - say what it is in ONE simple sentence, zero jargon. Show a define card: TERM = meaning in 3-6 everyday words.
@@ -146,8 +156,9 @@ FIELDS
 - emoji: 1-2 emoji that act out this line as ANIMATED characters/objects (e.g. "🤖", "🧠💡", "📚", "🤔", "🚀", "💸").
   Pick only from this animated set: ANIM_SET
 - onscreen: the line's key idea in 2-5 words (shown big when the line has no footage or card) - never the full sentence.
-- delivery: the emotion for this line, 1-4 words ("curious", "warm, smiling", "playful", "excited", "gentle, slower",
-  "proud"). Vary it like a real teacher telling a story.
+- delivery: the emotion for this line, 1-5 words, BIG and varied like a great storyteller: "suspense, whispering",
+  "gasp, shocked", "slow build, then excited", "laughing", "big excited reveal", "dramatic pause, then serious",
+  "proud, punchy", "teasing, playful". Never repeat the same delivery twice in a row.
 - hook: <= 6 words shown big during line 1 - the concept's name + the curious part.
 - footage: 3 STOCK VIDEO search options (2-3 English words each), most specific first, then broader, then a simpler
   scene that still clearly relates - e.g. ["woman shopping vegetables", "vegetable market", "market"]. Describe what a
@@ -232,6 +243,7 @@ class Seo(BaseModel):
 class Reel(BaseModel):
     title: str
     genre: str
+    case_title: str
     hook: str
     music_mood: str
     caption_ig: str
@@ -274,7 +286,7 @@ def migrate(d):
         if v.get("type") not in Visual.model_fields["type"].annotation.__args__: l["visual"] = {"type": "none"}
         l.setdefault("delivery", ""); l.setdefault("source", "")
         l.setdefault("onscreen", " ".join(l.get("caption", "").split()[:4])); l.setdefault("emoji", "")
-    d.setdefault("genre", ""); d.setdefault("music_mood", "calm background beat")
+    d.setdefault("genre", ""); d.setdefault("music_mood", "calm background beat"); d.setdefault("case_title", d.get("hook", "")[:30])
     d.setdefault("hook", next((l.get("visual", {}).get("title", "") for l in d.get("lines", [])[:1]), ""))
     d.setdefault("seo", {"keywords": [], "hashtags": [], "alt_text": "", "first_comment": ""})
     return Reel.model_validate(d)
@@ -381,10 +393,26 @@ CLOUD_TTS = E("TTS_ENGINE", "gemini") == "google"  # Chirp 3 HD voices have no e
 
 VOICE_JUDGE = ("You are a strict voice director for Indian Instagram creators. Listen to this take. Reply JSON: "
                '{"brackets_or_directions_read_aloud": true/false, "sounds_like_real_teacher": 1-10, "emotion_range": 1-10, '
-               '"warmth": 1-10, "pronunciation": 1-10, "worst_moment": "..."}')
+               '"warmth": 1-10, "excitement": 1-10 (dynamic range, suspense, energy - 1 = monotone), "not_rushed": 1-10, '
+               '"pronunciation": 1-10, "worst_moment": "..."}')
 
 
-def narrate_take(reel, path, n=0):
+VOICES = C.get("voices") or ["Puck", "Charon", "Kore", "Fenrir", "Aoede", "Leda", "Orus", "Zephyr", "Achird", "Sulafat",
+                              "Sadachbia", "Algieba", "Iapetus", "Umbriel", "Laomedeia", "Gacrux", "Vindemiatrix", "Schedar", "Alnilam", "Rasalgethi"]
+
+
+def pick_voices(k=2):
+    """Different voices every reel: skip the voices used in the last few reels, then pick k at random."""
+    import random
+    recent = []
+    for f in sorted(OUT.glob("*/meta.json"), key=lambda f: f.stat().st_mtime, reverse=True)[:6]:
+        try: recent.append(json.loads(f.read_text()).get("voice"))
+        except Exception: pass
+    pool = [v for v in VOICES if v not in recent] or VOICES
+    return random.sample(pool, min(k, len(pool)))
+
+
+def narrate_take(reel, path, n=0, voice=None):
     """One emotional take of the whole script, directed like a real teacher's voice session."""
     script = "\n".join(f"[{l.delivery}] {l.text}" if l.delivery else l.text for l in reel.lines)
     prompt = f"""# AUDIO PROFILE: {C['voice_style']}. Everyone's favourite teacher - the one who makes hard things feel easy.
@@ -393,15 +421,16 @@ reel, but talking to ONE person, never to an audience. Take {n + 1}.
 ### DIRECTOR'S NOTES
 Style: a real teacher, not an announcer. Smile while speaking - you can hear it. Change emotion line to line exactly as
 marked in [brackets]; never say the brackets aloud.
-Questions: ask them for real, as if waiting for the student's answer - a tiny pause after each question.
-Teaching moments: slow down a little and soften on the definition, lean on the key word, then a light "samjhe?" feel.
-Examples: speed up, get playful, a soft natural laugh where it fits. "Yaad rakho" line: slower, warm, a little proud.
-Breathe naturally, vary pitch and pace like real speech; keep pauses short so it stays lively.
+PACE: slow, clear and deliberate - never rushed - but bursting with energy. Huge dynamic range: drop to a near-whisper
+for suspense, then explode with excitement on the reveal. A real dramatic pause (about one second) before every reveal
+and after every question, as if waiting for the student. Lean hard on key words. Real gasps, real laughs where marked.
+Teaching moments: slow and warm, then a bright "samjhe?!" feel. "Yaad rakho" line: slow, punchy, proud.
+Think of a thrilling storyteller telling kids a mystery: suspense -> surprise -> joy. Never flat, never monotone.
 Accent: {C['accent']}.
 #### TRANSCRIPT
 {script}"""
     _, pcm = gemini(TTS_MODEL, [{"text": prompt}], responseModalities=["AUDIO"],
-                    speechConfig={"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": C["voice"]}}})
+                    speechConfig={"voiceConfig": {"prebuiltVoiceConfig": {"voiceName": voice or C["voice"]}}})
     save_wav(path, pcm)
 
 
@@ -410,21 +439,21 @@ def judge_voice(path):
         {"inlineData": {"mimeType": "audio/wav", "data": base64.b64encode(Path(path).read_bytes()).decode()}}, {"text": VOICE_JUDGE}]}],
         "generationConfig": {"responseMimeType": "application/json"}}).json()
     j = json.loads(r["candidates"][0]["content"]["parts"][0]["text"])
-    j["score"] = -99 if j.get("brackets_or_directions_read_aloud") else sum(j.get(k, 0) for k in ("sounds_like_real_teacher", "emotion_range", "warmth", "pronunciation"))
+    j["score"] = -99 if j.get("brackets_or_directions_read_aloud") else sum(j.get(k, 0) for k in ("sounds_like_real_teacher", "emotion_range", "warmth", "pronunciation", "not_rushed")) + 2 * j.get("excitement", 0)
     return j
 
 
 def narrate(reel, path):
-    """VOICE_TAKES takes (default 2); Gemini listens to each and the most human-sounding one is kept."""
-    takes = []
-    for n in range(int(E("VOICE_TAKES", "2"))):
+    """VOICE_TAKES takes (default 2), each with a DIFFERENT voice; Gemini listens and the most human-sounding one is kept."""
+    takes, voices = [], pick_voices(int(E("VOICE_TAKES", "2")))
+    for n, v in enumerate(voices):
         f = path.with_name(f"take{n}.wav")
         try:
-            retry(narrate_take, reel, f, n, tries=2)
-            j = judge_voice(f); takes.append((j["score"], f, j)); print(f"  take {n + 1}: teacher {j.get('sounds_like_real_teacher')}/10, emotion {j.get('emotion_range')}/10")
+            retry(narrate_take, reel, f, n, v, tries=2)
+            j = judge_voice(f) | {"voice": v}; takes.append((j["score"], f, j)); print(f"  take {n + 1} ({v}): teacher {j.get('sounds_like_real_teacher')}/10, emotion {j.get('emotion_range')}/10, excitement {j.get('excitement')}/10")
         except Exception as e: print(f"  take {n + 1} failed: {e}")
     if not takes: raise RuntimeError("no voice take succeeded")
-    best = max(takes, key=lambda x: x[0]); shutil.copy(best[1], path)
+    best = max(takes, key=lambda x: x[0]); shutil.copy(best[1], path); path.with_name("voice.txt").write_text(best[2]["voice"])
     path.with_name("voice_takes.json").write_text(json.dumps([{"take": f.name, **j} for _, f, j in takes], ensure_ascii=False, indent=1))
 
 
@@ -484,8 +513,9 @@ def gemini_tts(line, path):
 def music(mood, d):
     """Lyria 3: 30s instrumental for this reel's mood (or your own music.mp3 if present). Returns the file name."""
     if Path("music.mp3").exists(): shutil.copy("music.mp3", d / "music.mp3"); return "music.mp3"
-    mime, data = gemini(MUSIC_MODEL, [{"text": f"30-second instrumental background track for a fast, playful Instagram reel: {mood}. "
-                                                "No vocals, steady energy, loopable."}])
+    mime, data = gemini(MUSIC_MODEL, [{"text": f"30-second instrumental background track for an exciting but slow-paced explainer reel: {mood}. "
+                                                "About 85-95 BPM, cinematic and playful: light percussion, plucks, a curious mystery feel that keeps "
+                                                "building tension with small lifts. No vocals, loopable."}])
     name = "music.wav" if "wav" in mime else "music.mp3"
     (d / name).write_bytes(data)
     return name
@@ -828,6 +858,12 @@ def shots_for(lines, pub, topic):
     for i, l in enumerate(lines):
         if l["v"]["type"] in BOARD: plan[str(i)] = {"coverr_id": None, "why": "whiteboard teaching visual"}
     plan_f.write_text(json.dumps(plan, ensure_ascii=False, indent=1))
+    for i, l in enumerate(lines):  # case-file polaroids: the clip + a still of it for when the camera has moved on
+        if plan[str(i)].get("coverr_id"):
+            l["clip"], l["still"] = f"clip/{i}.mp4", f"clip/{i}.jpg"
+            if not (pub / "clip" / f"{i}.jpg").exists():
+                subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", "1", "-i", str(pub / "clip" / f"{i}.mp4"), "-frames:v", "1",
+                                "-vf", "scale=720:-1", str(pub / "clip" / f"{i}.jpg")], check=False)
     shots = []
     for i, l in enumerate(lines):
         secs = l["end"] - l["start"] + 0.15
@@ -847,6 +883,9 @@ SFX = {  # synthesised once into assets/sfx - no downloads needed
     "ding": "aevalsrc='0.5*sin(2*PI*1568*t)*exp(-5*t)+0.3*sin(2*PI*2349*t)*exp(-7*t)':d=0.9",
     "boom": "aevalsrc='0.9*sin(2*PI*(45+140*exp(-12*t))*t)*exp(-3.5*t)':d=0.8",
     "tick": "aevalsrc='0.6*sin(2*PI*2600*t)*exp(-90*t)':d=0.05",
+    "riser": "anoisesrc=d=0.9:c=white:a=0.5,highpass=f=800,volume='0.15+0.85*t/0.9':eval=frame,afade=t=in:d=0.6,afade=t=out:st=0.85:d=0.05",
+    "impact": "aevalsrc='0.95*sin(2*PI*(38+90*exp(-9*t))*t)*exp(-2.8*t)+0.25*(random(0)-0.5)*exp(-14*t)':d=1.0",
+    "sparkle": "aevalsrc='0.25*(sin(2*PI*2093*t)*exp(-6*t)+sin(2*PI*2637*(t-0.08))*exp(-6*(t-0.08))*gt(t,0.08)+sin(2*PI*3136*(t-0.16))*exp(-6*(t-0.16))*gt(t,0.16))':d=0.9",
 }
 
 
@@ -861,10 +900,12 @@ def visual_times(v, t, dur):
 
 
 def card_sfx(v, t, dur):
-    return ([[x, "pop"] for x in v["times"]] * (v["type"] in SEQ + ("compare", "define"))
+    hit = v["times"][0] if v.get("times") else t
+    return ([[max(0.0, round(hit - 0.85, 2)), "riser"], [hit, "impact"]] * (v["type"] in ("define", "stamp", "counter", "compare", "chart", "recap"))
+            + [[round(hit + 0.2, 2), "sparkle"]] * (v["type"] in ("recap", "define", "brand")) + ([[x, "pop"] for x in v["times"]] * (v["type"] in SEQ + ("compare", "define"))
             + [[v["times"][0], "ding"]] * (v["type"] in ("recap", "brand"))
             + [[v["times"][0], "ding" if v["good"] else "boom"]] * (v["type"] == "stamp")
-            + [[round(t + k * 0.2, 2), "tick"] for k in range(int(dur * 0.6 / 0.2))] * (v["type"] == "counter"))
+            + [[round(t + k * 0.2, 2), "tick"] for k in range(int(dur * 0.6 / 0.2))] * (v["type"] == "counter")))
 
 
 def word_times(caption, t, dur):
@@ -876,7 +917,7 @@ def timeline_take(reel, d):
     """One-take narration -> voice.wav (sped up a little if over target), line timings from real pauses."""
     src = d / "narration.wav"
     with wave.open(str(src)) as w: total = w.getnframes() / w.getframerate()
-    tempo = min(1.2, max(1.0, total / (TARGET - 1.8)))
+    tempo = 1.0  # never speed the voice up - slow, clear pace
     if tempo > 1.01:
         subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(src), "-af", f"atempo={tempo:.3f}", "-ar", "24000", "-ac", "1",
                         str(d / "narration.fast.wav")], check=True); src = d / "narration.fast.wav"
@@ -896,7 +937,7 @@ def timeline(reel, d):
     if (d / "narration.wav").exists(): return timeline_take(reel, d)
     t, pcm, lines, sfx = 0.3, b"", [], [[0.3, "boom"]]
     talk = sum(wave.open(str(d / f"line{i}.wav")).getnframes() for i in range(len(reel.lines))) / 24000
-    tempo = min(1.2, max(1.0, talk / (TARGET - 0.15 * len(reel.lines) - 1.8)))  # speed up a little if over target
+    tempo = 1.0  # never speed the voice up - slow, clear pace
     for i, l in enumerate(reel.lines):
         src = d / f"line{i}.wav"
         if tempo > 1.01:
@@ -1027,7 +1068,7 @@ def _make(brief, meta, d):
     print(f"  {reel.title} | {reel.genre}")
     t0 = time.time()
     if not (d / "narration.wav").exists() and not (d / "line0.wav").exists() and not CLOUD_TTS:
-        print(f"voice: one emotional take ({TTS_MODEL}, {C['voice']})...")
+        print(f"voice: one emotional take ({TTS_MODEL}, trying different voices)...")
         try: narrate(reel, d / "narration.wav")
         except Exception as e: print(f"  one-take failed ({e}) -> line by line")
     if not (d / "narration.wav").exists():
@@ -1049,8 +1090,12 @@ def _make(brief, meta, d):
     print(f"  assets {time.time() - t0:.0f}s")
     anims = {cp: data for cp in {c for l in lines for c in l.get("anim", [])} if (data := lottie(cp))}
     for l in lines: l["anim"] = [c for c in l.get("anim", []) if c in anims]
-    props = {"lottie": anims, "duration": dur, "lines": lines, "shots": shots, "sfx": sfx, "voice": "voice.wav", "music": mus, "hook": reel.hook,
-             "theme": C["theme"], "captions": bool(C.get("captions", False))}
+    if (spark := lottie("2728")): anims["2728"] = spark  # sparkle burst on reveals
+    for l in lines:  # a pop each time an animated character jumps in
+        if l.get("anim") and (l.get("text_scene") or l["v"]["type"] in BOARD):
+            sfx += [[round(l["start"] + 0.3 + q * 0.4, 2), "pop"] for q in range(len(l["anim"]))]
+    props = {"lottie": anims, "duration": dur, "lines": lines, "shots": shots, "sfx": sfx, "voice": "voice.wav", "music": mus, "hook": reel.hook, "case_title": reel.case_title,
+             "case_no": (meta or {}).get("ep") or len(list(OUT.glob("*/meta.json"))) + 1, "theme": C["theme"], "captions": bool(C.get("captions", False))}
     (d / "props.json").write_text(json.dumps(props, ensure_ascii=False), encoding="utf-8")
     t0 = time.time(); print(f"rendering {dur}s (Remotion)...")
     subprocess.run(["npx", "remotion", "render", "src/index.tsx", "Reel", str((d / "reel.mp4").resolve()), "--log=error",
@@ -1065,6 +1110,7 @@ def _make(brief, meta, d):
     tags = [h if h.startswith("#") else "#" + h for h in reel.seo.hashtags[:5]] + ([C["series_hashtag"]] if C["series_hashtag"] else [])
     caption = reel.caption_ig.strip() + "\n\n" + " ".join(dict.fromkeys(tags))
     meta = {"title": reel.title, "genre": reel.genre, "brief": brief, "caption": caption, "posted": False, "status": "awaiting approval",
+            "voice": (d / "voice.txt").read_text() if (d / "voice.txt").exists() else C["voice"],
             "footage": [{"line": i + 1, "searches": l["footage"]} | footage_plan.get(str(i), {}) for i, l in enumerate(lines)],
             "first_comment": reel.seo.first_comment, "keywords": reel.seo.keywords, "alt_text": reel.seo.alt_text} | (meta or {})
     (d / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -1220,22 +1266,61 @@ def save(sr):
     (SERIES / f"{sr['id']}.json").write_text(json.dumps(sr, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
-def plan_series(subject, n):
-    notes = research(subject, "6. Key milestones from the origins to today and what is coming next: year, who, what changed, "
-                              "why it mattered - enough for N daily episodes.\n".replace("N", str(int(n))))
+def write_episode_script(sr, i, notes):
+    """Full script for one episode, written up front so you can read all of them before making any video."""
+    eps, e = sr["episodes"], sr["episodes"][i]
+    nxt = f"\nNEXT EPISODE (tease it at the end): {eps[i + 1]['title']}" if i + 1 < len(eps) else "\nThis is the series finale."
+    prev = f"\nPREVIOUS CASE: #{i} {eps[i - 1]['title']} - open with a one-line callback to it." if i else ""
+    brief = f"Series '{sr['name']}', CASE #{i + 1}/{len(eps)}: {e['title']} ({e['era']})\n{e['brief']}{prev}{nxt}"
+    reel = add_signature(retry(ask, BRIEF.replace("RESEARCH_NOTES", notes) + brief, Reel, tries=2))
+    return reel.model_dump()
+
+
+def plan_series(subject, n=10):
+    """Plan the playlist AND write every episode's script now. Videos are made later, one Run at a time."""
+    import concurrent.futures as cf
+    print("researching the whole story (Gemini + Google Search)...")
+    notes = research(subject, "8. Key milestones from the origins to today and what is coming next: year, who, what changed, "
+                              f"why it mattered - enough for {int(n)} daily episodes.\n")
+    print("planning episodes (Claude)...")
     sr = ask(PLAN_SERIES.replace("N_EPISODES", str(int(n))) + "\nRESEARCH NOTES:\n" + notes + "\n\n" + subject, Series)
-    sr = {"id": slug(sr.name), "name": sr.name, "subject": subject,
+    sr = {"id": slug(sr.name), "name": sr.name, "subject": subject, "notes": notes, "created": time.strftime("%Y-%m-%d %H:%M"),
           "episodes": [e.model_dump() | {"status": "planned"} for e in sr.episodes]}
     save(sr)
+    print(f"writing {len(sr['episodes'])} scripts...")
+
+    def one(i):
+        try: sr["episodes"][i].update(script=write_episode_script(sr, i, notes), status="scripted"); print(f"  script {i + 1} ready: {sr['episodes'][i]['title']}")
+        except Exception as ex: print(f"  script {i + 1} failed: {ex}")
+        save(sr)
+    with cf.ThreadPoolExecutor(3) as ex: list(ex.map(one, range(len(sr["episodes"]))))
     return sr
 
 
+def episode_context(sr, i):
+    """What the previous episode taught us: its script, what the beginner viewers learned, scores and problems."""
+    if i == 0: return ""
+    p = sr["episodes"][i - 1]
+    out = f"\nPREVIOUS CASE #{i}: {p['title']}."
+    if p.get("video") and (Path(p["video"]).parent / "review.json").exists():
+        rv = json.loads((Path(p["video"]).parent / "review.json").read_text())
+        out += (f"\nViewers of the previous video learned: {rv.get('learned')}. Scores: {rv.get('scores')}."
+                "\nProblems they saw (do NOT repeat these):\n" + "\n".join(f"- {x.get('issue')} -> {x.get('fix')}" for x in rv.get("problems", [])[:8]))
+    if p.get("script"):
+        recap = next((l["visual"]["title"] for l in p["script"]["lines"] if l["visual"]["type"] == "recap"), "")
+        out += f"\nPrevious YAAD RAKHO line: \"{recap}\" - open with a one-line callback to it, then go straight into this case."
+    return out
+
+
 def make_episode(sr, i):
+    """Make one episode's video: fresh research today, the pre-written script refined with it, continuity from the last video."""
     eps, e = sr["episodes"], sr["episodes"][i]
     nxt = f"\nNEXT EPISODE (tease it): {eps[i + 1]['title']}" if i + 1 < len(eps) else "\nThis is the series finale."
-    video, cap = make(f"Series '{sr['name']}', episode {i + 1}/{len(eps)}: {e['title']} ({e['era']})\n{e['brief']}{nxt}",
+    draft = ("\n\nDRAFT SCRIPT written earlier for this episode - keep its story and structure, but update facts and examples "
+             "with today's research (KEEP examples only) and apply the lessons from the previous video:\n" + json.dumps(e["script"], ensure_ascii=False)) if e.get("script") else ""
+    video, cap = make(f"Series '{sr['name']}', CASE #{i + 1}/{len(eps)}: {e['title']} ({e['era']})\n{e['brief']}{nxt}{episode_context(sr, i)}{draft}",
                       {"title": f"#{i + 1} {e['title']}", "series": sr["id"], "ep": i + 1})
-    e.update(status="generated", video=video); save(sr)
+    sr = load(sr["id"]); sr["episodes"][i].update(status="generated", video=video); save(sr)
     return video, cap
 
 
@@ -1271,7 +1356,7 @@ def _auto():
     i = next((i for i, e in enumerate(sr["episodes"]) if e["status"] != "posted"), None)
     if i is None: return print(f"'{sr['name']}' is fully posted.")
     e = sr["episodes"][i]
-    if e["status"] == "planned":
+    if e["status"] in ("planned", "scripted"):
         video, _ = make_episode(sr, i)
         return print(f"Episode {i + 1} generated -> awaiting your approval in the UI (History tab): {video}")
     meta = json.loads((Path(e["video"]).parent / "meta.json").read_text())

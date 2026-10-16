@@ -1,12 +1,12 @@
-// Teaching reel with two rhythms: real-world moments on full-screen footage, teaching moments on a bright whiteboard
-// (big hand-drawn-style diagrams, define card, charts, phone demo, recap). Every reel = this component + props.json
-// from reel.py. Colours come from config.json -> props.theme.
+// AI Case File reels (see the Case File section below). Every reel = this component + props.json from reel.py.
+// Colours come from config.json -> props.theme. The card renderers (Board) are shared by every clue type.
 import React from "react";
-import {AbsoluteFill, Audio, Easing, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame} from "remotion";
+import {AbsoluteFill, Audio, Easing, Img, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame} from "remotion";
 import {loadFont} from "@remotion/google-fonts/Poppins";
 import {loadFont as loadDeva} from "@remotion/google-fonts/Mukta";
 import {loadFont as loadHand} from "@remotion/google-fonts/Kalam";
 import {Lottie} from "@remotion/lottie";
+import {loadFont as loadType} from "@remotion/google-fonts/SpecialElite";
 
 const FONT = `${loadFont("normal", {weights: ["700", "800", "900"]}).fontFamily}, ${loadDeva("normal", {weights: ["800"]}).fontFamily}, sans-serif`;
 const HAND = `${loadHand("normal", {weights: ["700"]}).fontFamily}, ${FONT}`;
@@ -24,8 +24,11 @@ const box = (INK: string, bg = "#fff", extra: React.CSSProperties = {}): React.C
 
 // Google Noto Animated Emoji (Lottie): real, professionally animated characters/objects - they never stand still.
 const Anim: React.FC<{data: any; size: number; t: number; at: number; bob?: number}> = ({data, size, t, at, bob = 12}) => !data ? null :
-  <div style={{width: size, height: size, opacity: pop(t, at), transform: `translateY(${bob * Math.sin(t * 2.4 + at)}px) scale(${0.5 + 0.5 * pop(t, at, 10)})`}}>
+  <div style={{width: size, height: size, opacity: pop(t, at), transform: `translateY(${bob * Math.sin(t * 2.4 + at) + (1 - pop(t, at, 7)) * 160}px) scale(${0.3 + 0.7 * pop(t, at, 7)}) rotate(${(1 - pop(t, at, 8)) * -25}deg)`}}>
     <Lottie animationData={data} loop style={{width: size, height: size}} /></div>;
+
+const PALETTE = ["#FBF6EC", "#E8F7EE", "#E9F1FF", "#FFEFE3", "#F2EBFF"];  // a fresh background colour every scene
+const REVEAL = ["define", "stamp", "counter", "compare", "chart", "recap", "brand"];
 
 const Board: React.FC<{v: any; t: number; s: number; e: number; HI: string; INK: string}> = ({v, t, s, e, HI, INK}) => {
   const k = pop(t, s), at = (i: number) => v.times?.[i] ?? s, n = (v.items || []).length;
@@ -119,83 +122,128 @@ const Board: React.FC<{v: any; t: number; s: number; e: number; HI: string; INK:
   return <div style={col}>{title}{body}</div>;
 };
 
-// Clean cover for the profile grid: first footage frame + the hook, big, inside the centre safe area.
+// ======================= AI CASE FILE =======================
+// Every reel is a mystery case on a detective's corkboard: each line pins a new clue (footage polaroid, evidence card,
+// sticky note with animated characters), a red string runs from the last clue, the camera glides to it; the verdict is
+// stamped CASE SOLVED and the camera pulls back to show the whole solved board.
+const TYPE = `${loadType("normal", {weights: ["400"]}).fontFamily}, monospace`;
+const CORK = "#B48655", BW = 1500, STEP = 760;
+const slot = (k: number) => ({x: k % 2 === 0 ? 480 : 1020, y: 640 + k * STEP});   // zig-zag down the board
+const pinAt = (k: number) => ({x: slot(k).x + (k % 2 ? -60 : 60), y: slot(k).y - 400});
+const ease = (x: number) => Easing.inOut(Easing.cubic)(Math.max(0, Math.min(1, x)));
+const rot = (k: number) => [-3, 2.5, -1.5, 3, -2.5, 1.5][k % 6];
+
+const Pin: React.FC<{x: number; y: number; t: number; at: number}> = ({x, y, t, at}) =>
+  <div style={{position: "absolute", left: x - 26, top: y - 26, width: 52, height: 52, borderRadius: "50%", zIndex: 6,
+    background: "radial-gradient(circle at 35% 30%, #ffffffcc 0 16%, #E8352B 22%, #7A1410 100%)", boxShadow: "5px 8px 8px #0007",
+    transform: `scale(${pop(t, at, 9)})`}} />;
+
+const Clue: React.FC<{l: any; k: number; t: number; p: any; HI: string; INK: string; next: number}> = ({l, k, t, p, HI, INK, next}) => {
+  const s = l.start, live = t >= s - 0.1 && t < next + 0.2, drop = pop(t, s - 0.1, 12), {x, y} = slot(k);
+  const an = (l.anim || []).map((c: string) => p.lottie?.[c]).filter(Boolean), type = l.v?.type;
+  const wrap = (w: number, body: React.ReactNode, bg = "#FFFDF4") =>
+    <div style={{position: "absolute", left: x - w / 2, top: y - 420, width: w, background: bg, padding: 26, boxSizing: "border-box",
+      boxShadow: "14px 18px 28px #0008", transform: `translateY(${(1 - drop) * -260}px) rotate(${rot(k) + (1 - drop) * 12}deg) scale(${0.7 + 0.3 * drop})`,
+      opacity: Math.min(1, drop * 2)}}>{body}</div>;
+  const label = (txt: string) => <div style={{fontFamily: TYPE, fontSize: 30, color: "#8B1A12", letterSpacing: 2, marginBottom: 14}}>{txt}</div>;
+  if (type === "brand")  // the case folder opens
+    return wrap(820, <div style={{...col, gap: 10}}>
+      <div style={{fontFamily: TYPE, fontSize: 40, color: "#5B3A12"}}>CONFIDENTIAL · CASE FILE #{String(p.case_no || 1).padStart(2, "0")}</div>
+      {an[0] && <Anim data={an[0]} size={260} t={t} at={s} bob={6} />}
+      <div style={{...font(78, INK, 700, HAND)}}>{l.v.title}</div>
+      <div style={{fontFamily: TYPE, fontSize: 32, color: "#5B3A12"}}>{l.v.items?.[0]}</div></div>, "#E9C77B");
+  if (type === "recap")  // the verdict
+    return wrap(900, <div style={{...col, gap: 18, position: "relative"}}>
+      {label("VERDICT")}
+      <div style={{...font(70, INK, 900)}}>{l.v.title}</div>
+      <div style={{position: "absolute", top: -120, right: -80, fontFamily: TYPE, fontSize: 64, background: "#FFFDF4dd", color: "#C8231B", border: "8px solid #C8231B",
+        padding: "4px 22px", transform: `rotate(-14deg) scale(${interpolate(pop(t, s + 0.6, 9), [0, 1], [2.4, 1])})`, opacity: pop(t, s + 0.6)}}>CASE SOLVED</div>
+      {an.length > 0 && <div style={{display: "flex", gap: 20}}>{an.map((d: any, q: number) => <Anim key={q} data={d} size={180} t={t} at={s + 0.9 + q * 0.3} />)}</div>}
+    </div>);
+  if (l.clip)  // real footage as a polaroid (plays while it is the current clue, a still afterwards)
+    return wrap(820, <>
+      <div style={{width: 768, height: 860, overflow: "hidden", background: "#111"}}>
+        {live ? <Sequence from={Math.round(s * FPS)} durationInFrames={Math.max(1, Math.round((next - s + 0.4) * FPS))} layout="none">
+            <OffthreadVideo src={staticFile(l.clip)} muted style={{width: "100%", height: "100%", objectFit: "cover"}} /></Sequence>
+          : <Img src={staticFile(l.still || l.clip.replace(".mp4", ".jpg"))} style={{width: "100%", height: "100%", objectFit: "cover"}} />}
+      </div>
+      <div style={{...font(54, INK, 700, HAND), marginTop: 18, minHeight: 64}}>{l.onscreen}</div>
+      {STICKER.includes(type) && <div style={{position: "absolute", right: -60, bottom: 120, transform: "scale(0.62) rotate(4deg)", transformOrigin: "bottom right",
+        background: "#FFFDF4", padding: 24, boxShadow: "10px 12px 20px #0007"}}><Board v={l.v} t={t} s={s} e={l.end} HI={HI} INK={INK} /></div>}
+    </>, "#fff");
+  if (BOARD.includes(type) || STICKER.includes(type))  // an evidence card
+    return wrap(940, <div style={{...col}}>{label(`EVIDENCE #${k}`)}<div style={{transform: "scale(0.86)"}}><Board v={l.v} t={t} s={s} e={l.end} HI={HI} INK={INK} /></div>
+      {an[0] && <div style={{position: "absolute", right: -70, bottom: -70}}><Anim data={an[0]} size={190} t={t} at={s + 0.5} /></div>}</div>);
+  // a sticky note: the key idea + the animated characters acting it out
+  return wrap(820, <div style={{...col, gap: 14}}>
+    <div style={{display: "flex", gap: 24}}>{an.map((d: any, q: number) => <Anim key={q} data={d} size={an.length > 1 ? 300 : 380} t={t} at={s + 0.2 + q * 0.4} />)}</div>
+    <div style={{...font(78, INK, 700, HAND)}}><span style={{backgroundImage: `linear-gradient(${HI}, ${HI})`, backgroundRepeat: "no-repeat", backgroundPosition: "0 88%",
+      backgroundSize: `${interpolate(t, [s + 0.5, s + 1.1], [0, 100], clamp)}% 36%`}}>{l.onscreen}</span></div></div>, "#FFE873");
+};
+
+// Clean cover for the profile grid: the case question on the corkboard, inside the centre safe area.
 const Cover: React.FC<any> = (p) => {
-  const HI = p.theme?.highlight || "#FFD43B", sh = (p.shots || []).find((x: any) => x.src);
-  return <AbsoluteFill style={{background: PAPER}}>
-    {sh && <OffthreadVideo src={staticFile(sh.src)} muted startFrom={30} style={{width: "100%", height: "100%", objectFit: "cover"}} />}
-    <AbsoluteFill style={{background: "rgba(0,0,0,.35)"}} />
-    <AbsoluteFill style={{alignItems: "center", justifyContent: "center", padding: "0 80px"}}>
-      <div style={{...font(118, "#fff", 900), WebkitTextStroke: "12px #000", paintOrder: "stroke", lineHeight: 1.05}}>
-        {String(p.hook).split(" ").map((w: string, j: number, a: string[]) => <span key={j} style={j === a.length - 1 || /\d/.test(w) ? {color: HI} : {}}>{w}{j < a.length - 1 ? " " : ""}</span>)}
-      </div></AbsoluteFill>
+  const first = (p.lines || []).find((l: any) => l.still);
+  return <AbsoluteFill style={{background: CORK, backgroundImage: "radial-gradient(#00000022 2px, transparent 3px), radial-gradient(#ffffff18 1px, transparent 2px)",
+    backgroundSize: "18px 18px, 11px 11px", alignItems: "center", justifyContent: "center"}}>
+    {first && <Img src={staticFile(first.still)} style={{position: "absolute", width: 760, height: 900, objectFit: "cover", border: "26px solid #fff", borderBottomWidth: 110,
+      transform: "rotate(-4deg)", boxShadow: "18px 24px 40px #0009", opacity: 0.9}} />}
+    <div style={{position: "absolute", top: 330, fontFamily: TYPE, fontSize: 52, color: "#fff", background: "#8B1A12", padding: "8px 26px", transform: "rotate(-3deg)"}}>
+      CASE FILE #{String(p.case_no || 1).padStart(2, "0")}</div>
+    <div style={{...font(112, "#fff", 900), WebkitTextStroke: "12px #000", paintOrder: "stroke", padding: "0 70px", lineHeight: 1.05, zIndex: 2}}>{p.hook}</div>
   </AbsoluteFill>;
 };
 
 export const Reel: React.FC<any> = (p) => {
   if (p.cover) return <Cover {...p} />;
-  const t = useCurrentFrame() / FPS, L = p.lines, HI = p.theme?.highlight || "#FFD43B", INK = p.theme?.ink || "#1D1D1F";
+  const t = useCurrentFrame() / FPS, L = p.lines, n = L.length, HI = p.theme?.highlight || "#FFD43B", INK = p.theme?.ink || "#1D1D1F";
   const i = Math.max(0, L.findLastIndex((l: any) => l.start <= t)), line = L[i];
-  const ws = line?.words || [], cur = ws.findLastIndex((w: any) => w[1] <= t), c0 = Math.floor(Math.max(cur, 0) / 3) * 3;
-  const board = (l: any) => !!l && (BOARD.includes(l.v?.type) || !!l.text_scene);
-  const onBoard = board(line), bigWords = !p.captions || (onBoard && !BOARD.includes(line.v?.type) && !STICKER.includes(line.v?.type)), left = Math.max(0, Math.ceil(p.duration - t));
-  return <AbsoluteFill style={{background: "#000", overflow: "hidden"}}>
-    {/* real-world moments: full-screen footage with a slow push-in */}
-    {(p.shots || []).map((sh: any, j: number) => sh.src && <Sequence key={j} from={Math.round(sh.start * FPS)} durationInFrames={Math.max(1, Math.round((sh.end - sh.start) * FPS))}>
-      <AbsoluteFill style={{transform: `scale(${1.02 + 0.05 * interpolate(t, [sh.start, sh.end], [0, 1], clamp)})`}}>
-        <OffthreadVideo src={staticFile(sh.src)} muted startFrom={Math.round((sh.offset || 0) * FPS)} style={{width: "100%", height: "100%", objectFit: "cover"}} />
-      </AbsoluteFill></Sequence>)}
-    {!onBoard && <AbsoluteFill style={{background: "linear-gradient(180deg, rgba(0,0,0,.4) 0%, rgba(0,0,0,0) 26%, rgba(0,0,0,0) 55%, rgba(0,0,0,.55) 100%)"}} />}
-    {/* teaching moments: a bright whiteboard slides in */}
-    {L.map((l: any, j: number) => { if (!(board(l) && t >= l.start - 0.2 && t < (L[j + 1]?.start ?? p.duration))) return null;
-      const end = L[j + 1]?.start ?? p.duration, prog = interpolate(t, [l.start, end], [0, 1], clamp), an = (l.anim || []).map((c: string) => p.lottie?.[c]).filter(Boolean);
-      const teach = BOARD.includes(l.v?.type), textScene = !teach && !STICKER.includes(l.v?.type);
-      return <AbsoluteFill key={j} style={{background: PAPER, backgroundImage: "radial-gradient(#00000014 2px, transparent 2px)", backgroundSize: "44px 44px",
-        backgroundPosition: `${t * 14}px ${t * 9}px`,  // the paper itself drifts: nothing on screen is ever frozen
-        transform: board(L[j - 1]) ? "none" : `translateX(${(1 - pop(t, l.start - 0.2, 20)) * 1080}px)`}}>
-        {/* slow camera push on every board scene */}
-        <AbsoluteFill style={{transform: `scale(${1 + 0.045 * prog}) translateY(${-12 * prog}px)`}}>
-        {textScene ? <AbsoluteFill style={{top: j === 0 && p.hook ? 560 : 230, height: j === 0 && p.hook ? 860 : 1150, alignItems: "center", justifyContent: "center", gap: 20}}>
-            {/* the animated emoji act out the line, the key idea is written underneath */}
-            <div style={{display: "flex", gap: 30}}>{an.map((d: any, q: number) => <Anim key={q} data={d} size={an.length > 1 ? 380 : 500} t={t} at={l.start + q * 0.45} />)}</div>
-            {!(j === 0 && p.hook) && <div style={{...font(an.length ? 96 : 118, INK, 700, HAND), maxWidth: 920, transform: `scale(${0.7 + 0.3 * pop(t, l.start + 0.2)}) rotate(-1.5deg)`, opacity: pop(t, l.start + 0.2)}}>
-              <span style={{backgroundImage: `linear-gradient(${HI}, ${HI})`, backgroundRepeat: "no-repeat", backgroundPosition: "0 88%",
-                backgroundSize: `${interpolate(t, [l.start + 0.45, l.start + 1.1], [0, 100], clamp)}% 38%`}}>{l.onscreen || (l.words || []).slice(0, 4).map((w: any) => w[0]).join(" ")}</span></div>}
-          </AbsoluteFill>
-        : teach ? <>
-            <AbsoluteFill style={{top: 250, height: 900, alignItems: "center", justifyContent: "center"}}>
-              <Board v={l.v?.type === "brand" ? {...l.v, anim: an[0]} : l.v} t={t} s={l.start} e={l.end} HI={HI} INK={INK} /></AbsoluteFill>
-            {l.v?.type !== "brand" && an[0] && <div style={{position: "absolute", top: 1170, width: "100%", display: "flex", justifyContent: "center", gap: 40}}>
-              {an.map((d: any, q: number) => <Anim key={q} data={d} size={250} t={t} at={l.start + 0.3 + q * 0.4} />)}</div>}
-          </> : null}
-        </AbsoluteFill></AbsoluteFill>; })}
-    {/* sticker cards over real footage (or over the plain board if no footage matched) */}
-    {L.map((l: any, j: number) => STICKER.includes(l.v?.type) && t >= l.start && t < l.end + 0.25 &&
-      <AbsoluteFill key={`s${j}`} style={{top: 330, height: 760, alignItems: "center", justifyContent: "center",
-        opacity: interpolate(t, [l.end - 0.05, l.end + 0.25], [1, 0], clamp)}}>
-        <div style={{background: "rgba(255,253,247,.94)", border: `5px solid ${INK}`, borderRadius: 34, boxShadow: `10px 10px 0 ${INK}`, padding: "30px 26px",
-          transform: `scale(${0.82 * (0.85 + 0.15 * pop(t, l.start))})`}}><Board v={l.v} t={t} s={l.start} e={l.end} HI={HI} INK={INK} /></div>
-      </AbsoluteFill>)}
-    {/* hook headline on line 1 */}
-    {i === 0 && p.hook && <div style={{position: "absolute", top: 470, width: "100%", padding: "0 70px", boxSizing: "border-box", ...col}}>
-      <div style={{...font(84, onBoard ? INK : "#fff", 900), ...(onBoard ? {} : {WebkitTextStroke: "10px #000", paintOrder: "stroke"}), opacity: pop(t, 0.05),
-        transform: `scale(${interpolate(pop(t, 0.05, 12), [0, 1], [1.2, 1])})`}}>
-        {String(p.hook).split(" ").map((w: string, j: number, a: string[]) => <span key={j} style={j === a.length - 1 || /\d/.test(w) ? {color: onBoard ? BLUE : HI} : {}}>{w}{j < a.length - 1 ? " " : ""}</span>)}
-      </div></div>}
-    {/* countdown chip keeps the "samjho in N sec" promise visible (completion) */}
-    <div style={{position: "absolute", top: 240, right: 60, ...font(34, INK, 900), background: HI, border: `4px solid ${INK}`, borderRadius: 40, padding: "6px 20px",
-      opacity: interpolate(t, [0.3, 0.8], [0, 1], clamp)}}>⏱ {left}s</div>
-    {/* source chip whenever a line states a news fact */}
-    {line?.source && <div style={{position: "absolute", top: onBoard ? 1180 : 1090, left: 60, ...font(30, INK, 700), background: "rgba(255,255,255,.95)", border: `3px solid ${INK}`, borderRadius: 12, padding: "6px 14px", maxWidth: 760,
-      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", opacity: pop(t, line.start + 0.2)}}>📰 {line.source}</div>}
-    {/* captions: on footage = white with black outline; on the whiteboard = ink with a highlighter on the spoken word */}
-    {cur >= 0 && !bigWords && <div style={{position: "absolute", top: onBoard ? 1260 : 1170, width: "100%", padding: "0 60px", boxSizing: "border-box", textAlign: "center"}}>
-      {ws.slice(c0, c0 + 3).map(([w, wt]: any, j: number) => c0 + j <= cur && <span key={j} style={{...font(onBoard ? 72 : 86, onBoard ? INK : (c0 + j === cur ? HI : "#fff"), 900),
-        ...(onBoard ? {background: c0 + j === cur ? HI : "transparent", borderRadius: 12, padding: "0 10px"} : {WebkitTextStroke: "10px #000", paintOrder: "stroke"}),
-        display: "inline-block", margin: "0 6px", transform: `scale(${c0 + j === cur ? 0.9 + 0.1 * pop(t, wt, 12) : 1})`}}>{w}</span>)}
-    </div>}
+  const nextOf = (k: number) => L[k + 1]?.start ?? p.duration, left = Math.max(0, Math.ceil(p.duration - t));
+  // camera: glide from the previous clue to the current one, a little drift, then pull back to the whole board at the end
+  const g = ease((t - line.start) / 0.9), a = slot(Math.max(0, i - 1)), b = slot(i);
+  let cx = a.x + (b.x - a.x) * (i ? g : 1), cy = a.y + (b.y - a.y) * (i ? g : 1) - 40, sc = 1.12 + 0.04 * Math.sin(t * 0.6);
+  // finale: pull back to show the last few clues connected by their strings (the "solved" board)
+  const H = slot(n - 1).y + 700, out = ease((t - (p.duration - 2.2)) / 1.2), endY = (slot(Math.max(0, n - 4)).y + slot(n - 1).y) / 2;
+  cx = cx + (BW / 2 - cx) * out; cy = cy + (endY - cy) * out; sc = sc + (0.42 - sc) * out;
+  const since = t - line.start, shake = since < 0.3 ? 7 * Math.sin(t * 85) * (1 - since / 0.3) : 0;
+  const reveal = REVEAL.includes(line?.v?.type) ? (line.v.times?.[0] ?? line.start) : -9, sinceReveal = t - reveal;
+  return <AbsoluteFill style={{background: "#2A1B10", overflow: "hidden"}}>
+    <AbsoluteFill style={{transform: `translate(${540 - cx * sc + shake}px, ${960 - cy * sc + shake * 0.6}px) scale(${sc})`, transformOrigin: "0 0"}}>
+      {/* the corkboard */}
+      <div style={{position: "absolute", left: -400, top: -600, width: BW + 800, height: H + 1400, background: CORK,
+        backgroundImage: "radial-gradient(#00000026 2px, transparent 3px), radial-gradient(#ffffff1c 1px, transparent 2px)", backgroundSize: "18px 18px, 11px 11px",
+        boxShadow: "inset 0 0 220px #000a"}} />
+      {/* red strings, drawn as each new clue is pinned */}
+      <svg style={{position: "absolute", left: 0, top: 0, overflow: "visible"}} width={BW} height={H}>
+        {L.map((l: any, k: number) => { if (k === 0 || t < l.start) return null;
+          const p0 = pinAt(k - 1), p1 = pinAt(k), mx = (p0.x + p1.x) / 2, my = (p0.y + p1.y) / 2 + 90, len = Math.hypot(p1.x - p0.x, p1.y - p0.y) + 120;
+          const d = interpolate(t, [l.start, l.start + 0.7], [len, 0], clamp);
+          return <path key={k} d={`M ${p0.x} ${p0.y} Q ${mx} ${my} ${p1.x} ${p1.y}`} fill="none" stroke="#C8231B" strokeWidth={9} strokeLinecap="round"
+            strokeDasharray={len} strokeDashoffset={d} style={{filter: "drop-shadow(4px 6px 3px #0006)"}} />; })}
+      </svg>
+      {L.map((l: any, k: number) => t >= l.start - 0.1 && <React.Fragment key={k}>
+        <Clue l={l} k={k} t={t} p={p} HI={HI} INK={INK} next={nextOf(k)} />
+        <Pin x={pinAt(k).x} y={pinAt(k).y} t={t} at={l.start + 0.15} /></React.Fragment>)}
+    </AbsoluteFill>
+    {/* the case question, typed out while the hook is spoken */}
+    {i <= 1 && p.hook && <div style={{position: "absolute", top: 1430, left: 70, right: 70, background: "#FFFDF4", padding: "22px 30px", boxShadow: "10px 14px 24px #0009",
+      transform: `rotate(-1.5deg) translateY(${(1 - pop(t, 0.1)) * 400}px)`, opacity: i === 1 ? interpolate(t, [L[1].start, L[1].start + 0.4], [1, 0], clamp) : 1}}>
+      <div style={{fontFamily: TYPE, fontSize: 30, color: "#8B1A12"}}>THE CASE:</div>
+      <div style={{fontFamily: TYPE, fontSize: 50, color: INK}}>{String(p.hook).slice(0, Math.round(String(p.hook).length * interpolate(t, [0.2, 1.6], [0, 1], clamp)))}</div></div>}
+    {/* HUD: case tab + countdown */}
+    <div style={{position: "absolute", top: 230, left: 50, fontFamily: TYPE, fontSize: 34, color: "#fff", background: "#8B1A12", padding: "8px 20px", boxShadow: "6px 8px 0 #0006"}}>
+      📁 CASE #{String(p.case_no || 1).padStart(2, "0")}{p.case_title ? ` · ${p.case_title}` : ""}</div>
+    <div style={{position: "absolute", top: 230, right: 50, fontFamily: TYPE, fontSize: 36, color: left <= 5 ? "#fff" : INK, background: left <= 5 ? "#C8231B" : "#FFFDF4",
+      padding: "6px 18px", scale: left <= 5 ? `${1 + 0.12 * Math.abs(Math.sin(t * 6))}` : "1"}}>⏱ {left}s</div>
+    {line?.source && <div style={{position: "absolute", bottom: 470, left: 60, fontFamily: TYPE, fontSize: 28, color: INK, background: "#FFFDF4", padding: "6px 14px", maxWidth: 760,
+      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", opacity: pop(t, line.start + 0.3), boxShadow: "6px 8px 0 #0005"}}>📰 {line.source}</div>}
+    {/* reveal: flash + animated sparkles */}
+    {sinceReveal >= 0 && sinceReveal < 0.15 && <AbsoluteFill style={{background: "#fff", opacity: 0.3 * (1 - sinceReveal / 0.15)}} />}
+    {sinceReveal >= 0 && sinceReveal < 1.4 && p.lottie?.["2728"] && [[90, 560], [800, 500], [140, 1150], [810, 1080]].map(([x, y], q) =>
+      <div key={q} style={{position: "absolute", left: x, top: y, opacity: interpolate(sinceReveal, [0, 0.2, 1.1, 1.4], [0, 1, 1, 0], clamp)}}>
+        <Lottie animationData={p.lottie["2728"]} loop style={{width: 150, height: 150}} /></div>)}
     <Audio src={staticFile(p.voice)} />
-    {p.music && <Audio src={staticFile(p.music)} volume={0.09} loop />}
-    {(p.sfx || []).map(([at, n]: any, j: number) => <Sequence key={j} from={Math.round(at * FPS)} durationInFrames={30}><Audio src={staticFile(`sfx/${n}.wav`)} volume={0.2} /></Sequence>)}
+    {p.music && <Audio src={staticFile(p.music)} volume={0.1} loop />}
+    {(p.sfx || []).map(([at, n_]: any, j: number) => <Sequence key={j} from={Math.round(at * FPS)} durationInFrames={30}><Audio src={staticFile(`sfx/${n_}.wav`)} volume={0.22} /></Sequence>)}
   </AbsoluteFill>;
 };
