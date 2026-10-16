@@ -39,7 +39,7 @@ export default function JobPanel({onDone, kind}: {onDone?: (job: Job) => void; k
           {job.status} · {mins} min
         </span>
       </div>
-      {job.kind !== "playlist" && job.kind !== "script" && (
+      {!["playlist", "script", "competitors"].includes(job.kind) && (
         <ol className="mb-4 grid grid-cols-6 gap-2">
           {STAGES.map((s, i) => (
             <li key={s.key} className="text-center">
