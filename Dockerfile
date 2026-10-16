@@ -15,7 +15,7 @@ RUN npm install -g @anthropic-ai/claude-code@2.1.286 && npm cache clean --force
 
 ENV UV_PYTHON_INSTALL_DIR=/opt/python UV_CACHE_DIR=/tmp/uv-cache VIRTUAL_ENV=/opt/venv PATH=/opt/venv/bin:$PATH
 RUN uv venv --python 3.12 /opt/venv && uv pip install --python /opt/venv/bin/python \
-      fastapi uvicorn requests python-dotenv opencv-python-headless numpy pydantic && chmod -R a+rwX /tmp/uv-cache
+      fastapi uvicorn requests python-dotenv opencv-python-headless numpy pydantic anthropic && chmod -R a+rwX /tmp/uv-cache
 
 WORKDIR /app
 # Remotion project: dependencies + its headless Chrome, baked into the image

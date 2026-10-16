@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# AI Reels Studio
+# Katha - topic in, reels everywhere
 #
 # Usage:
 #   ./start.sh            -> Docker (if running): API + web in containers -> http://localhost:3737
@@ -80,6 +80,7 @@ if [ "$1" = "docker" ] || { [ $# -eq 0 ] && docker_ok; }; then
   fi
   stop_services >/dev/null  # free the ports if the local version is running
   mkdir -p out series research assets
+  [ -f settings.json ] || echo '{}' > settings.json
   [ -f .youtube_token.json ] && [ ! -f research/.youtube_token.json ] && cp .youtube_token.json research/.youtube_token.json
   STUDIO_PASSWORD=$(grep -E '^STUDIO_PASSWORD=' .env | cut -d= -f2- || true)
   echo -e "${CYAN}Building and starting containers (first build takes a few minutes)...${RESET}"
@@ -87,7 +88,7 @@ if [ "$1" = "docker" ] || { [ $# -eq 0 ] && docker_ok; }; then
   for _ in $(seq 1 120); do curl -s -o /dev/null "http://localhost:$WEB_PORT" && break; sleep 1; done
   LAN_IP=$(ipconfig getifaddr en0 2>/dev/null || hostname -I 2>/dev/null | awk '{print $1}')
   echo -e "${BOLD}${GREEN}========================================${RESET}"
-  echo -e "${BOLD}${GREEN}     AI Reels Studio (Docker) running    ${RESET}"
+  echo -e "${BOLD}${GREEN}        Katha is running (Docker)       ${RESET}"
   echo -e "${BOLD}${GREEN}========================================${RESET}"
   echo -e "  ${BOLD}This computer:${RESET} ${CYAN}http://localhost:$WEB_PORT${RESET}"
   [ -n "$LAN_IP" ] && echo -e "  ${BOLD}Phone (same Wi-Fi):${RESET} ${CYAN}http://$LAN_IP:$WEB_PORT${RESET}"
@@ -208,7 +209,7 @@ done
 ) &
 
 echo -e "${BOLD}${GREEN}========================================${RESET}"
-echo -e "${BOLD}${GREEN}        AI Reels Studio Started         ${RESET}"
+echo -e "${BOLD}${GREEN}            Katha is running            ${RESET}"
 echo -e "${BOLD}${GREEN}========================================${RESET}"
 echo -e "  ${BOLD}API Backend:${RESET}  ${CYAN}http://127.0.0.1:$API_PORT${RESET}"
 echo -e "  ${BOLD}Web Studio:${RESET}   ${CYAN}http://localhost:$WEB_PORT${RESET}"

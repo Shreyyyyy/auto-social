@@ -112,7 +112,7 @@ export default function ReelView({id}: {id: string}) {
           {tab === "usage" && (r.usage ? <div className="space-y-4">
             <div className="grid grid-cols-3 gap-2">
               <div className="rounded-xl bg-black/30 p-3 text-center"><p className="text-xl font-bold text-emerald-300">${r.usage.gemini_usd.toFixed(3)}</p>
-                <p className="text-[11px] text-zinc-400">Gemini (≈₹{(r.usage.gemini_usd * 88).toFixed(1)})</p></div>
+                <p className="text-[11px] text-zinc-400">Paid APIs (≈₹{(r.usage.gemini_usd * 88).toFixed(1)})</p></div>
               <div className="rounded-xl bg-black/30 p-3 text-center"><p className="text-xl font-bold text-zinc-200">≈${r.usage.claude_usd_equivalent.toFixed(2)}</p>
                 <p className="text-[11px] text-zinc-400">Claude (subscription)</p></div>
               <div className="rounded-xl bg-black/30 p-3 text-center"><p className="text-xl font-bold text-zinc-200">{r.usage.calls}</p>

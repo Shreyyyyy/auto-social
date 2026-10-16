@@ -1,4 +1,6 @@
-# auto-social — fun teacher Reels that explain any concept
+# Katha (कथा) — topic in, reels everywhere
+
+One topic becomes a researched, voiced, rendered teaching reel, posted to Instagram, YouTube and LinkedIn.
 
 `reel.py` (pipeline + UI) + `video/` (Remotion template) + `config.json` (channel: niche, audience, language, voice, colours).
 Type what to teach → **Run** → a finished reel + cover + caption + SEO/marketing pack + a beginner review.

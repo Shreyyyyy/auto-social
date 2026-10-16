@@ -11,3 +11,4 @@ __pycache__
 .youtube_token.json
 video/node_modules
 web
+settings.json

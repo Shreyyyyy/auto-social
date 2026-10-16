@@ -11,7 +11,7 @@ export function middleware(req: NextRequest) {
     const given = atob(value).split(":").slice(1).join(":");
     if (given === pass) return NextResponse.next();
   }
-  return new NextResponse("Sign in required", {status: 401, headers: {"WWW-Authenticate": 'Basic realm="Case File Studio"'}});
+  return new NextResponse("Sign in required", {status: 401, headers: {"WWW-Authenticate": 'Basic realm="Katha"'}});
 }
 
-export const config = {matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"]};
+export const config = {matcher: ["/((?!_next/static|_next/image|favicon.ico|icon.svg|apple-icon.png|icon-512.png|manifest.webmanifest).*)"]};

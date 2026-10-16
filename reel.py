@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["requests", "python-dotenv", "opencv-python-headless", "numpy"]
+# dependencies = ["requests", "python-dotenv", "opencv-python-headless", "numpy", "pydantic", "anthropic"]
 # ///
 """Prompt -> ~30s news-explainer Reel (full-screen real footage, burned-in captions) -> Buffer, after your approval.
 Niche, audience, language, voice and theme come from config.json.
@@ -25,7 +25,24 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 
 load_dotenv()
-E = os.getenv
+SETTINGS_FILE = Path(os.getenv("SETTINGS_FILE", "settings.json"))
+_SETTINGS = {"mtime": None, "data": {}}
+
+
+def settings():
+    """Overrides saved from the Settings page (settings.json). They win over .env; an empty value means 'use .env'."""
+    try:
+        mt = SETTINGS_FILE.stat().st_mtime
+        if mt != _SETTINGS["mtime"]: _SETTINGS.update(mtime=mt, data=json.loads(SETTINGS_FILE.read_text() or "{}"))
+    except (FileNotFoundError, ValueError): _SETTINGS.update(mtime=None, data={})
+    return _SETTINGS["data"]
+
+
+def E(key, default=None):
+    v = settings().get(key)
+    return v if v not in (None, "") else os.getenv(key, default)
+
+
 GEMINI = "https://generativelanguage.googleapis.com/v1beta/models"
 GKEY = lambda: {"x-goog-api-key": E("GEMINI_API_KEY", "")}  # header, so the key never appears in URLs, errors or logs
 TTS_MODEL = E("TTS_MODEL", "gemini-2.5-pro-preview-tts")  # one emotional take of the whole script
@@ -364,7 +381,9 @@ CLAUDE_AVAILABLE = True
 
 # ---------- usage + cost ledger (Gemini paid-tier prices, USD per 1M tokens, from ai.google.dev/gemini-api/docs/pricing) ----------
 PRICES = {"gemini-3.8-flash": (0.75, 3.75), "gemini-2.5-pro-preview-tts": (1.00, 20.00), "gemini-2.5-flash-preview-tts": (0.50, 10.00),
-          "gemini-2.5-flash": (0.30, 2.50)}
+          "gemini-2.5-flash": (0.30, 2.50),
+          # Anthropic API (USD per 1M tokens)
+          "claude-opus-5-5": (4.00, 20.00), "claude-sonnet-5-5": (2.00, 10.00), "claude-haiku-5-5": (0.10, 0.50), "claude-fable-5-1": (10.00, 50.00)}
 GROUNDING_USD, LYRIA_USD = 0.014, 0.04  # per grounded request (after 5,000 free/month), per 30s Lyria clip
 USAGE: list = []
 
@@ -382,49 +401,98 @@ def usage_summary():
     for u in USAGE:
         g = steps.setdefault(u["step"], {"calls": 0, "in": 0, "out": 0, "usd": 0.0, "model": u["model"]})
         g["calls"] += 1; g["in"] += u["in"]; g["out"] += u["out"]; g["usd"] = round(g["usd"] + u["usd"], 5)
-    gem = round(sum(u["usd"] for u in USAGE if not u["model"].startswith("claude")), 4)
-    cl = round(sum(u["usd"] for u in USAGE if u["model"].startswith("claude")), 4)
-    return {"gemini_usd": gem, "claude_usd_equivalent": cl, "calls": len(USAGE), "steps": steps}
+    sub = lambda u: u["model"] == "claude"  # Claude Code CLI: covered by the subscription, shown as API-equivalent
+    paid = round(sum(u["usd"] for u in USAGE if not sub(u)), 4)
+    cl = round(sum(u["usd"] for u in USAGE if sub(u)), 4)
+    return {"gemini_usd": paid, "paid_usd": paid, "claude_usd_equivalent": cl, "calls": len(USAGE), "steps": steps}
 
 
-def ask_gemini(prompt, schema):
-    """Gemini fallback when Claude CLI hits session rate limits."""
-    schema_json = json.dumps(schema.model_json_schema(), ensure_ascii=False)
-    p = f"{prompt}\n\nRespond ONLY with valid JSON matching this schema:\n{schema_json}"
-    body = {
-        "contents": [{"parts": [{"text": p}]}],
-        "generationConfig": {"responseMimeType": "application/json"}
-    }
-    r = requests.post(f"{GEMINI}/gemini-2.5-flash:generateContent", headers=GKEY(), json=body, timeout=120).json()
-    if r.get("error"):
-        raise RuntimeError(f"Gemini API error: {r['error']}")
-    track("script (Gemini fallback)", "gemini-2.5-flash", r)
-    raw = r["candidates"][0]["content"]["parts"][0]["text"]
-    return schema.model_validate(json.loads(raw))
+def step_name(schema, provider):
+    return f"{'script' if schema is Reel else schema.__name__.lower()} ({provider})"
+
+
+def ask_gemini(prompt, schema, label="Gemini"):
+    """Gemini (SCRIPT_MODEL, default gemini-2.5-flash) with JSON output. Also the fallback for every other provider."""
+    model = E("SCRIPT_MODEL", "gemini-2.5-flash")
+    p = f"{prompt}\n\nRespond ONLY with valid JSON matching this schema:\n{json.dumps(schema.model_json_schema(), ensure_ascii=False)}"
+    r = requests.post(f"{GEMINI}/{model}:generateContent", headers=GKEY(), timeout=300,
+                      json={"contents": [{"parts": [{"text": p}]}], "generationConfig": {"responseMimeType": "application/json"}}).json()
+    if r.get("error"): raise RuntimeError(f"Gemini API error: {r['error']}")
+    track(step_name(schema, label), model, r)
+    return schema.model_validate(json.loads(r["candidates"][0]["content"]["parts"][0]["text"]))
+
+
+def ask_claude_code(prompt, schema, research=False):
+    """Claude Code CLI - runs on your Claude subscription (CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token` in Docker)."""
+    tools = "WebSearch,WebFetch" if research else ""
+    env = os.environ | ({"CLAUDE_CODE_OAUTH_TOKEN": E("CLAUDE_CODE_OAUTH_TOKEN")} if E("CLAUDE_CODE_OAUTH_TOKEN") else {})
+    run = subprocess.run(["claude", "-p", "--output-format", "json", "--no-session-persistence", "--tools", tools,
+                          *(["--allowedTools", tools] if research else []),
+                          "--json-schema", json.dumps(schema.model_json_schema()),
+                          *(["--model", E("CLAUDE_MODEL")] if E("CLAUDE_MODEL") else [])],
+                         input=prompt, capture_output=True, text=True, env=env)
+    if run.returncode: raise RuntimeError((run.stderr or run.stdout or f"exit {run.returncode}").strip()[-300:])
+    j = json.loads(run.stdout); u = j.get("usage", {})
+    if j.get("is_error"): raise RuntimeError(str(j.get("result"))[:300])
+    USAGE.append({"step": step_name(schema, "Claude Code"), "model": "claude",
+                  "in": u.get("input_tokens", 0) + u.get("cache_read_input_tokens", 0) + u.get("cache_creation_input_tokens", 0),
+                  "out": u.get("output_tokens", 0), "usd": round(j.get("total_cost_usd", 0), 5), "note": "covered by your Claude subscription"})
+    return schema.model_validate(j["structured_output"])
+
+
+def ask_anthropic(prompt, schema):
+    """Anthropic API (ANTHROPIC_API_KEY, pay per token) with validated structured output."""
+    import anthropic
+    model = E("ANTHROPIC_MODEL", "claude-opus-5-5")
+    client = anthropic.Anthropic(api_key=E("ANTHROPIC_API_KEY") or None)
+    kw = {"betas": ["server-side-fallback-2026-07-01"], "fallbacks": "default"} if model in ("claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5", "claude-fable-5-1") else {}
+    r = client.beta.messages.parse(model=model, max_tokens=16000, messages=[{"role": "user", "content": prompt}], output_format=schema,
+                                   output_config={"effort": E("ANTHROPIC_EFFORT", "medium")}, **kw)
+    if r.stop_reason == "refusal": raise RuntimeError(f"Claude declined ({getattr(r.stop_details, 'category', None)})")
+    if r.stop_reason == "max_tokens": raise RuntimeError("Claude hit max_tokens")
+    pin, pout = PRICES.get(model, (0, 0)); u = r.usage
+    tin = u.input_tokens + (u.cache_read_input_tokens or 0) + (u.cache_creation_input_tokens or 0)
+    USAGE.append({"step": step_name(schema, "Anthropic API"), "model": model, "in": tin, "out": u.output_tokens,
+                  "usd": round(tin * pin / 1e6 + u.output_tokens * pout / 1e6, 5), "note": ""})
+    return r.parsed_output
+
+
+def openrouter(model, messages, step, schema=None, web=False):
+    """OpenRouter chat completion (OPENROUTER_API_KEY). The response's usage.cost is the real charge."""
+    body = {"model": model, "messages": messages, "usage": {"include": True}}
+    if schema: body["response_format"] = {"type": "json_schema", "json_schema": {"name": schema.__name__, "strict": False, "schema": schema.model_json_schema()}}
+    if web: body["plugins"] = [{"id": "web"}]
+    r = requests.post("https://openrouter.ai/api/v1/chat/completions", timeout=600, json=body,
+                      headers={"Authorization": f"Bearer {E('OPENROUTER_API_KEY', '')}", "X-Title": "Katha"}).json()
+    if r.get("error") or not r.get("choices"): raise RuntimeError(f"OpenRouter: {str(r.get('error') or r)[:300]}")
+    u = r.get("usage") or {}
+    USAGE.append({"step": step, "model": model, "in": u.get("prompt_tokens", 0), "out": u.get("completion_tokens", 0),
+                  "usd": round(float(u.get("cost") or 0), 5), "note": "via OpenRouter"})
+    return r["choices"][0]["message"].get("content") or ""
+
+
+def ask_openrouter(prompt, schema):
+    model = E("OPENROUTER_MODEL", "anthropic/claude-sonnet-5.5")
+    return schema.model_validate_json(openrouter(model, [{"role": "user", "content": prompt}], step_name(schema, f"OpenRouter"), schema).strip()
+                                      .removeprefix("```json").removeprefix("```").removesuffix("```"))
+
+
+PROVIDERS = {"claude-code": ask_claude_code, "anthropic": ask_anthropic, "openrouter": ask_openrouter, "gemini": ask_gemini}
 
 
 def ask(prompt, schema, research=False):
-    """Claude Code (subscription), with automatic Gemini 2.5 Flash fallback when Claude limits are reached."""
+    """Scripts and plans, written by LLM_PROVIDER (claude-code | anthropic | openrouter | gemini).
+    If it fails, Gemini takes over for the rest of the job and the log says why."""
     global CLAUDE_AVAILABLE
-    if E("LLM_PROVIDER", "").lower() == "gemini" or not CLAUDE_AVAILABLE:
-        return ask_gemini(prompt, schema)
-
+    provider = E("LLM_PROVIDER", "claude-code").lower() or "claude-code"
+    if provider == "gemini" or not CLAUDE_AVAILABLE: return ask_gemini(prompt, schema, "Gemini" if provider == "gemini" else "Gemini fallback")
     try:
-        tools = "WebSearch,WebFetch" if research else ""
-        out = subprocess.run(["claude", "-p", "--output-format", "json", "--no-session-persistence", "--tools", tools,
-                              *(["--allowedTools", tools] if research else []),
-                              "--json-schema", json.dumps(schema.model_json_schema()),
-                              *(["--model", E("CLAUDE_MODEL")] if E("CLAUDE_MODEL") else [])],
-                             input=prompt, capture_output=True, text=True, check=True).stdout
-        j = json.loads(out); u = j.get("usage", {})
-        USAGE.append({"step": "script (Claude)" if schema is Reel else f"{schema.__name__.lower()} (Claude)", "model": "claude",
-                      "in": u.get("input_tokens", 0) + u.get("cache_read_input_tokens", 0) + u.get("cache_creation_input_tokens", 0),
-                      "out": u.get("output_tokens", 0), "usd": round(j.get("total_cost_usd", 0), 5), "note": "covered by your Claude subscription"})
-        return schema.model_validate(j["structured_output"])
-    except Exception:
+        fn = PROVIDERS.get(provider, ask_claude_code)
+        return fn(prompt, schema, research) if fn is ask_claude_code else fn(prompt, schema)
+    except Exception as e:
         CLAUDE_AVAILABLE = False
-        print("⚡ Claude session limit reached. Automatically switching to Gemini 2.5 Flash fallback.")
-        return ask_gemini(prompt, schema)
+        print(f"⚡ {provider} failed ({type(e).__name__}: {str(e)[:200]}) -> Gemini takes over for this job.")
+        return ask_gemini(prompt, schema, "Gemini fallback")
 
 
 def save_wav(path, pcm, rate=24000):
@@ -442,7 +510,10 @@ def gemini(model, parts, step="media", **config):
 
 
 def research(topic, extra=""):
-    """Gemini + Google Search grounding -> concise research notes with sources (news, facts, analogies, SEO)."""
+    """Gemini + Google Search grounding (or OpenRouter + web search) -> concise research notes with sources."""
+    if E("RESEARCH_PROVIDER", "gemini").lower() == "openrouter":
+        return openrouter(E("OPENROUTER_RESEARCH_MODEL") or E("OPENROUTER_MODEL", "anthropic/claude-sonnet-5.5"),
+                          [{"role": "user", "content": RESEARCH + extra + "\nTOPIC: " + topic}], "research (OpenRouter web)", web=True)
     r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=300,
                       json={"contents": [{"parts": [{"text": RESEARCH + extra + "\nTOPIC: " + topic}]}], "tools": [{"google_search": {}}]}).json()
     track("research (Google Search)", RESEARCH_MODEL, r, GROUNDING_USD, "grounding free for the first 5,000/month")

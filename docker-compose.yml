@@ -7,12 +7,14 @@ services:
     environment:
       API_HOST: 0.0.0.0
       YOUTUBE_TOKEN_FILE: /app/research/.youtube_token.json
+      SETTINGS_FILE: /app/settings.json
     volumes:
       - ./out:/app/out
       - ./series:/app/series
       - ./research:/app/research
       - ./assets:/app/assets
       - ./config.json:/app/config.json
+      - ./settings.json:/app/settings.json   # what you save on the Settings page
     ports:
       - "127.0.0.1:${API_PORT:-8787}:8787"   # this computer only - phones go through the web app
     restart: unless-stopped

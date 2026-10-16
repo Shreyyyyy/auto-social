@@ -6,3 +6,4 @@ video/node_modules/
 assets/coverr/
 .reel.lock
 .youtube_token.json
+settings.json

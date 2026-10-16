@@ -7,6 +7,8 @@ const ITEMS = [
   {href: "/playlists", label: "Playlists", icon: "📚"},
   {href: "/library", label: "Library", icon: "🎬"},
   {href: "/competitors", label: "Competitors", icon: "🔎"},
+  {href: "/how", label: "How it works", icon: "🧭"},
+  {href: "/settings", label: "Settings", icon: "⚙️"},
 ];
 
 export default function Nav() {

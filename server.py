@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["fastapi", "uvicorn", "requests", "python-dotenv", "opencv-python-headless", "numpy", "pydantic"]
+# dependencies = ["fastapi", "uvicorn", "requests", "python-dotenv", "opencv-python-headless", "numpy", "pydantic", "anthropic"]
 # ///
 """HTTP API for the web app (web/). Wraps reel.py: one job at a time, live logs, runs, playlists, approve/post.
 
@@ -17,7 +17,7 @@ from pydantic import BaseModel
 
 import reel
 
-app = FastAPI(title="AI Reels Studio API")
+app = FastAPI(title="Katha API")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3737", "http://127.0.0.1:3737"], allow_methods=["*"], allow_headers=["*"])
 reel.OUT.mkdir(exist_ok=True)
 app.mount("/media", StaticFiles(directory=reel.OUT), name="media")
@@ -48,9 +48,23 @@ def kill_children():
         except ProcessLookupError: pass
 
 
+def busy():
+    return bool(CURRENT) and JOBS[CURRENT[0]]["status"] == "running"
+
+
+def apply_settings():
+    """Re-read reel.py so new settings (models, providers, length...) take effect. Only between jobs."""
+    import importlib
+    importlib.reload(reel); SETTINGS_PENDING.clear()
+
+
+SETTINGS_PENDING: list = []
+
+
 def start_job(kind: str, label: str, fn, *args) -> dict:
-    if CURRENT and JOBS[CURRENT[0]]["status"] == "running":
+    if busy():
         raise HTTPException(409, f"Another job is running: {JOBS[CURRENT[0]]['label']}")
+    if SETTINGS_PENDING: apply_settings()
     job = {"id": uuid.uuid4().hex[:10], "kind": kind, "label": label, "status": "running", "log": "", "result": None,
            "error": None, "started": time.time()}
     JOBS[job["id"]] = job; CURRENT[:] = [job["id"]]
@@ -328,6 +342,131 @@ def youtube_status():
 def competitors_refresh():
     import competitors
     return start_job("competitors", "Competitor research + playbook", competitors.refresh)
+
+
+# ---------------- settings + how it works ----------------
+F = lambda key, label, kind="text", default="", help="", options=None: {"key": key, "label": label, "type": kind, "default": default, "help": help, "options": options}
+SETTINGS_SCHEMA = [
+    {"group": "Script writer (text AI)", "icon": "✍️", "fields": [
+        F("LLM_PROVIDER", "Provider", "select", "claude-code", "Writes scripts and playlist plans. If it fails, Gemini takes over for that job.",
+          [{"value": "claude-code", "label": "Claude Code (your Claude subscription)"}, {"value": "anthropic", "label": "Anthropic API (pay per token)"},
+           {"value": "openrouter", "label": "OpenRouter (any model)"}, {"value": "gemini", "label": "Gemini"}]),
+        F("CLAUDE_MODEL", "Claude Code model", default="", help="Empty = Claude Code's default. e.g. opus, sonnet"),
+        F("CLAUDE_CODE_OAUTH_TOKEN", "Claude Code token", "secret", help="Needed in Docker: run `claude setup-token` on your computer and paste it."),
+        F("ANTHROPIC_MODEL", "Anthropic model", "select", "claude-opus-5-5", "$4/$20 · $2/$10 · $0.10/$0.50 per 1M tokens (in/out)",
+          [{"value": "claude-opus-5-5", "label": "Claude Opus 5.5"}, {"value": "claude-sonnet-5-5", "label": "Claude Sonnet 5.5"}, {"value": "claude-haiku-5-5", "label": "Claude Haiku 5.5"}]),
+        F("ANTHROPIC_EFFORT", "Anthropic effort", "select", "medium", "Higher = more thinking, more tokens.",
+          [{"value": v, "label": v} for v in ("low", "medium", "high", "xhigh", "max")]),
+        F("ANTHROPIC_API_KEY", "Anthropic API key", "secret", help="console.anthropic.com"),
+        F("OPENROUTER_MODEL", "OpenRouter model", "openrouter", "anthropic/claude-sonnet-5.5", "Any model with structured outputs."),
+        F("OPENROUTER_API_KEY", "OpenRouter API key", "secret", help="openrouter.ai/keys"),
+        F("SCRIPT_MODEL", "Gemini script model", default="gemini-2.5-flash", help="Used when the provider is Gemini, and as the fallback."),
+    ]},
+    {"group": "Research", "icon": "🔎", "fields": [
+        F("RESEARCH_PROVIDER", "Provider", "select", "gemini", "Fresh news, facts, examples and SEO for every reel.",
+          [{"value": "gemini", "label": "Gemini + Google Search"}, {"value": "openrouter", "label": "OpenRouter + web search"}]),
+        F("RESEARCH_MODEL", "Gemini research + judge model", default="gemini-3.8-flash", help="Also judges footage, voice takes and watches the finished reel."),
+        F("OPENROUTER_RESEARCH_MODEL", "OpenRouter research model", "openrouter", "", "Empty = same as the OpenRouter script model."),
+        F("GEMINI_API_KEY", "Gemini API key", "secret", help="Required: voice, music, footage judge and review always use Gemini. aistudio.google.com"),
+    ]},
+    {"group": "Voice & music", "icon": "🎙️", "fields": [
+        F("TTS_MODEL", "Voice model (one take)", default="gemini-2.5-pro-preview-tts"),
+        F("LINE_TTS_MODEL", "Voice fallback model", default="gemini-2.5-flash-preview-tts"),
+        F("VOICE_TAKES", "Takes per reel", "number", "3", "Each take is a different voice; the most natural one is kept."),
+        F("MUSIC_MODEL", "Music model", default="lyria-3-clip-preview", help="Or drop your own music.mp3 in the project folder."),
+    ]},
+    {"group": "Reel", "icon": "🎬", "fields": [
+        F("TARGET_SECONDS", "Length (seconds)", "number", "", "Empty = config.json (40s)."),
+        F("REVIEW_FIXES", "Auto-fix after review", "select", "1", "Rewrite + re-render once if the beginner review finds problems.",
+          [{"value": "1", "label": "On"}, {"value": "0", "label": "Off"}]),
+        F("FOOTAGE_MIN_SCORE", "Footage strictness (1-10)", "number", "6", "Below this score a line gets a text scene instead of unrelated footage."),
+        F("PEXELS_KEY", "Pexels key", "secret", help="pexels.com/api - free"), F("PIXABAY_KEY", "Pixabay key", "secret", help="pixabay.com/api/docs - free"),
+        F("COVERR_KEY", "Coverr key", "secret", help="coverr.co - free"),
+    ]},
+    {"group": "Posting", "icon": "📤", "fields": [
+        F("BUFFER_TOKEN", "Buffer API key", "secret", help="publish.buffer.com -> Settings -> API"),
+        F("BUFFER_MODE", "When to post", "select", "addToQueue", "", [{"value": "addToQueue", "label": "Buffer queue (your time slots)"}, {"value": "shareNow", "label": "Immediately"}]),
+        F("BUFFER_CHANNEL_IDS", "Only these channel ids", default="", help="Empty = every connected channel (pick per post with the toggles)."),
+        F("YOUTUBE_PRIVACY", "YouTube Shorts privacy", "select", "public", "", [{"value": v, "label": v} for v in ("public", "unlisted", "private")]),
+        F("BUFFER_FIRST_COMMENT", "Post the first comment", "select", "1", "Buffer's free plan can't; it's retried without it.", [{"value": "1", "label": "Try"}, {"value": "0", "label": "Never"}]),
+        F("CLOUDINARY_URL", "Cloudinary URL", "secret", help="Optional video host for Buffer (else catbox.moe). cloudinary://key:secret@cloud"),
+    ]},
+    {"group": "Competitor research", "icon": "📊", "fields": [
+        F("YOUTUBE_API_KEY", "YouTube Data API key", "secret", help="Optional; without it public search data is used."),
+        F("COMPETITOR_MIN_VIEWS", "Min views", "number", "1000000"),
+    ]},
+]
+FIELDS = {f["key"]: f for g in SETTINGS_SCHEMA for f in g["fields"]}
+
+
+@app.get("/api/settings")
+def get_settings():
+    import os
+    saved = reel.settings()
+    groups = []
+    for g in SETTINGS_SCHEMA:
+        out = []
+        for f in g["fields"]:
+            k = f["key"]; src = "settings" if saved.get(k) not in (None, "") else "env" if os.getenv(k) else "default"
+            val = reel.E(k, f["default"]) or ""
+            out.append(f | {"source": src, "set": bool(val)} | ({"value": ""} if f["type"] == "secret" else {"value": val}))
+        groups.append(g | {"fields": out})
+    return {"groups": groups, "pending": bool(SETTINGS_PENDING)}
+
+
+class SettingsBody(BaseModel):
+    values: dict[str, str | None]
+
+
+@app.post("/api/settings")
+def save_settings(body: SettingsBody):
+    """Save overrides to settings.json. Secrets: empty = keep, null = remove. Others: empty/null = back to .env/default."""
+    data = dict(reel.settings())
+    for k, v in body.values.items():
+        f = FIELDS.get(k)
+        if not f: raise HTTPException(400, f"unknown setting {k}")
+        if f["type"] == "secret" and v == "": continue
+        if v in (None, ""): data.pop(k, None)
+        else: data[k] = str(v).strip()
+    reel.SETTINGS_FILE.write_text(json.dumps(data, indent=1))
+    if busy(): SETTINGS_PENDING.append(1); return {"message": "Saved - applies to the next job (one is running now)."}
+    apply_settings(); return {"message": "Saved - used from the next reel."}
+
+
+OR_MODELS: dict = {}
+
+
+@app.get("/api/openrouter/models")
+def openrouter_models():
+    """Public OpenRouter catalogue (models that support structured outputs), cached for an hour."""
+    import requests
+    if time.time() - OR_MODELS.get("at", 0) > 3600:
+        try: d = requests.get("https://openrouter.ai/api/v1/models", timeout=20).json()["data"]
+        except Exception as e: raise HTTPException(502, f"OpenRouter: {e}")
+        OR_MODELS.update(at=time.time(), list=sorted(
+            [{"id": m["id"], "name": m.get("name", m["id"]), "in": float(m["pricing"]["prompt"]) * 1e6, "out": float(m["pricing"]["completion"]) * 1e6}
+             for m in d if "structured_outputs" in (m.get("supported_parameters") or []) and not m["id"].endswith(":batch")], key=lambda m: m["id"]))
+    return OR_MODELS["list"]
+
+
+@app.get("/api/stats")
+def stats():
+    """Real per-step cost and time, averaged over every reel that has a usage ledger."""
+    runs = []
+    for f in reel.OUT.glob("*/usage.json"):
+        try: runs.append(json.loads(f.read_text()))
+        except Exception: pass
+    steps = {}
+    for u in runs:
+        for k, v in u.get("steps", {}).items():
+            a = steps.setdefault(k, {"usd": 0.0, "calls": 0, "runs": 0, "model": v.get("model")})
+            a["usd"] += v.get("usd", 0); a["calls"] += v.get("calls", 0); a["runs"] += 1
+    n = len(runs) or 1
+    return {"reels": len(runs), "avg_paid_usd": round(sum(u.get("paid_usd", u.get("gemini_usd", 0)) for u in runs) / n, 4),
+            "avg_subscription_usd": round(sum(u.get("claude_usd_equivalent", 0) for u in runs) / n, 4),
+            "avg_minutes": round(sum(u.get("minutes", 0) for u in runs) / n, 1),
+            "steps": {k: {"avg_usd": round(v["usd"] / v["runs"], 4), "calls_per_reel": round(v["calls"] / v["runs"], 1), "share": round(v["runs"] / n, 2),
+                          "model": v["model"]} for k, v in steps.items()}}
 
 
 if __name__ == "__main__":
