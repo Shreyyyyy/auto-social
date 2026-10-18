@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["requests", "python-dotenv", "opencv-python-headless", "numpy", "pydantic", "anthropic"]
+# dependencies = ["requests", "python-dotenv", "opencv-python-headless", "numpy", "pydantic", "anthropic", "edge-tts"]
 # ///
 """Prompt -> ~30s news-explainer Reel (full-screen real footage, burned-in captions) -> Buffer, after your approval.
 Niche, audience, language, voice and theme come from config.json.
@@ -48,7 +48,10 @@ GKEY = lambda: {"x-goog-api-key": E("GEMINI_API_KEY", "")}  # header, so the key
 TTS_MODEL = E("TTS_MODEL", "gemini-2.5-pro-preview-tts")  # one emotional take of the whole script
 LINE_TTS_MODEL = E("LINE_TTS_MODEL", "gemini-2.5-flash-preview-tts")  # line-by-line fallback
 MUSIC_MODEL = E("MUSIC_MODEL", "lyria-3-clip-preview")
-RESEARCH_MODEL = E("RESEARCH_MODEL", "gemini-3.8-flash")  # with Google Search grounding; also judges footage relevance
+RESEARCH_MODEL = E("RESEARCH_MODEL", "gemini-3.8-flash")  # only when RESEARCH_PROVIDER=gemini
+TTS_ENGINE = E("TTS_ENGINE", "local").lower()  # local (free, tts_server.py on this Mac) | edge (free) | gemini | google
+EDGE_VOICE, EDGE_RATE = E("EDGE_VOICE", "hi-IN-SwaraNeural"), E("EDGE_RATE", "+0%")
+MUSIC_SOURCE = E("MUSIC_SOURCE", "openverse").lower()  # openverse (free CC0 / CC BY tracks) | lyria
 FOOTAGE_MIN_SCORE = float(E("FOOTAGE_MIN_SCORE", "6"))  # below this, a line gets a text scene instead of unrelated footage
 OUT, SERIES = Path("out"), Path("series")
 
@@ -83,23 +86,33 @@ BEAT = ("brief = a timed teaching beat sheet, one line per beat: HOOK (a moment 
         "MYTH vs TRUTH, YAAD RAKHO (one line to remember), SIGN-OFF; then 'EXAMPLE:', 'VISUALS:' (what is drawn/shown), "
         "'WHY NOW:'")
 
-RESEARCH = f"""You are the researcher for a {TARGET:.0f}-second Instagram Reel. The reel is about EXACTLY what the USER PROMPT
+RESEARCH = f"""You are the researcher and strategist for a {TARGET:.0f}-second Instagram Reel. The reel is about EXACTLY what the USER PROMPT
 (at the end) asks - whatever the subject is. ({CHANNEL}.)
-Use Google Search. Be concise, bullet points, every fact with its date and source name. Sections:
-0. UNDERSTANDING: in 2 lines, what the user wants - the topic, the angle, and the one takeaway the viewer should leave with.
-1. LATEST NEWS: what happened in the last 60 days, {C['location']} first, that shows this concept in action - real,
-   relatable examples a beginner would recognise (with source + date).
-2. TRENDING: how this topic is trending - search interest, viral posts, memes, the angles other creators are using
-   on Instagram / YouTube Shorts / X right now, and any hashtag or audio trend attached to it.
-3. WHAT PEOPLE ARE SAYING: real questions, opinions, myths, complaints, jokes and slang from comments, Reddit, X,
+The prompt can ask for ANY kind of video - an explainer, a story, news, a list, motivation, comedy, a review, history,
+money, sport, food, travel... Use web search. Be concise, bullet points, every fact with its date and source name. Sections:
+0. UNDERSTANDING: in 2 lines, what the user wants - the topic, the KIND of video (format), the angle, who it is for, and
+   the one feeling + one takeaway the viewer should leave with.
+1. LATEST NEWS: what happened in the last 60 days, {C['location']} first, around this topic - real, relatable examples
+   (with source + date).
+2. TREND ANALYSIS: how this topic is trending right now - search interest, viral posts, memes, hashtag or audio trends on
+   Instagram / YouTube Shorts / X, and WHY it is spreading (the emotion behind it).
+3. MARKET RESEARCH: the 5-8 best-performing Shorts/Reels on this topic or format (creator, rough views, date), what each
+   did in its first 2 seconds, its structure, tone and ending. Which angles are saturated (everyone says it) and which
+   fresh angle nobody has taken yet - recommend ONE angle that can win.
+4. WHAT PEOPLE ARE SAYING: real questions, opinions, myths, complaints, jokes and slang from comments, Reddit, X,
    Quora, YouTube - quote short real phrasings where you can.
-4. FACTS: 3-5 surprising, verified facts or numbers with source + date. Flag numbers that disagree between sources.
-5. BEGINNER TEACHING: the concept in one plain sentence; 3 everyday analogies from {C['examples']} that make it click;
-   the most common beginner confusion or myth and the truth; simple real data for a chart if any (years + values).
-6. BEST EXAMPLES: list every candidate real-world example/story you found, score each 1-10 on: verified (named source,
-   date), recent, relatable to a beginner in {C['location']}, and surprising. Mark the top 2 as KEEP and say why; mark the
-   rest DROP. The script must only use KEEP examples.
-7. SEO: 8 search phrases people actually type about this, 5 relevant hashtags in active use now, and current
+5. FACTS: 3-5 surprising, verified facts or numbers with source + date. Flag numbers that disagree between sources.
+6. TONE & EXPRESSIONS: how the top creators in this category actually talk - energy, pace, humour, the exact spoken
+   phrases, reactions and slang that land with this audience ({C['spoken_language']}), and the emotional arc that works
+   (e.g. curiosity -> shock -> relief -> pride). If it is an explainer, also: the concept in one plain sentence, 3 everyday
+   analogies from {C['examples']}, the common myth and the truth, and simple real data for a chart if any.
+7. BEST EXAMPLES: list every candidate real-world example/story you found, score each 1-10 on: verified (named source,
+   date), recent, relatable to a viewer in {C['location']}, and surprising/emotional. Mark the top 2 as KEEP and say why;
+   mark the rest DROP. The script must only use KEEP examples.
+8. HOOKS: 5 different opening lines (first 2 seconds, spoken + what is on screen) for this video, each a different hook
+   type (shock claim, question, story mid-action, "you are doing it wrong", challenge...). Score each 1-10 for scroll-stop
+   power and honesty and pick the winner.
+9. SEO: 8 search phrases people actually type about this, 5 relevant hashtags in active use now, and current
    Instagram Reels discovery guidance (captions, keywords, hashtags, on-screen text).
 EXTRA: """
 
@@ -125,18 +138,32 @@ builds_on, and {BEAT}. The total number of episodes across all arcs MUST be exac
 The series is about exactly this subject - never drift to a different one.
 SUBJECT: """
 
-BRIEF = f"""You are {C['persona']}.
-You make a ~{TARGET:.0f}-second Instagram Reel that TEACHES exactly the concept in the user's prompt / beat sheet below to
-{C['audience']}. Assume the viewer knows NOTHING - not even the basic words. After one watch they must be able to explain
-the idea to someone else and remember one line by heart. Never switch to a different topic. ({CHANNEL}.)
+BRIEF = f"""You are one of India's most loved short-video creators AND its director.
+You make a ~{TARGET:.0f}-second Instagram Reel about EXACTLY what the user's prompt / beat sheet below asks - it can be any
+kind of video. Never switch to a different topic. ({CHANNEL}.)
 
-FORMAT - "AI CASE FILE": every reel is a mystery case on a detective's corkboard. The hook opens the case with a
+FIRST DECIDE, from the research (TREND ANALYSIS, MARKET RESEARCH, TONE & EXPRESSIONS, HOOKS):
+- genre: the format that fits the prompt best - explainer, story, news, list/top-N, myth-buster, motivation, comedy,
+  review, history, how-to, or whatever the best-performing videos on this topic use.
+- style: "casefile" ONLY for an explainer that teaches a concept from the channel's niche ({C['niche']}); "story" for
+  everything else (full-screen real footage, bold animated captions, fast cuts).
+- your persona: for a casefile explainer you are {C['persona']}, teaching {C['audience']} who know NOTHING - not even the
+  basic words. Otherwise be the creator viewers would love for THIS video (a gripping storyteller, a hype best friend, a
+  calm wise voice, a witty critic...), in the tone and expressions the research found working with this audience.
+- hooks_considered: your 3-5 strongest hooks (from the research or better ones), best first; line 1 uses the first.
+After one watch the viewer must FEEL something (curious, shocked, moved, proud, laughing), be able to retell it in one
+line, and want to send it to someone.
+
+CASEFILE STYLE - "AI CASE FILE": every reel is a mystery case on a detective's corkboard. The hook opens the case with a
 question; every line pins a new clue (footage polaroid, evidence card, animated character) and a red string connects it
 to the last clue; the myth/truth line is a rubber stamp; the YAAD RAKHO line is the verdict "CASE SOLVED". Tell it like a
 detective story - suspense, clues, reveal - while teaching. Give the case a short case_title (<= 4 words).
 Also: one narrator (you, the teacher) over real stock footage that truly matches each line, plus simple animated
 teaching visuals drawn on screen (definition card, step diagram, chart, comparison, myth/truth stamp, recap). No
 presenters or characters on camera. It must feel like a real, warm creator - nothing that looks AI-generated.
+STORY STYLE: case_title = a 2-4 word label for the video (e.g. "Paisa Ka Sach"). Full-screen real footage that truly
+matches every line; cards pop over the footage only where they add proof or punch (counter, compare, list, quote, stamp,
+chart). Cinematic and fast - a new shot every line. It must feel like a real creator - nothing that looks AI-generated.
 
 VIRAL PLAYBOOK (from analysing 13 Shorts with 10M-38M views - Zack D. Films, Mrwhosetheboss, Cleo Abram, Dhruv Rathee,
 AI Warehouse - see research/competitors_10M.json). Follow it:
@@ -156,7 +183,15 @@ AI Warehouse - see research/competitors_10M.json). Follow it:
 - End with a clear payoff or verdict whose last words echo the hook (so the loop replays), or a debate question.
 - Give a reason to send it ("us dost ko bhejo jo...").
 
-TEACHING ARC (in this order, one idea per line, 8-10 lines, total spoken words about {int(TARGET * 2.6)}):
+STRUCTURE - one idea per line, 8-10 lines, total spoken words about {int(TARGET * 2.6)}. For an explainer use the
+TEACHING ARC below. Otherwise use the structure that fits the genre:
+  story: hook mid-action -> who/where -> rising stakes -> twist -> payoff -> a last line that loops to the hook
+  list/top-N: hook with the promise -> items from good to best (best last), one vivid detail each -> payoff
+  news: what just happened -> why it matters to YOU -> the key facts -> what happens next -> a debate question
+  motivation: a pain the viewer feels -> a real story -> the turn -> one line to live by -> a small challenge
+  comedy: a relatable situation -> escalate in 3 beats -> twist -> callback punchline
+  anything else: the structure the best-performing videos in the MARKET RESEARCH use.
+TEACHING ARC (explainers, in this order):
 1. HOOK - a specific moment from the viewer's own life (or today's news) where they already met this concept, plus the
    promise: e.g. "Aapka phone aapki photo mein chehra kaise pehchaanta hai? 40 second mein samjho."
 2. CONCEPT - say what it is in ONE simple sentence, zero jargon. Show a define card: TERM = meaning in 3-6 everyday words.
@@ -167,7 +202,8 @@ TEACHING ARC (in this order, one idea per line, 8-10 lines, total spoken words a
 7. YAAD RAKHO - one short, catchy line to remember by heart (rhythm or rhyme helps). Show it on the recap card.
 8. SIGN-OFF - warm and fun, and its last words echo the hook so the reel loops; tease the next lesson if given, else a
    save/share invite.
-Any technical word must be explained the moment it appears. Speak like a fun teacher: warm, soft, a little playful, smiling.
+Any technical word must be explained the moment it appears. In an explainer speak like a fun teacher: warm, soft, a
+little playful, smiling. In other genres, match the energy of the genre and the persona you chose.
 
 FIELDS
 - text: what you SAY, in {C['spoken_language']}. A voice actor reads it aloud, so write it exactly the way a real Indian
@@ -179,6 +215,11 @@ FIELDS
   / "Step 1:" (say it: "Log sochte hain ki... lekin sach ye hai..."). Write every number in words as it is said
   ("पच्चीस हज़ार करोड़ रुपये", "दो हज़ार सत्रह में"). Hindi always in Devanagari, English tech words in English
   letters (AI, ChatGPT, UPI) - never mix Roman-script Hindi into text.
+  SOUND HUMAN, NOT SCRIPTED: real people think out loud. Across the reel use 3-5 thinking moments, never two in a row
+  and never in the hook's first words: a thinking sound with "..." for the pause ("अम्म...", "हम्म...", "अच्छा...",
+  "मतलब..."), a beat to find the word ("कैसे बोलूँ... जैसे"), a tiny self-correction ("नहीं नहीं, मतलब..."), or a
+  question to yourself ("तो फिर ये होता कैसे है? देखो..."). Keep full grammar - never drop है / हैं / था / रहा
+  ("कैमरा देखता है, AI गिनता है" is RIGHT; "कैमरा देखता, AI गिनता" is WRONG).
   caption: the SAME words in {C['caption_language']} (digits, ₹ and symbols are fine here).
 - Timing: a flow/diagram/list needs about 1.2 seconds per item, so give that line enough words; keep the whole reel
   close to {TARGET:.0f} seconds (never above {TARGET + 10:.0f}).
@@ -188,7 +229,7 @@ FIELDS
 - delivery: how a real person would say this line, 1-5 words, honest and varied: "curious, leaning in", "amused, little
   laugh", "lowered voice, secret", "genuinely surprised", "warm, explaining", "matter-of-fact, confident", "teasing",
   "proud, punchy". Real emotion, never theatrical. Never repeat the same delivery twice in a row.
-- hook: <= 6 words shown big during line 1 - the concept's name + the curious part.
+- hook: <= 6 words shown big during line 1 - the topic + the curious part.
 - footage: 3 STOCK VIDEO search options (2-3 English words each), most specific first, then broader, then a simpler
   scene that still clearly relates - e.g. ["woman shopping vegetables", "vegetable market", "market"]. Describe what a
   camera would see (people, places, objects). Relatable everyday scenes. A different scene every line.
@@ -209,10 +250,11 @@ FIELDS
   define / diagram / flow / chart / chat / recap are drawn on a bright whiteboard (no footage) - use AT MOST 4 of these.
   counter / stamp / compare / list / quote float as stickers OVER real footage - so still give good footage searches.
   "none" = just real footage + captions. Alternate real footage and whiteboard so it never feels like slides.
-  Always use define (line 2), one diagram/flow/chart or chat (how it works), and recap.
+  Explainers always use define (line 2), one diagram/flow/chart or chat (how it works), and recap. Other genres use cards
+  only where they add proof or punch (usually 2-4), and may end on a recap card with the line to remember.
   Line 1 (hook) is always type "none" so it opens on real footage.
-- The channel's fixed signature line is inserted automatically right after your hook - do not write any intro or
-  channel greeting yourself; go straight from the hook into the concept.
+- Never write an intro or channel greeting; go straight from the hook into the video. (Casefile reels get the channel's
+  fixed signature line inserted automatically after the hook.)
   On-screen text: max 6 words per item, in {C['caption_language']}.
 - source: for a news fact or number, "Publication · date" from the research notes (max 35 characters, e.g. "PIB · Aug 2026"), else "".
 - music_mood: light background music (e.g. "soft playful ukulele", "warm curious lo-fi").
@@ -221,14 +263,14 @@ FIELDS
   rounded and said simply ("lagbhag 2,300 crore"), and the same number + unit on the card as in the spoken line.
 
 SEO (Instagram reads captions, on-screen text and the spoken audio):
-- Pick ONE main search keyword (usually the concept's name). Say it in line 1 or 2, put it in the hook, and start caption_ig with it.
-- caption_ig: line 1 = "<concept> kya hai? <one-line answer>" style hook, under 125 characters; then the YAAD RAKHO line and
+- Pick ONE main search keyword (usually the topic's name). Say it in line 1 or 2, put it in the hook, and start caption_ig with it.
+- caption_ig: line 1 = a curiosity hook with the keyword (e.g. "<topic> kya hai? <one-line answer>"), under 125 characters; then the line to remember and
   2 short lines of value with 2-3 more search phrases; end with a save/share CTA. NO hashtags in caption_ig.
 - seo.keywords: 5-8 search phrases people type. seo.hashtags: 3-5 tightly relevant hashtags, each starting with #.
 - seo.alt_text: one plain sentence describing the reel, containing the main keyword.
 - seo.first_comment: a fun, genuine question that makes people reply with what they learned or a doubt (no engagement bait).
 - seo.story_text: one line to reshare the reel on Stories (curiosity, not a summary).
-- seo.broadcast_text: one friendly line for the broadcast channel announcing today's lesson.
+- seo.broadcast_text: one friendly line for the broadcast channel announcing today's reel.
 
 {PSYCH}
 
@@ -272,6 +314,8 @@ class Seo(BaseModel):
 class Reel(BaseModel):
     title: str
     genre: str
+    style: Literal["casefile", "story"] = "casefile"
+    hooks_considered: list[str] = []
     case_title: str
     hook: str
     music_mood: str
@@ -283,7 +327,7 @@ class Reel(BaseModel):
 def add_signature(reel):
     """Insert the channel's constant signature line (config.json -> signature) right after the hook."""
     sg = C.get("signature") or {}
-    if not sg.get("text") or any(l.visual.type == "brand" for l in reel.lines): return reel
+    if not sg.get("text") or reel.style != "casefile" or any(l.visual.type == "brand" for l in reel.lines): return reel
     reel.lines.insert(1, Line(text=sg["text"], caption=sg.get("caption", sg["text"]), onscreen=sg.get("title", ""), delivery=sg.get("delivery", ""), emoji=sg.get("emoji", "☕"),
                               footage=[], source="", visual=Visual(type="brand", title=sg.get("title", ""), items=[sg.get("subtitle", "")], suffix=sg.get("emoji", ""))))
     return reel
@@ -296,7 +340,7 @@ def write_checked(prompt, tries=3):
         if not (issues := check_script(reel)): break
         print(f"  fixing ({n + 1}/{tries}):", "; ".join(issues))
         reel = add_signature(retry(ask, prompt + "\n\nYOUR PREVIOUS DRAFT HAD THESE PROBLEMS - fix every one (cut whole lines if it is too long; "
-                                   "keep the hook, define, how-it-works and recap):\n- " + "\n- ".join(issues)
+                                   "keep the hook and the strongest beats):\n- " + "\n- ".join(issues)
                                    + "\nPREVIOUS DRAFT:\n" + reel.model_dump_json(), Reel, tries=2))
     return reel
 
@@ -312,9 +356,10 @@ def check_script(reel):
             issues.append(f"line {i}: chart needs 3-6 labels and the same number of values")
         if v.type in ("define", "diagram", "flow", "list", "compare") and not v.items:
             issues.append(f"line {i}: {v.type} card has no items")
-    for need, why in (("define", "a define card for the concept"), ("recap", "a recap (YAAD RAKHO) card")):
-        if need not in types: issues.append(f"missing {why}")
-    if not set(types) & {"diagram", "flow", "chart", "chat"}: issues.append("missing a diagram/flow/chart/chat showing how it works")
+    if reel.style == "casefile":  # the teaching beats; other genres pick their own cards
+        for need, why in (("define", "a define card for the concept"), ("recap", "a recap (YAAD RAKHO) card")):
+            if need not in types: issues.append(f"missing {why}")
+        if not set(types) & {"diagram", "flow", "chart", "chat"}: issues.append("missing a diagram/flow/chart/chat showing how it works")
     for i, l in enumerate(reel.lines, 1):
         if l.visual.type == "brand": continue
         if (bad := set(re.findall(r"[0-9+=/→❌✅₹%\"“”‘’\[\]]|->|[\U0001F300-\U0001FAFF\u2600-\u27BF]", l.text))):
@@ -324,6 +369,10 @@ def check_script(reel):
         sents = [x for x in re.split(r"[.!?।…]+", l.text) if x.strip()]
         if len(sents) > 1 and sum(len(x.split()) for x in sents) / len(sents) < 4.5:
             issues.append(f"line {i}: sounds like note-form fragments ({l.text!r}) - rewrite as natural, flowing spoken sentences")
+        if "Devanagari" in C["spoken_language"] and not re.search(r"[ऀ-ॿ]", l.text):
+            issues.append(f"line {i}: Hindi is in Roman letters ({l.text[:40]!r}) - write Hindi in Devanagari so the voice pronounces it properly")
+    if (thinks := sum(l.text.count("...") + l.text.count("…") for l in reel.lines if l.visual.type != "brand")) < 2:
+        issues.append(f"only {thinks} thinking moments - add 3-5 natural ones ('अम्म...', 'हम्म...', 'मतलब...', a small self-correction) so it sounds like a real person thinking")
     words = sum(len(l.text.split()) for l in reel.lines if l.visual.type != "brand"); cap = int(TARGET * 2.8)
     if words > cap: issues.append(f"too long: {words} spoken words - cut to at most {cap} (about {TARGET:.0f} seconds at a natural talking pace) by cutting a line, never by turning sentences into fragments")
     return issues
@@ -342,6 +391,11 @@ def migrate(d):
     d.setdefault("hook", next((l.get("visual", {}).get("title", "") for l in d.get("lines", [])[:1]), ""))
     d.setdefault("seo", {"keywords": [], "hashtags": [], "alt_text": "", "first_comment": ""})
     return Reel.model_validate(d)
+
+
+class Notes(BaseModel):
+    notes: str
+    sources: list[str] = []
 
 
 class Plan(BaseModel):
@@ -376,7 +430,6 @@ def retry(fn, *a, tries=4, **k):
             print(f"  retry {i + 1}: {e}"); time.sleep(5 * (i + 1))
 
 
-CLAUDE_AVAILABLE = True
 
 
 # ---------- usage + cost ledger (Gemini paid-tier prices, USD per 1M tokens, from ai.google.dev/gemini-api/docs/pricing) ----------
@@ -422,22 +475,26 @@ def ask_gemini(prompt, schema, label="Gemini"):
     return schema.model_validate(json.loads(r["candidates"][0]["content"]["parts"][0]["text"]))
 
 
-def ask_claude_code(prompt, schema, research=False):
-    """Claude Code CLI - runs on your Claude subscription (CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token` in Docker)."""
-    tools = "WebSearch,WebFetch" if research else ""
+def claude(prompt, step, schema=None, tools="", dirs=(), model=None):
+    """Claude Code CLI - runs on your Claude subscription (CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token` in Docker).
+    Returns the validated schema object, or the reply text when no schema is given."""
     env = os.environ | ({"CLAUDE_CODE_OAUTH_TOKEN": E("CLAUDE_CODE_OAUTH_TOKEN")} if E("CLAUDE_CODE_OAUTH_TOKEN") else {})
     run = subprocess.run(["claude", "-p", "--output-format", "json", "--no-session-persistence", "--tools", tools,
-                          *(["--allowedTools", tools] if research else []),
-                          "--json-schema", json.dumps(schema.model_json_schema()),
-                          *(["--model", E("CLAUDE_MODEL")] if E("CLAUDE_MODEL") else [])],
+                          *(["--allowedTools", tools] if tools else []), *[a for d in dirs for a in ("--add-dir", str(d))],
+                          *(["--json-schema", json.dumps(schema.model_json_schema())] if schema else []),
+                          *(["--model", m] if (m := model or E("CLAUDE_MODEL")) else [])],
                          input=prompt, capture_output=True, text=True, env=env)
     if run.returncode: raise RuntimeError((run.stderr or run.stdout or f"exit {run.returncode}").strip()[-300:])
     j = json.loads(run.stdout); u = j.get("usage", {})
     if j.get("is_error"): raise RuntimeError(str(j.get("result"))[:300])
-    USAGE.append({"step": step_name(schema, "Claude Code"), "model": "claude",
+    USAGE.append({"step": step, "model": "claude",
                   "in": u.get("input_tokens", 0) + u.get("cache_read_input_tokens", 0) + u.get("cache_creation_input_tokens", 0),
                   "out": u.get("output_tokens", 0), "usd": round(j.get("total_cost_usd", 0), 5), "note": "covered by your Claude subscription"})
-    return schema.model_validate(j["structured_output"])
+    return schema.model_validate(j["structured_output"]) if schema else j.get("result") or ""
+
+
+def ask_claude_code(prompt, schema, research=False):
+    return claude(prompt, step_name(schema, "Claude Code"), schema, "WebSearch,WebFetch" if research else "")
 
 
 def ask_anthropic(prompt, schema):
@@ -457,42 +514,51 @@ def ask_anthropic(prompt, schema):
     return r.parsed_output
 
 
-def openrouter(model, messages, step, schema=None, web=False):
-    """OpenRouter chat completion (OPENROUTER_API_KEY). The response's usage.cost is the real charge."""
-    body = {"model": model, "messages": messages, "usage": {"include": True}}
-    if schema: body["response_format"] = {"type": "json_schema", "json_schema": {"name": schema.__name__, "strict": False, "schema": schema.model_json_schema()}}
-    if web: body["plugins"] = [{"id": "web"}]
-    r = requests.post("https://openrouter.ai/api/v1/chat/completions", timeout=600, json=body,
-                      headers={"Authorization": f"Bearer {E('OPENROUTER_API_KEY', '')}", "X-Title": "Katha"}).json()
-    if r.get("error") or not r.get("choices"): raise RuntimeError(f"OpenRouter: {str(r.get('error') or r)[:300]}")
-    u = r.get("usage") or {}
-    USAGE.append({"step": step, "model": model, "in": u.get("prompt_tokens", 0), "out": u.get("completion_tokens", 0),
-                  "usd": round(float(u.get("cost") or 0), 5), "note": "via OpenRouter"})
-    return r["choices"][0]["message"].get("content") or ""
+def loose_json(text):
+    """JSON out of a model reply that may wrap it in ``` fences or a sentence."""
+    text = text.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
+    try: return json.loads(text)
+    except ValueError: return json.loads(text[text.index("{"):text.rindex("}") + 1])
 
 
-def ask_openrouter(prompt, schema):
-    model = E("OPENROUTER_MODEL", "anthropic/claude-sonnet-5.5")
-    return schema.model_validate_json(openrouter(model, [{"role": "user", "content": prompt}], step_name(schema, f"OpenRouter"), schema).strip()
-                                      .removeprefix("```json").removeprefix("```").removesuffix("```"))
+def grid(images, w=220, cols=5):
+    """JPEG bytes -> one numbered grid image (0 = first, number in the top-left corner), so Claude opens one file, not twenty."""
+    tiles = []
+    for k, b in enumerate(images):
+        img = cv2.imdecode(np.frombuffer(b, np.uint8), cv2.IMREAD_COLOR)
+        img = np.zeros((w * 16 // 9, w, 3), np.uint8) if img is None else cv2.resize(img, (w, max(1, img.shape[0] * w // img.shape[1])))
+        cv2.rectangle(img, (0, 0), (46, 34), (0, 0, 0), -1); cv2.putText(img, str(k), (5, 26), cv2.FONT_HERSHEY_SIMPLEX, 0.85, (0, 230, 255), 2, cv2.LINE_AA)
+        tiles.append(cv2.copyMakeBorder(img, 3, 3, 3, 3, cv2.BORDER_CONSTANT, value=(255, 255, 255)))
+    h = max(t.shape[0] for t in tiles); tiles = [np.vstack([t, np.zeros((h - t.shape[0], t.shape[1], 3), np.uint8)]) for t in tiles]
+    tiles += [np.zeros_like(tiles[0])] * (-len(tiles) % cols)
+    return np.vstack([np.hstack(tiles[i:i + cols]) for i in range(0, len(tiles), cols)])
 
 
-PROVIDERS = {"claude-code": ask_claude_code, "anthropic": ask_anthropic, "openrouter": ask_openrouter, "gemini": ask_gemini}
+def vision_json(prompt, images, step):
+    """Claude (your subscription) looks at [(label, JPEG bytes)] as one numbered grid it opens with Read -> parsed JSON."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as t:
+        f = Path(t) / "images.jpg"; cv2.imwrite(str(f), grid([b for _, b in images]), [cv2.IMWRITE_JPEG_QUALITY, 85])
+        labels = "\n".join(f"image {k}: {label}" for k, (label, _) in enumerate(images) if label)
+        return loose_json(claude(f"{prompt}\n\nOpen {f} with the Read tool: {len(images)} images in a grid, each numbered in its top-left "
+                                 f"corner (0 = first, left to right, top to bottom).\n{labels}\nReply with the JSON only.",
+                                 step, tools="Read", dirs=[t], model=E("CLAUDE_JUDGE_MODEL", "sonnet")))
+
+
+PROVIDERS = {"claude-code": ask_claude_code, "anthropic": ask_anthropic, "gemini": ask_gemini}
 
 
 def ask(prompt, schema, research=False):
-    """Scripts and plans, written by LLM_PROVIDER (claude-code | anthropic | openrouter | gemini).
-    If it fails, Gemini takes over for the rest of the job and the log says why."""
-    global CLAUDE_AVAILABLE
+    """Scripts and plans, written by LLM_PROVIDER (claude-code | anthropic | gemini).
+    No silent fallback: a Gemini Flash script ignores the writing rules, so a Claude failure stops the job loudly."""
     provider = E("LLM_PROVIDER", "claude-code").lower() or "claude-code"
-    if provider == "gemini" or not CLAUDE_AVAILABLE: return ask_gemini(prompt, schema, "Gemini" if provider == "gemini" else "Gemini fallback")
-    try:
-        fn = PROVIDERS.get(provider, ask_claude_code)
-        return fn(prompt, schema, research) if fn is ask_claude_code else fn(prompt, schema)
+    if provider == "gemini": return ask_gemini(prompt, schema)
+    fn = PROVIDERS.get(provider, ask_claude_code)
+    try: return fn(prompt, schema, research) if fn is ask_claude_code else fn(prompt, schema)
     except Exception as e:
-        CLAUDE_AVAILABLE = False
-        print(f"⚡ {provider} failed ({type(e).__name__}: {str(e)[:200]}) -> Gemini takes over for this job.")
-        return ask_gemini(prompt, schema, "Gemini fallback")
+        hint = (" - Claude Code is not logged in here: run `claude setup-token` on your computer and paste the token into "
+                "Settings -> Claude Code token (CLAUDE_CODE_OAUTH_TOKEN)") if "logged in" in str(e).lower() or "/login" in str(e) else ""
+        raise RuntimeError(f"{provider} failed ({type(e).__name__}: {str(e)[:200]}){hint}") from e
 
 
 def save_wav(path, pcm, rate=24000):
@@ -510,10 +576,12 @@ def gemini(model, parts, step="media", **config):
 
 
 def research(topic, extra=""):
-    """Gemini + Google Search grounding (or OpenRouter + web search) -> concise research notes with sources."""
-    if E("RESEARCH_PROVIDER", "gemini").lower() == "openrouter":
-        return openrouter(E("OPENROUTER_RESEARCH_MODEL") or E("OPENROUTER_MODEL", "anthropic/claude-sonnet-5.5"),
-                          [{"role": "user", "content": RESEARCH + extra + "\nTOPIC: " + topic}], "research (OpenRouter web)", web=True)
+    """Claude Code + web search (default) or Gemini + Google Search grounding -> research notes with sources."""
+    provider = E("RESEARCH_PROVIDER", "claude-code").lower()
+    if provider != "gemini":
+        n = ask_claude_code(RESEARCH + extra + "\nTOPIC: " + topic + "\nUse web search for fresh facts. Put the notes in `notes` and the "
+                            "publications/sites you used in `sources`.", Notes, research=True)
+        return n.notes + ("\nSources: " + ", ".join(dict.fromkeys(n.sources)) if n.sources else "")
     r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=300,
                       json={"contents": [{"parts": [{"text": RESEARCH + extra + "\nTOPIC: " + topic}]}], "tools": [{"google_search": {}}]}).json()
     track("research (Google Search)", RESEARCH_MODEL, r, GROUNDING_USD, "grounding free for the first 5,000/month")
@@ -533,14 +601,22 @@ def google_tts(line, path):
     with wave.open(io.BytesIO(base64.b64decode(r["audioContent"]))) as w: save_wav(path, w.readframes(w.getnframes()))
 
 
-CLOUD_TTS = E("TTS_ENGINE", "gemini") == "google"  # Chirp 3 HD voices have no emotion control; Gemini one-take is the default
+CLOUD_TTS = TTS_ENGINE == "google"  # Chirp 3 HD voices have no emotion control
 
 
 VOICE_JUDGE = ("You are a strict voice director for Indian Instagram creators. Listen to this take. Reply JSON: "
                '{"brackets_or_directions_read_aloud": true/false, "natural_human": 1-10 (10 = indistinguishable from a real person '
                'talking; low if it sounds like TTS, an announcer, robotic/staccato, or over-acted), "sounds_like_real_teacher": 1-10, '
                '"emotion_range": 1-10, "warmth": 1-10, "excitement": 1-10 (engaging, alive - 1 = monotone), "not_rushed": 1-10, '
-               '"pronunciation": 1-10 (Hindi and English words, numbers), "mispronounced_words": ["..."], "worst_moment": "..."}')
+               '"pronunciation": 1-10 (Hindi and English words, numbers), "mispronounced_words": ["..."], '
+               '"skipped_or_swallowed_words": ["..."] (words of the SCRIPT below that are missing, cut off or slurred so they cannot be '
+               'understood - check line by line), "worst_moment": "..."}\nSCRIPT:\n')
+VOICE_JUDGE_SCHEMA = {"type": "OBJECT", "required": ["brackets_or_directions_read_aloud", "natural_human", "sounds_like_real_teacher", "emotion_range", "warmth",
+                                                     "excitement", "not_rushed", "pronunciation", "mispronounced_words", "skipped_or_swallowed_words", "worst_moment"],
+                      "properties": {"brackets_or_directions_read_aloud": {"type": "BOOLEAN"}, "mispronounced_words": {"type": "ARRAY", "items": {"type": "STRING"}},
+                                     "skipped_or_swallowed_words": {"type": "ARRAY", "items": {"type": "STRING"}}, "worst_moment": {"type": "STRING"},
+                                     **{k: {"type": "INTEGER"} for k in ("natural_human", "sounds_like_real_teacher", "emotion_range", "warmth", "excitement",
+                                                                          "not_rushed", "pronunciation")}}}
 
 
 VOICES = C.get("voices") or ["Puck", "Charon", "Kore", "Fenrir", "Aoede", "Leda", "Orus", "Zephyr", "Achird", "Sulafat",
@@ -578,7 +654,11 @@ def pick_voices(k=3):
 def speakable(text):
     """Last guard before TTS: emoji, check marks, quotes and arrows are never read aloud."""
     text = re.sub("[\U0001F300-\U0001FAFF\u2600-\u27BF\uFE0F\\[\\]\"“”‘’']", "", text)
+    text = re.sub(r"(?i)\b(myth|truth|fact|sach|yaad rakho)\s*:\s*|(सच|मिथक|मिथ|याद रखो)\s*:\s*", "", text)  # labels are never read out
+    text = re.sub(r"(\d)\s*\+", r"\1 से ज़्यादा", text)  # "4,400+" is "more than 4,400", not "4,400 aur"
     text = re.sub(r"\s*(->|→)\s*", ", phir ", text).replace("+", " aur ")
+    text = re.sub(r"\s*=\s*", ", मतलब ", text)
+    text = re.sub(r"\s+[–-]\s+", ", ", text)
     return re.sub(r"\s{2,}", " ", text).strip()
 
 
@@ -591,7 +671,8 @@ genuinely into the topic, smiling. Take {n + 1}.
 ### DIRECTOR'S NOTES
 Sound 100% like a real person talking, never like an announcer, a news reader or an over-acting storyteller.
 Natural conversational rhythm: words flow into each other, small natural breaths, the tiny pauses people make while
-thinking, a short pause before a surprise. Emotion follows each line's [bracket] note, but subtle and real - the way
+thinking, a short pause before a surprise. The thinking sounds in the transcript ("अम्म...", "हम्म...", "मतलब...") are
+real hesitation - say them softly, with the pause, never as words read off a page. Emotion follows each line's [bracket] note, but subtle and real - the way
 mood actually shifts in a chat (curious, amused, a lowered voice for a secret, real surprise). Never say the brackets aloud.
 Pace: relaxed and clear, like explaining across a chai table - not slow-motion, never rushed.
 Pronunciation: crisp, natural Hindi; English tech words (AI, ChatGPT, UPI, model, data) said the way educated Indians
@@ -610,30 +691,36 @@ Accent: {C['accent']}.
     raise last
 
 
-def judge_voice(path):
+def judge_voice(path, script):
     r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=300, json={"contents": [{"parts": [
-        {"inlineData": {"mimeType": "audio/wav", "data": base64.b64encode(Path(path).read_bytes()).decode()}}, {"text": VOICE_JUDGE}]}],
-        "generationConfig": {"responseMimeType": "application/json"}}).json()
+        {"inlineData": {"mimeType": "audio/wav", "data": base64.b64encode(Path(path).read_bytes()).decode()}}, {"text": VOICE_JUDGE + script}]}],
+        "generationConfig": {"responseMimeType": "application/json", "responseSchema": VOICE_JUDGE_SCHEMA}}).json()
     track("voice judge", RESEARCH_MODEL, r)
     j = json.loads(r["candidates"][0]["content"]["parts"][0]["text"])
-    j["score"] = -99 if j.get("brackets_or_directions_read_aloud") else (3 * j.get("natural_human", 0) + 3 * j.get("pronunciation", 0) + 2 * j.get("excitement", 0)
-                                                                         + sum(j.get(k, 0) for k in ("sounds_like_real_teacher", "emotion_range", "warmth", "not_rushed")))
+    skipped = len(j.get("skipped_or_swallowed_words") or [])
+    j["score"] = -99 if j.get("brackets_or_directions_read_aloud") or skipped > 2 else (
+        3 * j.get("natural_human", 0) + 3 * j.get("pronunciation", 0) + 2 * j.get("excitement", 0) - 6 * skipped
+        + sum(j.get(k, 0) for k in ("sounds_like_real_teacher", "emotion_range", "warmth", "not_rushed")))
     return j
 
 
 def narrate(reel, path):
     """VOICE_TAKES takes (default 3), each with a DIFFERENT voice; Gemini listens and the most human-sounding one is kept."""
     takes, voices = [], pick_voices(int(E("VOICE_TAKES", "3")))
+    script = "\n".join(speakable(l.text) for l in reel.lines)
     for n, v in enumerate(voices):
         f = path.with_name(f"take{n}.wav")
         try:
             narrate_take(reel, f, n, v)
-            j = judge_voice(f) | {"voice": v}; takes.append((j["score"], f, j)); print(f"  take {n + 1} ({v}): natural {j.get('natural_human')}/10, pronunciation {j.get('pronunciation')}/10, excitement {j.get('excitement')}/10"
-                  + (f", mispronounced: {', '.join(j['mispronounced_words'][:5])}" if j.get("mispronounced_words") else ""))
+            j = judge_voice(f, script) | {"voice": v}; takes.append((j["score"], f, j)); print(f"  take {n + 1} ({v}): natural {j.get('natural_human')}/10, pronunciation {j.get('pronunciation')}/10, excitement {j.get('excitement')}/10"
+                  + (f", mispronounced: {', '.join(j['mispronounced_words'][:5])}" if j.get("mispronounced_words") else "")
+                  + (f", SKIPPED: {', '.join(j['skipped_or_swallowed_words'][:5])}" if j.get("skipped_or_swallowed_words") else ""))
         except Exception as e: print(f"  take {n + 1} failed: {e}")
-    if not takes: raise RuntimeError("no voice take succeeded")
-    best = max(takes, key=lambda x: x[0]); shutil.copy(best[1], path); path.with_name("voice.txt").write_text(best[2]["voice"])
     path.with_name("voice_takes.json").write_text(json.dumps([{"take": f.name, **j} for _, f, j in takes], ensure_ascii=False, indent=1))
+    if not takes: raise RuntimeError("no voice take succeeded")
+    best = max(takes, key=lambda x: x[0])
+    if best[0] < 0: raise RuntimeError("every take read directions aloud or skipped words")  # -> line-by-line voice, never a broken take
+    shutil.copy(best[1], path); path.with_name("voice.txt").write_text(best[2]["voice"])
 
 
 def pauses(path):
@@ -659,9 +746,40 @@ def split_take(reel, path):
     return [(max(0.0, s - 0.02), e) for s, e in zip(starts, ends)]
 
 
+def edge_tts_line(line, path):
+    """Microsoft Edge neural voice (free, no key): every word is read exactly as written -> 24kHz mono wav."""
+    import edge_tts
+    mp3 = path.with_suffix(".mp3")
+    with open(mp3, "wb") as f:
+        for ch in edge_tts.Communicate(speakable(line.text), EDGE_VOICE, rate=EDGE_RATE).stream_sync():
+            if ch["type"] == "audio": f.write(ch["data"])
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(mp3), "-ar", "24000", "-ac", "1", "-c:a", "pcm_s16le", str(path)], check=True)
+    mp3.unlink()
+    USAGE.append({"step": "voice (Edge TTS)", "model": EDGE_VOICE, "in": 0, "out": 0, "usd": 0.0, "note": "free"})
+
+
+LOCAL_DOWN = []
+
+
+def local_tts_line(line, path):
+    """Local voice engine (tts_server.py, free): one narrator voice acting this line's delivery note -> 24kHz mono wav."""
+    r = requests.post(E("LOCAL_TTS_URL", "http://127.0.0.1:8790") + "/tts", timeout=900,
+                      json={"text": speakable(line.text), "lang": C["tts_language_code"][:2], "delivery": line.delivery})
+    if r.status_code != 200: raise RuntimeError(f"local voice engine: {r.text[:200]}")
+    raw = path.with_suffix(".src.wav"); raw.write_bytes(r.content)
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(raw), "-ar", "24000", "-ac", "1", "-c:a", "pcm_s16le", str(path)], check=True)
+    raw.unlink()
+    USAGE.append({"step": "voice (local)", "model": r.headers.get("X-Engine", "local"), "in": 0, "out": 0, "usd": 0.0, "note": "free, on this Mac"})
+
+
 def voice(line, path):
-    """Google Cloud TTS (Chirp 3 HD) when enabled, else Gemini TTS (follows the acting note)."""
+    """Local voice engine (default, free, acts the emotion), Edge TTS (free), Google Cloud TTS (Chirp 3 HD), or Gemini TTS."""
     global CLOUD_TTS
+    if TTS_ENGINE == "local" and not LOCAL_DOWN:
+        try: return local_tts_line(line, path)
+        except requests.ConnectionError:
+            LOCAL_DOWN.append(1); print("  local voice engine not running (./start.sh starts it, or: uv run tts_server.py) -> Edge TTS")
+    if TTS_ENGINE in ("edge", "local"): return edge_tts_line(line, path)
     if CLOUD_TTS:
         try: return google_tts(line, path)
         except PermissionError as e: CLOUD_TTS = False; print(f"  Google Cloud TTS unavailable ({str(e)[:90]}) -> Gemini TTS")
@@ -690,14 +808,46 @@ def gemini_tts(line, path):
 
 
 def music(mood, d):
-    """Lyria 3: 30s instrumental for this reel's mood (or your own music.mp3 if present). Returns the file name."""
+    """Background music for this reel's mood: your own music.mp3 if present, else a free CC0 / CC BY track from Openverse
+    (Jamendo, Freesound...) or Lyria 3 (MUSIC_SOURCE=lyria). Returns the file name; credits go to music.json."""
     if Path("music.mp3").exists(): shutil.copy("music.mp3", d / "music.mp3"); return "music.mp3"
+    if MUSIC_SOURCE == "openverse": return openverse_music(mood, d)
     mime, data = gemini(MUSIC_MODEL, step="music (Lyria)", parts=[{"text": f"30-second instrumental background track for an exciting but slow-paced explainer reel: {mood}. "
                                                 "About 85-95 BPM, cinematic and playful: light percussion, plucks, a curious mystery feel that keeps "
                                                 "building tension with small lifts. No vocals, loopable."}])
     name = "music.wav" if "wav" in mime else "music.mp3"
     (d / name).write_bytes(data)
     return name
+
+
+VOCALS = re.compile(r"\b(vocal|vocals|voice|song|sings?|singing|rap|lyrics?|feat|choir|acapella|speech)\b", re.I)
+
+
+def openverse_music(mood, d):
+    """Free music: Openverse search (commercial-use CC0 / CC BY only), instrumental, 25s-10min, not used in the last 30 reels."""
+    import random
+    used_f = OUT / "music_used.json"
+    used = json.loads(used_f.read_text()) if used_f.exists() else []
+    words = [w for w in re.sub(r"[^a-z ]", " ", mood.lower()).split() if len(w) > 3 and w not in ("soft", "light", "background", "music", "track")]
+    for q in [*words[:4], "upbeat instrumental", "calm instrumental"]:  # one mood word at a time: multi-word queries match almost nothing
+        r = requests.get("https://api.openverse.org/v1/audio/", headers=UA, timeout=30,
+                         params={"q": q, "license": "cc0,by", "category": "music", "page_size": 20})  # 20 = anonymous max
+        hits = [h for h in (r.json().get("results", []) if r.ok else []) if 25000 <= (h.get("duration") or 0) <= 600000
+                and h.get("url") and h["id"] not in used and not VOCALS.search(f"{h.get('title', '')} {' '.join(t['name'] for t in h.get('tags') or [])}")]
+        for h in random.sample(hits[:8], min(len(hits), 8)):  # some variety, but stay near the most relevant
+            try:
+                raw = d / "music.src"; raw.write_bytes(requests.get(h["url"], headers=UA, timeout=120).content)
+                subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(raw), "-t", "120", "-af", "afade=t=in:d=1.5", "-ac", "2", "-ar", "44100",
+                                str(d / "music.mp3")], check=True)
+                raw.unlink()
+            except Exception as e: print(f"  music download failed ({h.get('title')}: {e})"); continue
+            credit = {"title": h.get("title"), "creator": h.get("creator"), "license": f"CC {h['license'].upper()} {h.get('license_version') or ''}".strip(),
+                      "source": h.get("source"), "url": h.get("foreign_landing_url") or h["url"], "query": q}
+            (d / "music.json").write_text(json.dumps(credit, ensure_ascii=False, indent=1))
+            used_f.write_text(json.dumps((used + [h["id"]])[-30:]))
+            print(f"  music: '{credit['title']}' by {credit['creator']} ({credit['license']}, {credit['source']})")
+            return "music.mp3"
+    raise RuntimeError("no free instrumental track found on Openverse")
 
 
 def _anim_catalogue():
@@ -718,8 +868,8 @@ try: ANIM = _anim_catalogue()
 except Exception: ANIM = {}
 BRIEF = BRIEF.replace("ANIM_SET", " ".join(e for e in ANIM if len(e) <= 2) or "any emoji")
 if Path("research/playbook.md").exists():  # fresh niche competitor research (Competitors page -> Refresh)
-    BRIEF = BRIEF.replace("TEACHING ARC (in this order", "NICHE PLAYBOOK - from the latest analysis of the most-viewed competitor Shorts in this "
-                          "niche; apply it:\n" + Path("research/playbook.md").read_text()[:5000] + "\n\nTEACHING ARC (in this order", 1)
+    BRIEF = BRIEF.replace("STRUCTURE - one idea per line", "NICHE PLAYBOOK - from the latest analysis of the most-viewed competitor Shorts in the "
+                          "channel's niche; apply it when the video is in that niche:\n" + Path("research/playbook.md").read_text()[:5000] + "\n\nSTRUCTURE - one idea per line", 1)
 
 
 def anim_cps(emoji):
@@ -937,7 +1087,7 @@ def thumb(hit):
 
 
 def pick_footage(topic, say, queries, used):
-    """Gemini looks at preview frames of real candidate clips/photos and ranks the ones that really show what this
+    """Claude looks at preview frames of real candidate clips/photos and ranks the ones that really show what this
     line is about. Returns [(hit, score 0-10, why), ...] best first (up to 3). Nothing is generated."""
     import concurrent.futures as cf
     cands = []
@@ -949,18 +1099,12 @@ def pick_footage(topic, say, queries, used):
     with cf.ThreadPoolExecutor(8) as ex: thumbs = list(ex.map(thumb, cands))
     imgs = [(c, b) for c, b in zip(cands, thumbs) if b]
     if not imgs: return []
-    parts = [{"text": f"You are the video editor of an explainer reel about: {topic}.\nThe narrator is saying: \"{say}\"\n"
-                      f"Search intent: {queries[0]}.\nBelow are {len(imgs)} candidate stock clips/photos (one preview frame each, numbered from 0). "
-                      "Rank the ones a good editor would put on screen under this line: they must clearly show the subject or a directly related "
-                      "real-world scene (matching people, place or object). Generic filler or an unrelated scene must score low. "
-                      'Reply JSON: {"ranked": [{"index": i, "score": 0-10, "why": "short"}] (best first, max 3), "best_reason_if_none": "..."}'}]
-    for k, (_, b) in enumerate(imgs): parts += [{"text": f"candidate {k}:"}, {"inlineData": {"mimeType": "image/jpeg", "data": base64.b64encode(b).decode()}}]
-    r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=180,
-                      json={"contents": [{"parts": parts}], "generationConfig": {"responseMimeType": "application/json",
-                                                                                   "mediaResolution": "MEDIA_RESOLUTION_LOW"}}).json()
-    track("footage judge", RESEARCH_MODEL, r, note=f"{len(imgs)} preview images")
-    if not r.get("candidates"): raise RuntimeError(f"footage judge: {str(r.get('error') or r)[:200]}")
-    j = json.loads(r["candidates"][0]["content"]["parts"][0]["text"])
+    j = vision_json(f"You are the video editor of an explainer reel about: {topic}.\nThe narrator is saying: \"{say}\"\n"
+                    f"Search intent: {queries[0]}.\nBelow are {len(imgs)} candidate stock clips/photos (one preview frame each, numbered from 0). "
+                    "Rank the ones a good editor would put on screen under this line: they must clearly show the subject or a directly related "
+                    "real-world scene (matching people, place or object). Generic filler or an unrelated scene must score low. "
+                    'Reply with JSON only: {"ranked": [{"index": i, "score": 0-10, "why": "short"}] (best first, max 3), "best_reason_if_none": "..."}',
+                    [(f"candidate {k}:", b) for k, (_, b) in enumerate(imgs)], f"footage judge ({len(imgs)} images)")
     out = [(imgs[x["index"]][0], float(x.get("score", 0)), str(x.get("why", ""))[:120]) for x in j.get("ranked", [])
            if isinstance(x.get("index"), int) and 0 <= x["index"] < len(imgs)]
     return out or [(None, 0.0, str(j.get("best_reason_if_none", "no relevant clip"))[:120])]
@@ -1159,16 +1303,17 @@ def timeline(reel, d):
     return lines, sfx, dur
 
 
-REVIEW = f"""Today's date is TODAY (dates up to today are real, not typos). You are a complete beginner: {C['audience']}. You know NOTHING about tech. Watch this whole reel carefully
+REVIEW = f"""Today's date is TODAY (dates up to today are real, not typos). You are a typical viewer from this audience: {C['audience']},
+scrolling Instagram in {C['region']} - you know nothing about the topic. Watch this whole reel carefully
 (picture AND sound), exactly as you would on Instagram. Then answer honestly as JSON:
-- learned: in one simple sentence, explain the concept back in your own words (if you can't, say so)
+- learned: in one simple sentence, retell what the reel said / taught / made you feel, in your own words (if you can't, say so)
 - remember: the one line you'd remember tomorrow
-- scores 1-10: hook (would you stop scrolling?), clarity (did you understand it?), teaching (could you explain it to a friend?),
-  fun, visual_match (do the visuals show what is being said at that moment?), looks_real (feels like a real creator, not AI),
-  pacing, accuracy (anything that sounds false, exaggerated or confusing?)
+- scores 1-10: hook (would you stop scrolling?), clarity (did you understand it?), teaching (could you retell it to a friend?),
+  fun (entertaining, emotional, would you love it?), visual_match (do the visuals show what is being said at that moment?),
+  looks_real (feels like a real creator, not AI), pacing, accuracy (anything that sounds false, exaggerated or confusing?)
 - problems: list of {{"time": "m:ss", "issue": "...", "fix": "a concrete change to the script or visuals"}} - be strict
 - verdict: "post" if you'd watch to the end and share it, else "fix"
-The concept being taught: CONCEPT. The script lines: SCRIPT"""
+The reel's topic: CONCEPT. The script lines: SCRIPT"""
 
 
 MARKETING_CHECKLIST = """## Before posting
@@ -1226,22 +1371,20 @@ def marketing(d, reel, caption):
 
 
 def review(d, reel):
-    """Gemini watches the finished reel as a beginner viewer: what it learned, scores, timestamped problems."""
-    small = d / "review.mp4"
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(d / "reel.mp4"), "-vf", "scale=360:-2", "-r", "15", "-c:v", "libx264",
-                    "-crf", "32", "-c:a", "aac", "-b:a", "64k", str(small)], check=True)
+    """Claude reviews the finished reel as a beginner viewer: one frame per line plus exactly what is said
+    at that moment (it can't hear audio) -> what it learned, scores, timestamped problems."""
+    lines = json.loads((d / "props.json").read_text())["lines"]
+    frames = []
+    for l in lines:
+        at = (l["start"] + l["end"]) / 2
+        b = subprocess.run(["ffmpeg", "-loglevel", "error", "-ss", f"{at:.2f}", "-i", str(d / "reel.mp4"), "-frames:v", "1", "-vf", "scale=360:-2",
+                            "-f", "image2", "-c:v", "mjpeg", "-"], capture_output=True, check=True).stdout
+        frames.append((f"{int(at // 60)}:{int(at % 60):02d} - narrator says: \"{' '.join(w for w, _ in l['words'])}\"", b))
     prompt = (REVIEW.replace("CONCEPT", reel.title).replace("SCRIPT", " | ".join(l.caption for l in reel.lines))
-              .replace("TODAY", time.strftime("%d %b %Y")))
-    video = base64.b64encode(small.read_bytes()).decode()
-
-    def one(_):
-        r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=600, json={"contents": [{"parts": [
-            {"inlineData": {"mimeType": "video/mp4", "data": video}}, {"text": prompt}]}], "generationConfig": {"responseMimeType": "application/json"}}).json()
-        track("beginner review", RESEARCH_MODEL, r)
-        return json.loads(r["candidates"][0]["content"]["parts"][0]["text"])
-    import concurrent.futures as cf
-    with cf.ThreadPoolExecutor(2) as ex: runs = [x for x in ex.map(lambda k: (lambda: one(k))(), range(2))]  # two independent viewers
-    small.unlink()
+              .replace("TODAY", time.strftime("%d %b %Y"))
+              + "\n\nYou are given one frame from the middle of each line, with the time and exactly what the narrator says then "
+                "(read it as if you heard it). Reply with JSON only.")
+    runs = [vision_json(prompt, frames, f"beginner review ({len(frames)} frames)") for _ in range(int(E("REVIEW_VIEWERS", "1")))]
     j = runs[0] | {"scores": {k: round(sum(r.get("scores", {}).get(k, 0) for r in runs) / len(runs), 1) for k in runs[0].get("scores", {})},
                    "problems": [p for r in runs for p in r.get("problems", [])],
                    "verdict": "post" if all(r.get("verdict") == "post" for r in runs) else "fix"}
@@ -1267,7 +1410,7 @@ def make(brief, meta=None, d=None):
         out = _make(brief, meta, d)
         u = usage_summary() | {"minutes": round((time.time() - t0) / 60, 1), "detail": list(USAGE)}
         rd = Path(out[0]).parent; (rd / "usage.json").write_text(json.dumps(u, ensure_ascii=False, indent=1))
-        print(f"  usage: Gemini ${u['gemini_usd']:.3f} · Claude ≈${u['claude_usd_equivalent']:.2f} (subscription) · {u['calls']} AI calls · {u['minutes']} min")
+        print(f"  usage: paid ${u['paid_usd']:.3f} · Claude ≈${u['claude_usd_equivalent']:.2f} (subscription) · {u['calls']} AI calls · {u['minutes']} min")
         return out
 
 
@@ -1289,7 +1432,7 @@ def _make(brief, meta, d):
         (d / "script.json").write_text(reel.model_dump_json(indent=2), encoding="utf-8"); print(f"  {time.time() - t0:.0f}s")
     print(f"  {reel.title} | {reel.genre}")
     t0 = time.time()
-    if not (d / "narration.wav").exists() and not (d / "line0.wav").exists() and not CLOUD_TTS:
+    if not (d / "narration.wav").exists() and not (d / "line0.wav").exists() and TTS_ENGINE == "gemini":
         print(f"voice: one emotional take ({TTS_MODEL}, trying different voices)...")
         try: narrate(reel, d / "narration.wav")
         except Exception as e: print(f"  one-take failed ({e}) -> line by line")
@@ -1316,12 +1459,13 @@ def _make(brief, meta, d):
     for l in lines:  # a pop each time an animated character jumps in
         if l.get("anim") and (l.get("text_scene") or l["v"]["type"] in BOARD):
             sfx += [[round(l["start"] + 0.3 + q * 0.4, 2), "pop"] for q in range(len(l["anim"]))]
-    props = {"lottie": anims, "duration": dur, "lines": lines, "shots": shots, "sfx": sfx, "voice": "voice.wav", "music": mus, "hook": reel.hook, "case_title": reel.case_title,
+    props = {"lottie": anims, "duration": dur, "lines": lines, "shots": shots, "sfx": sfx, "voice": "voice.wav", "music": mus, "hook": reel.hook, "case_title": reel.case_title, "style": reel.style,
              "case_no": (meta or {}).get("ep") or len(list(OUT.glob("*/meta.json"))) + 1, "theme": C["theme"], "captions": bool(C.get("captions", False))}
     (d / "props.json").write_text(json.dumps(props, ensure_ascii=False), encoding="utf-8")
     t0 = time.time(); print(f"rendering {dur}s (Remotion)...")
     subprocess.run(["npx", "remotion", "render", "src/index.tsx", "Reel", str((d / "reel.mp4").resolve()), "--log=error",
-                    f"--props={(d / 'props.json').resolve()}", f"--public-dir={pub.resolve()}", f"--concurrency={os.cpu_count()}"],
+                    f"--props={(d / 'props.json').resolve()}", f"--public-dir={pub.resolve()}", f"--concurrency={E('RENDER_CONCURRENCY') or min(os.cpu_count() or 4, 6)}",  # more tabs than this runs Docker out of memory
+                    "--timeout=120000"],  # big images/clips can take longer than Remotion's default 30s to load under load
                    cwd="video", check=True)
     print(f"  render {time.time() - t0:.0f}s")
     try:
@@ -1331,6 +1475,8 @@ def _make(brief, meta, d):
     except Exception as e: print(f"  cover skipped: {e}")
     tags = [h if h.startswith("#") else "#" + h for h in reel.seo.hashtags[:5]] + ([C["series_hashtag"]] if C["series_hashtag"] else [])
     caption = reel.caption_ig.strip() + "\n\n" + " ".join(dict.fromkeys(tags))
+    if (mc := pub / "music.json").exists() and (m := json.loads(mc.read_text()))["license"].startswith("CC BY"):  # CC BY needs a credit
+        caption += f"\n\n🎵 {m['title']} by {m['creator']} ({m['license']})"
     meta = {"title": reel.title, "genre": reel.genre, "brief": brief, "caption": caption, "posted": False, "status": "awaiting approval",
             "voice": (d / "voice.txt").read_text() if (d / "voice.txt").exists() else C["voice"],
             "footage": [{"line": i + 1, "searches": l["footage"]} | footage_plan.get(str(i), {}) for i, l in enumerate(lines)],
@@ -1568,7 +1714,7 @@ def plan_series(subject, n=10):
         save(sr)
     with cf.ThreadPoolExecutor(3) as ex: list(ex.map(one, range(len(sr["episodes"]))))
     sr = load(sr["id"]); sr["planning_usage"] = usage_summary(); save(sr)
-    print(f"  usage: Gemini ${sr['planning_usage']['gemini_usd']:.3f} · Claude ≈${sr['planning_usage']['claude_usd_equivalent']:.2f} (subscription)")
+    print(f"  usage: paid ${sr['planning_usage']['paid_usd']:.3f} · Claude ≈${sr['planning_usage']['claude_usd_equivalent']:.2f} (subscription)")
     return sr
 
 

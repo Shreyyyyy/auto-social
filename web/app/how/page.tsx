@@ -8,22 +8,22 @@ type Step = {n: string; title: string; icon: string; what: string; tools: (v: V)
 
 const LLM: Record<string, (v: V) => string> = {
   "claude-code": (v) => `Claude Code${v.CLAUDE_MODEL ? ` (${v.CLAUDE_MODEL})` : ""} - your subscription`,
-  anthropic: (v) => `Anthropic API · ${v.ANTHROPIC_MODEL}`, openrouter: (v) => `OpenRouter · ${v.OPENROUTER_MODEL}`, gemini: (v) => `Gemini · ${v.SCRIPT_MODEL}`,
+  anthropic: (v) => `Anthropic API · ${v.ANTHROPIC_MODEL}`, gemini: (v) => `Gemini · ${v.SCRIPT_MODEL}`,
 };
 
 const STEPS: Step[] = [
   {n: "01", title: "Research", icon: "🔎", match: /^research/, where: "Settings → Research",
     what: "Finds what happened in the last 60 days, verified facts with sources and dates, everyday analogies, the common myth, what people are asking, and SEO keywords. The best two real examples are kept; the rest are dropped.",
-    tools: (v) => v.RESEARCH_PROVIDER === "openrouter" ? [`OpenRouter + web search · ${v.OPENROUTER_RESEARCH_MODEL || v.OPENROUTER_MODEL}`] : [`Gemini ${v.RESEARCH_MODEL} + Google Search grounding`]},
+    tools: (v) => v.RESEARCH_PROVIDER === "gemini" ? [`Gemini ${v.RESEARCH_MODEL} + Google Search grounding`] : ["Claude Code + web search · your subscription"]},
   {n: "02", title: "Script", icon: "✍️", match: /^script/, where: "Settings → Script writer",
-    what: "Writes the Case File script: hook, concept, analogy, how-it-works, real news example, myth vs truth, “yaad rakho” line - each line with spoken Hindi, Hinglish caption, delivery note, footage searches and a teaching visual, plus caption, hashtags and SEO pack. Checks run on every draft (natural spoken sentences, numbers as words, length, required cards) and it is repaired up to 3 times.",
+    what: "Picks the genre (explainer, story, news, list, motivation...), the look (Case File or Story), a persona and the strongest of 5 hooks, then writes the script - for explainers: hook, concept, analogy, how-it-works, real news example, myth vs truth, “yaad rakho” line - each line with spoken Hindi, Hinglish caption, delivery note, footage searches and a teaching visual, plus caption, hashtags and SEO pack. Checks run on every draft (natural spoken sentences, numbers as words, length, required cards) and it is repaired up to 3 times.",
     tools: (v) => [(LLM[v.LLM_PROVIDER] || LLM["claude-code"])(v), `fallback: Gemini ${v.SCRIPT_MODEL}`, "your playbook from Competitors"]},
   {n: "03", title: "Voice", icon: "🎙️", match: /^voice/, where: "Settings → Voice & music",
-    what: "Records the whole script in one emotional take, several times with different voices (biased to voices that sounded best before). Gemini listens to every take, scores naturalness and pronunciation and lists mispronounced words; the best take wins. Line timings come from the real pauses in the audio.",
-    tools: (v) => [`Gemini TTS ${v.TTS_MODEL}`, `${v.VOICE_TAKES || 3} takes`, `judge: ${v.RESEARCH_MODEL}`, "ffmpeg silence detection"]},
+    what: "One narrator voice reads every line and acts its delivery note (excited, a lowered voice for a secret, sad, amused). It runs free on this Mac: VoxCPM2 for Hindi and English, OmniVoice for other Indian languages, picked from a listening test of 12 open models. To use your own voice, put a 10-second recording in assets/voice/narrator.wav. Line timings come from the real audio.",
+    tools: (v) => v.TTS_ENGINE === "edge" ? [`Edge ${v.EDGE_VOICE}`] : v.TTS_ENGINE === "gemini" ? [`Gemini TTS ${v.TTS_MODEL}`] : ["VoxCPM2 (Hindi/English)", "OmniVoice (other Indian languages)", "MLX on Apple silicon"]},
   {n: "04", title: "Footage & visuals", icon: "🎞️", match: /^footage/, where: "Settings → Reel",
-    what: "Searches free stock video for every line, Gemini looks at the preview frames and scores how well each matches what is being said. Weak matches become a clean text scene instead of unrelated footage. Whiteboard cards (definitions, diagrams, charts, chat demos) and animated emoji are drawn on top.",
-    tools: () => ["Pexels", "Pixabay", "Coverr", "Openverse", "Wikimedia Commons", "Prelinger Archive", "Gemini vision judge", "Noto animated emoji (Lottie)"]},
+    what: "Searches free stock video for every line, Claude looks at the preview frames and scores how well each matches what is being said. Weak matches become a clean text scene instead of unrelated footage. Whiteboard cards (definitions, diagrams, charts, chat demos) and animated emoji are drawn on top.",
+    tools: (v) => ["Pexels", "Pixabay", "Coverr", "Openverse", "Wikimedia Commons", "Prelinger Archive", `Claude ${v.CLAUDE_JUDGE_MODEL || "sonnet"} vision judge`, "Noto animated emoji (Lottie)"]},
   {n: "05", title: "Music & sound", icon: "🎵", match: /^music/, where: "Settings → Voice & music",
     what: "A 30-second instrumental made for this reel's mood, plus whooshes and pops on every cut and card - or your own music.mp3.",
     tools: (v) => [`Lyria ${v.MUSIC_MODEL}`, "ffmpeg-generated SFX"]},
@@ -31,8 +31,8 @@ const STEPS: Step[] = [
     what: "Remotion (a React video framework) renders the 1080×1920 reel in headless Chrome: footage, cards, red-string corkboard transitions, animated emoji and the voice/music mix. Then the cover image and a contact sheet with one frame per line.",
     tools: () => ["Remotion", "headless Chrome", "ffmpeg", "OpenCV"]},
   {n: "07", title: "Beginner review", icon: "🧐", match: /^beginner review/, where: "Settings → Reel",
-    what: "Gemini watches the finished video twice as a viewer who knows nothing: what it learned, scores for hook, clarity, teaching, visuals, accuracy and pacing, and timestamped problems. If it isn't good enough the script is rewritten from the feedback and the reel re-made once; the better version is kept.",
-    tools: (v) => [`Gemini ${v.RESEARCH_MODEL} (video)`]},
+    what: "Claude watches the finished video (a frame per line + what is said) as a viewer who knows nothing: what it learned, scores for hook, clarity, teaching, visuals, accuracy and pacing, and timestamped problems. If it isn't good enough the script is rewritten from the feedback and the reel re-made once; the better version is kept.",
+    tools: (v) => [`Claude ${v.CLAUDE_JUDGE_MODEL || "sonnet"} · your subscription`]},
   {n: "08", title: "Post", icon: "📤", free: "Free - Buffer free plan", where: "Settings → Posting",
     what: "The video is uploaded to a public link and queued on the channels you switch on: an Instagram reel, a YouTube Short (title + #Shorts) and a LinkedIn video, each with the caption and hashtags. Nothing posts until you press Post or 🚀.",
     tools: (v) => ["Buffer API", v.CLOUDINARY_URL ? "Cloudinary" : "catbox.moe upload", "Instagram", "YouTube", "LinkedIn"]},
@@ -122,7 +122,7 @@ export default function How() {
               <td className="text-right font-mono text-zinc-200">{s.model === "claude" ? "subscription" : usd(s.avg_usd * s.share)}</td></tr>))}</tbody>
         </table></div>
         <p className="mt-3 text-xs text-zinc-500">Prices are the providers' paid-tier rates; Gemini's free tier and Google Search's 5,000 free grounded requests a month can make it cheaper.
-          OpenRouter costs are what OpenRouter reports for each call. Stock footage, emoji, rendering and Buffer are free.</p>
+          Claude Code runs on your subscription. Stock footage, emoji, rendering and Buffer are free.</p>
       </div>}
     </div>
   );

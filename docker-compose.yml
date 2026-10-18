@@ -8,6 +8,7 @@ services:
       API_HOST: 0.0.0.0
       YOUTUBE_TOKEN_FILE: /app/research/.youtube_token.json
       SETTINGS_FILE: /app/settings.json
+      LOCAL_TTS_URL: http://host.docker.internal:8790   # tts_server.py runs on the Mac (Docker can't use the GPU)
     volumes:
       - ./out:/app/out
       - ./series:/app/series

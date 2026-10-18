@@ -1,4 +1,5 @@
-// AI Case File reels (see the Case File section below). Every reel = this component + props.json from reel.py.
+// Two looks, picked per reel by props.style: AI Case File (explainers) and Story (every other genre).
+// Every reel = this component + props.json from reel.py.
 // Colours come from config.json -> props.theme. The card renderers (Board) are shared by every clue type.
 import React from "react";
 import {AbsoluteFill, Audio, Easing, Img, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame} from "remotion";
@@ -184,6 +185,11 @@ const Clue: React.FC<{l: any; k: number; t: number; p: any; HI: string; INK: str
 // Clean cover for the profile grid: the case question on the corkboard, inside the centre safe area.
 const Cover: React.FC<any> = (p) => {
   const first = (p.lines || []).find((l: any) => l.still);
+  if (p.style === "story") return <AbsoluteFill style={{background: "#111", alignItems: "center", justifyContent: "center"}}>
+    {first && <Img src={staticFile(first.still)} style={{position: "absolute", width: "100%", height: "100%", objectFit: "cover"}} />}
+    <AbsoluteFill style={{background: "linear-gradient(#0000 25%, #000c)"}} />
+    <div style={{...font(118, "#fff", 900), WebkitTextStroke: "14px #000", paintOrder: "stroke", padding: "0 70px", lineHeight: 1.05}}>{p.hook}</div>
+  </AbsoluteFill>;
   return <AbsoluteFill style={{background: CORK, backgroundImage: "radial-gradient(#00000022 2px, transparent 3px), radial-gradient(#ffffff18 1px, transparent 2px)",
     backgroundSize: "18px 18px, 11px 11px", alignItems: "center", justifyContent: "center"}}>
     {first && <Img src={staticFile(first.still)} style={{position: "absolute", width: 760, height: 900, objectFit: "cover", border: "26px solid #fff", borderBottomWidth: 110,
@@ -194,8 +200,60 @@ const Cover: React.FC<any> = (p) => {
   </AbsoluteFill>;
 };
 
+// ======================= STORY =======================
+// Any other genre: full-screen real footage with a punch-in on every cut, bold word-by-word captions, proof cards popping
+// over the footage, whiteboard scenes for diagrams/charts, and a progress bar.
+const Captions: React.FC<{words: [string, number][]; t: number; HI: string}> = ({words, t, HI}) => {
+  const k = (words || []).findLastIndex(([, at]) => at <= t);
+  if (k < 0) return null;
+  const c = Math.floor(k / 3) * 3, chunk = words.slice(c, c + 3);
+  return <div style={{position: "absolute", top: 1230, left: 50, right: 50, display: "flex", flexWrap: "wrap", justifyContent: "center",
+    transform: `scale(${0.82 + 0.18 * pop(t, chunk[0][1], 10)})`}}>
+    {chunk.map(([w], q) => <span key={q} style={{...font(94, c + q === k ? HI : "#fff", 900), WebkitTextStroke: "14px #000", paintOrder: "stroke",
+      textTransform: "uppercase", display: "inline-block", margin: "0 20px", transform: c + q === k ? "scale(1.1) rotate(-2deg)" : "none"}}>{w}</span>)}</div>;
+};
+
+const Sound: React.FC<any> = (p) => <>
+  <Audio src={staticFile(p.voice)} />
+  {p.music && <Audio src={staticFile(p.music)} volume={0.1} loop />}
+  {(p.sfx || []).map(([at, n_]: any, j: number) => <Sequence key={j} from={Math.round(at * FPS)} durationInFrames={30}><Audio src={staticFile(`sfx/${n_}.wav`)} volume={0.22} /></Sequence>)}
+</>;
+
+const Story: React.FC<any> = (p) => {
+  const t = useCurrentFrame() / FPS, L = p.lines, HI = p.theme?.highlight || "#FFD43B", INK = p.theme?.ink || "#1D1D1F";
+  const i = Math.max(0, L.findLastIndex((l: any) => l.start <= t)), line = L[i], type = line?.v?.type, board = BOARD.includes(type);
+  const an = (line.anim || []).map((c: string) => p.lottie?.[c]).filter(Boolean), punch = 1 - pop(t, line.start, 14);
+  return <AbsoluteFill style={{background: "#000", overflow: "hidden"}}>
+    {(p.shots || []).map((s: any, k: number) => s.src && <Sequence key={k} from={Math.round(s.start * FPS)} durationInFrames={Math.max(1, Math.round((s.end - s.start) * FPS))}>
+      <AbsoluteFill style={{transform: `scale(${1.04 + 0.06 * Math.min(1, (t - s.start) / Math.max(s.end - s.start, 0.1)) + 0.14 * (1 - pop(t, s.start, 14))})`}}>
+        <OffthreadVideo src={staticFile(s.src)} trimBefore={Math.round((s.offset || 0) * FPS)} muted style={{width: "100%", height: "100%", objectFit: "cover"}} />
+      </AbsoluteFill></Sequence>)}
+    {!line.clip && <AbsoluteFill style={{background: board ? PALETTE[i % PALETTE.length] : `radial-gradient(circle at 50% 38%, ${HI}, #FF8A3D)`,
+      ...col, justifyContent: "center", transform: `scale(${1 + 0.08 * punch})`}}>
+      {board ? <div style={{marginTop: -280}}><Board v={line.v} t={t} s={line.start} e={line.end} HI={HI} INK={INK} /></div>
+        : <><div style={{display: "flex", gap: 24, marginTop: -240}}>{an.map((d: any, q: number) => <Anim key={q} data={d} size={an.length > 1 ? 300 : 380} t={t} at={line.start + 0.2 + q * 0.4} />)}</div>
+          <div style={{...font(108, INK, 900), padding: "0 70px", marginTop: 30, transform: `scale(${pop(t, line.start + 0.1)})`}}>{line.onscreen}</div></>}
+    </AbsoluteFill>}
+    {line.clip && <AbsoluteFill style={{background: "linear-gradient(#0006 0%, #0000 22%, #0000 52%, #000b 100%)"}} />}
+    {line.clip && STICKER.includes(type) && <div style={{position: "absolute", top: 360, left: 0, right: 0, ...col}}>
+      <div style={{background: "#FFFDF4", padding: 30, borderRadius: 34, boxShadow: "0 24px 50px #0009", transform: `scale(${0.82 * pop(t, line.start + 0.15)}) rotate(-1.5deg)`}}>
+        <Board v={line.v} t={t} s={line.start} e={line.end} HI={HI} INK={INK} /></div></div>}
+    {line.clip && an[0] && <div style={{position: "absolute", right: 40, top: 930}}><Anim data={an[0]} size={230} t={t} at={line.start + 0.3} /></div>}
+    {i === 0 && p.hook && <div style={{position: "absolute", top: 300, left: 0, right: 0, ...col}}>
+      <div style={{...font(96, INK, 900), background: HI, padding: "16px 34px", borderRadius: 24, maxWidth: 940, boxShadow: `10px 10px 0 ${INK}`,
+        transform: `scale(${pop(t, 0.1, 9)}) rotate(-2deg)`}}>{p.hook}</div></div>}
+    <Captions words={line.words} t={t} HI={HI} />
+    {line?.source && <div style={{position: "absolute", bottom: 380, left: 60, ...font(28, "#fff", 700), background: "#000a", borderRadius: 14, padding: "6px 16px",
+      opacity: pop(t, line.start + 0.3)}}>📰 {line.source}</div>}
+    <div style={{position: "absolute", top: 0, left: 0, height: 12, width: `${(100 * t) / p.duration}%`, background: HI}} />
+    {t - line.start < 0.12 && i > 0 && <AbsoluteFill style={{background: "#fff", opacity: 0.25 * (1 - (t - line.start) / 0.12)}} />}
+    <Sound {...p} />
+  </AbsoluteFill>;
+};
+
 export const Reel: React.FC<any> = (p) => {
   if (p.cover) return <Cover {...p} />;
+  if (p.style === "story") return <Story {...p} />;
   const t = useCurrentFrame() / FPS, L = p.lines, n = L.length, HI = p.theme?.highlight || "#FFD43B", INK = p.theme?.ink || "#1D1D1F";
   const i = Math.max(0, L.findLastIndex((l: any) => l.start <= t)), line = L[i];
   const nextOf = (k: number) => L[k + 1]?.start ?? p.duration, left = Math.max(0, Math.ceil(p.duration - t));
@@ -242,8 +300,6 @@ export const Reel: React.FC<any> = (p) => {
     {sinceReveal >= 0 && sinceReveal < 1.4 && p.lottie?.["2728"] && [[90, 560], [800, 500], [140, 1150], [810, 1080]].map(([x, y], q) =>
       <div key={q} style={{position: "absolute", left: x, top: y, opacity: interpolate(sinceReveal, [0, 0.2, 1.1, 1.4], [0, 1, 1, 0], clamp)}}>
         <Lottie animationData={p.lottie["2728"]} loop style={{width: 150, height: 150}} /></div>)}
-    <Audio src={staticFile(p.voice)} />
-    {p.music && <Audio src={staticFile(p.music)} volume={0.1} loop />}
-    {(p.sfx || []).map(([at, n_]: any, j: number) => <Sequence key={j} from={Math.round(at * FPS)} durationInFrames={30}><Audio src={staticFile(`sfx/${n_}.wav`)} volume={0.22} /></Sequence>)}
+    <Sound {...p} />
   </AbsoluteFill>;
 };

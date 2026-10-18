@@ -29,7 +29,7 @@ export default function NewReel() {
       <header className="pt-2 md:pt-6">
         <p className="chip w-fit bg-white/[0.06] text-case-400"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-neon-cyan" /> New case</p>
         <h1 className="mt-5 max-w-4xl font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl">
-          What should this reel <span className="text-gradient">teach today?</span>
+          What should <span className="text-gradient">today's reel</span> be?
         </h1>
         <p className="mt-4 max-w-2xl text-base text-zinc-400 sm:text-lg">Type a topic. The studio researches it, writes the script, records the voice, finds footage, renders, reviews — and can post it everywhere.</p>
         <div className="mt-6 flex flex-wrap items-center gap-2">
@@ -44,7 +44,7 @@ export default function NewReel() {
       </header>
 
       <div className="card-glow p-5 sm:p-7">
-        <textarea className="input min-h-36 text-lg sm:text-xl" placeholder="e.g. Machine learning kya hai? / Deepfake kaise pehchaane?" value={prompt}
+        <textarea className="input min-h-36 text-lg sm:text-xl" placeholder="Anything - e.g. Machine learning kya hai? / Zomato ki kahani, menu card se ₹2 lakh crore tak / 5 UPI scams jo abhi chal rahe hain" value={prompt}
           onChange={(e) => setPrompt(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && prompt.trim()) start(); }} />
         <div className="mt-4 flex flex-wrap gap-2">
           {IDEAS.map((i) => <button key={i} className="chip bg-white/[0.05] text-zinc-300 transition hover:border-case-400/50 hover:bg-white/10 hover:text-white" onClick={() => setPrompt(i)}>{i}</button>)}

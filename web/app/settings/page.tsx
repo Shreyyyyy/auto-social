@@ -1,25 +1,21 @@
 "use client";
 import {useEffect, useMemo, useState} from "react";
-import {api, ORModel, SettingField, Settings} from "@/lib/api";
+import {api, SettingField, Settings} from "@/lib/api";
 
 // Which fields matter for the current choices (the rest are hidden, not lost).
 const RELEVANT: Record<string, (v: Record<string, string>) => boolean> = {
   CLAUDE_MODEL: (v) => v.LLM_PROVIDER === "claude-code", CLAUDE_CODE_OAUTH_TOKEN: (v) => v.LLM_PROVIDER === "claude-code",
   ANTHROPIC_MODEL: (v) => v.LLM_PROVIDER === "anthropic", ANTHROPIC_EFFORT: (v) => v.LLM_PROVIDER === "anthropic", ANTHROPIC_API_KEY: (v) => v.LLM_PROVIDER === "anthropic",
-  OPENROUTER_MODEL: (v) => v.LLM_PROVIDER === "openrouter" || v.RESEARCH_PROVIDER === "openrouter",
-  OPENROUTER_API_KEY: (v) => v.LLM_PROVIDER === "openrouter" || v.RESEARCH_PROVIDER === "openrouter",
-  OPENROUTER_RESEARCH_MODEL: (v) => v.RESEARCH_PROVIDER === "openrouter",
 };
 const SOURCE: Record<string, string> = {settings: "saved here", env: "from .env", default: "default"};
 
 export default function SettingsPage() {
   const [s, setS] = useState<Settings | null>(null);
   const [edits, setEdits] = useState<Record<string, string | null>>({});
-  const [models, setModels] = useState<ORModel[]>([]);
   const [msg, setMsg] = useState<{ok: boolean; text: string} | null>(null);
   const [saving, setSaving] = useState(false);
   const load = () => api.settings().then((x) => { setS(x); setEdits({}); }).catch((e) => setMsg({ok: false, text: e.message}));
-  useEffect(() => { load(); api.openrouterModels().then(setModels).catch(() => {}); }, []);
+  useEffect(() => { load(); }, []);
 
   const current = useMemo(() => {
     const v: Record<string, string> = {};
@@ -38,7 +34,6 @@ export default function SettingsPage() {
 
   const field = (f: SettingField) => {
     const val = edits[f.key] ?? f.value;
-    const model = f.type === "openrouter" ? models.find((m) => m.id === val) : undefined;
     return (
       <div key={f.key} className="border-t border-white/5 py-4 first:border-0">
         <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3">
@@ -58,9 +53,7 @@ export default function SettingsPage() {
             </div>
           ) : (
             <>
-              <input className="input py-2.5 text-sm" type={f.type === "number" ? "number" : "text"} value={val} placeholder={f.default || "empty"}
-                list={f.type === "openrouter" ? "or-models" : undefined} onChange={(e) => set(f.key, e.target.value)} />
-              {model && <p className="mt-1 text-xs text-zinc-400">{model.name} · ${model.in.toFixed(2)} in / ${model.out.toFixed(2)} out per 1M tokens</p>}
+              <input className="input py-2.5 text-sm" type={f.type === "number" ? "number" : "text"} value={val} placeholder={f.default || "empty"} onChange={(e) => set(f.key, e.target.value)} />
             </>
           )}
           <div className="mt-1.5 flex flex-wrap items-center gap-2">
@@ -81,7 +74,6 @@ export default function SettingsPage() {
           in <code className="text-zinc-300">settings.json</code> (never in git) and are never shown again after saving.</p>
       </header>
       {s.pending && <p className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-3 text-sm text-amber-300">Saved changes apply when the current job finishes.</p>}
-      <datalist id="or-models">{models.map((m) => <option key={m.id} value={m.id}>{`${m.name} · $${m.in.toFixed(2)}/$${m.out.toFixed(2)}`}</option>)}</datalist>
 
       <div className="grid gap-6 xl:grid-cols-2">
         {s.groups.map((g) => {

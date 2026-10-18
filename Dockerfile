@@ -9,13 +9,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       fonts-noto-core fonts-noto-color-emoji \
     && rm -rf /var/lib/apt/lists/*
 
-# uv (Python + yt-dlp via uvx) and the Claude Code CLI (scripts; falls back to Gemini if not signed in)
+# uv (Python + yt-dlp via uvx) and the Claude Code CLI (research + scripts; needs CLAUDE_CODE_OAUTH_TOKEN)
 COPY --from=ghcr.io/astral-sh/uv:0.8.22 /uv /uvx /usr/local/bin/
 RUN npm install -g @anthropic-ai/claude-code@2.1.286 && npm cache clean --force
 
 ENV UV_PYTHON_INSTALL_DIR=/opt/python UV_CACHE_DIR=/tmp/uv-cache VIRTUAL_ENV=/opt/venv PATH=/opt/venv/bin:$PATH
 RUN uv venv --python 3.12 /opt/venv && uv pip install --python /opt/venv/bin/python \
-      fastapi uvicorn requests python-dotenv opencv-python-headless numpy pydantic anthropic && chmod -R a+rwX /tmp/uv-cache
+      fastapi uvicorn requests python-dotenv opencv-python-headless numpy pydantic anthropic edge-tts && chmod -R a+rwX /tmp/uv-cache
 
 WORKDIR /app
 # Remotion project: dependencies + its headless Chrome, baked into the image

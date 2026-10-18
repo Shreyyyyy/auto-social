@@ -5,12 +5,11 @@ export type RunSummary = {
   verdict?: string; scores?: Scores; cover?: string | null; video: string;
 };
 export type Channel = {id: string; name: string; service: string};
-export type SettingField = {key: string; label: string; type: "text" | "secret" | "select" | "number" | "openrouter"; default: string; help: string;
+export type SettingField = {key: string; label: string; type: "text" | "secret" | "select" | "number"; default: string; help: string;
   options: {value: string; label: string}[] | null; value: string; set: boolean; source: "settings" | "env" | "default"};
 export type Settings = {groups: {group: string; icon: string; fields: SettingField[]}[]; pending: boolean};
 export type Stats = {reels: number; avg_paid_usd: number; avg_subscription_usd: number; avg_minutes: number;
   steps: Record<string, {avg_usd: number; calls_per_reel: number; share: number; model: string}>};
-export type ORModel = {id: string; name: string; in: number; out: number};
 export type RunDetail = RunSummary & {
   sent: Record<string, string>; send_errors: Record<string, string>;
   caption: string; marketing?: string; research?: string; meta: Record<string, any>; contact?: string | null;
@@ -45,7 +44,6 @@ export const api = {
   settings: () => call<Settings>("/api/settings"),
   saveSettings: (values: Record<string, string | null>) => call<{message: string}>("/api/settings", {method: "POST", body: JSON.stringify({values})}),
   stats: () => call<Stats>("/api/stats"),
-  openrouterModels: () => call<ORModel[]>("/api/openrouter/models"),
   currentJob:() => call<Job | null>("/api/jobs/current"),
   playlists: () => call<PlaylistSummary[]>("/api/playlists"),
   playlist: (id: string) => call<Playlist>(`/api/playlists/${id}`),

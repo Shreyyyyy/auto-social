@@ -1,17 +1,19 @@
 """Competitor research for the channel's niche: find the most-viewed short explainers, keep only real competitors,
-watch the top ones with Gemini, and write research/playbook.md that every script follows.
+look at the top ones (frames + captions, Claude vision) and write research/playbook.md that every script follows.
 
   uv run --with ... python competitors.py     (or the Refresh button on the Competitors page)
 Uses the YouTube Data API when YOUTUBE_API_KEY is set, otherwise public YouTube search data (yt-dlp).
 """
 import concurrent.futures as cf
-import json, re, subprocess, time, urllib.parse
+import json, re, subprocess, tempfile, time, urllib.parse
 from pathlib import Path
 
 import requests
 
 import reel
-from reel import C, E, GEMINI, GKEY, RESEARCH_MODEL, track
+from pydantic import BaseModel
+
+from reel import C, E
 
 DIR = Path("research")
 QUERIES = C.get("competitor_queries") or [
@@ -126,7 +128,7 @@ def candidates():
 
 
 def keep_competitors(cands, limit=12):
-    """Gemini reads titles/channels and keeps only real competitors: AI / tech explainers for Indian (Hindi) audiences."""
+    """Claude reads titles/channels and keeps only real competitors: AI / tech explainers for Indian (Hindi) audiences."""
     listing = "\n".join(f"{i}. [{c['channel']}] {c['title']} ({c['views']:,} views, {c['duration']}s)" for i, c in enumerate(cands[:120]))
     prompt = (f"Our channel: {C['niche']} for {C['audience']} in {C['region']}, in Hindi/Hinglish.\nBelow are popular YouTube Shorts. "
               "Keep ONLY real competitors: videos that explain AI or technology to the GENERAL PUBLIC / beginners in an engaging way "
@@ -134,30 +136,63 @@ def keep_competitors(cands, limit=12):
               "topics (BFS/DFS, hyperparameters, neural network math), coding tutorials, kids cartoons, songs, pranks, product ads, unrelated "
               "news and 'artificial insemination'. Prefer Hindi/Hinglish creators for Indian audiences and higher views; at most 2 per channel. "
               f'Return JSON {{"keep": [{{"index": i, "why": "short"}}]}} best first, max {limit}.\n\n' + listing)
-    r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=180,
-                      json={"contents": [{"parts": [{"text": prompt}]}], "generationConfig": {"responseMimeType": "application/json"}}).json()
-    track("competitor filter", RESEARCH_MODEL, r)
-    keep = json.loads(r["candidates"][0]["content"]["parts"][0]["text"]).get("keep", [])
-    kept = [cands[k["index"]] | {"why_competitor": k.get("why", "")} for k in keep if isinstance(k.get("index"), int) and k["index"] < len(cands)]
+    keep = reel.ask(prompt, Keep).keep
+    kept = [cands[k.index] | {"why_competitor": k.why} for k in keep if 0 <= k.index < len(cands)]
     return sorted(kept, key=lambda v: -v["views"])[:limit]
 
 
-ASK = """You are the head of growth at a top short-form education studio. Watch this Short closely (picture and sound).
-Reply JSON: "first_1s" (what is seen and heard), "hook_words" (exact opening words), "hook_type", "teaching_method" (step by step),
+class Pick(BaseModel):
+    index: int
+    why: str = ""
+
+
+class Keep(BaseModel):
+    keep: list[Pick]
+
+
+class Playbook(BaseModel):
+    bullets: list[str]
+
+
+ASK = """You are the head of growth at a top short-form education studio. Study this Short closely: below are frames through it
+(with times) and what is said (auto captions). Reply with JSON only: "first_1s" (what is seen and heard), "hook_words" (exact opening words), "hook_type", "teaching_method" (step by step),
 "visual_style" (footage/animation/face/screen/text, cuts per 10s), "voice" (tone, pace, emotion), "retention_tricks" (list),
 "ending" (and whether it loops), "share_trigger", "why_it_worked" (3 biggest reasons), "steal" (3 concrete things a Hindi reel
 teaching AI to beginners should copy), "avoid" (what it does badly)."""
 
 
-def analyse(v):
-    for _ in range(3):
-        r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=900, json={"contents": [{"parts": [
-            {"fileData": {"fileUri": f"https://www.youtube.com/watch?v={v['id']}"}}, {"text": ASK}]}],
-            "generationConfig": {"responseMimeType": "application/json", "mediaResolution": "MEDIA_RESOLUTION_LOW"}}).json()
-        track("competitor watch", RESEARCH_MODEL, r)
-        try: return v | {"analysis": json.loads(r["candidates"][0]["content"]["parts"][0]["text"])}
-        except Exception: time.sleep(10)
-    return v | {"analysis": None}
+def captions(vtt):
+    """Plain text from a .vtt file (timestamps, tags and the rolling duplicates of auto captions removed)."""
+    out = []
+    for ln in vtt.splitlines():
+        ln = re.sub(r"<[^>]+>", "", ln).strip()
+        if ln and "-->" not in ln and not ln.startswith(("WEBVTT", "Kind:", "Language:")) and (not out or out[-1] != ln): out.append(ln)
+    return " ".join(out)
+
+
+def analyse(v, frames=10):
+    """Download the Short small, take frames through it + its auto captions, and have a vision model break it down."""
+    try:
+        with tempfile.TemporaryDirectory() as t:
+            subprocess.run(["uvx", "--quiet", "yt-dlp", "--no-warnings", "-f", "worst[ext=mp4]/worst", "--write-auto-subs", "--write-subs",
+                            "--sub-langs", "hi.*,en.*", "--sub-format", "vtt", "-o", f"{t}/v.%(ext)s", f"https://www.youtube.com/shorts/{v['id']}"],
+                           capture_output=True, timeout=300)
+            vid = next(Path(t).glob("v.mp4"), None) or next(Path(t).glob("v.*[!t]"), None)
+            if not vid: return v | {"analysis": None}
+            dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(vid)],
+                                       capture_output=True, text=True).stdout or v.get("duration") or 30)
+            shots = []
+            for k in range(frames):
+                at = dur * (k + 0.5) / frames
+                b = subprocess.run(["ffmpeg", "-loglevel", "error", "-ss", f"{at:.2f}", "-i", str(vid), "-frames:v", "1", "-vf", "scale=360:-2",
+                                    "-f", "image2", "-c:v", "mjpeg", "-"], capture_output=True).stdout
+                if b: shots.append((f"{at:.1f}s:", b))
+            said = " ".join(captions(f.read_text(errors="ignore")) for f in Path(t).glob("*.vtt"))[:6000] or "(no captions)"
+        return v | {"analysis": reel.vision_json(f"{ASK}\n\nTitle: {v['title']} ({v['channel']}, {dur:.0f}s)\nWhat is said: {said}",
+                                                 shots, f"competitor watch ({len(shots)} frames)")}
+    except Exception as e:
+        print(f"  could not analyse {v['id']}: {e}")
+        return v | {"analysis": None}
 
 
 def write_playbook(videos):
@@ -167,17 +202,14 @@ def write_playbook(videos):
     prompt = ("These are the most-viewed competitor Shorts in our niche and an analysis of each. Write a concise VIRAL PLAYBOOK "
               f"(max 14 bullet points) for our Hindi AI Case File reels for {C['audience']}: what to do in the first second, hooks that "
               "work (with 2-3 real example openings), teaching moves, pacing, visuals, endings, share triggers, and what to avoid. "
-              "Be specific, cite which video each lesson came from. Plain text bullets starting with '- '.\n\n" + body)
-    r = requests.post(f"{GEMINI}/{RESEARCH_MODEL}:generateContent", headers=GKEY(), timeout=300,
-                      json={"contents": [{"parts": [{"text": prompt}]}]}).json()
-    track("playbook", RESEARCH_MODEL, r)
-    return "".join(p.get("text", "") for p in r["candidates"][0]["content"]["parts"])
+              "Be specific, cite which video each lesson came from. One bullet per item in `bullets`.\n\n" + body)
+    return "\n".join("- " + b.lstrip("- ") for b in reel.ask(prompt, Playbook).bullets)
 
 
 def refresh(top=10):
     reel.USAGE.clear()
     kept = keep_competitors(candidates())
-    print(f"kept {len(kept)} real competitors - watching the top {min(top, len(kept))} with Gemini...")
+    print(f"kept {len(kept)} real competitors - studying the top {min(top, len(kept))}...")
     with cf.ThreadPoolExecutor(4) as ex: watched = list(ex.map(analyse, kept[:top]))
     watched += kept[top:]
     print("writing the playbook...")
@@ -187,7 +219,7 @@ def refresh(top=10):
             "min_views": min(v["views"] for v in watched) if watched else MIN_VIEWS, "videos": watched, "usage": reel.usage_summary()}
     (DIR / "competitors.json").write_text(json.dumps(data, ensure_ascii=False, indent=1))
     (DIR / "playbook.md").write_text(f"# Viral playbook ({data['updated']}, from {len(watched)} competitor Shorts)\n\n{playbook}\n")
-    print(f"done - Gemini ${data['usage']['gemini_usd']:.3f}")
+    print(f"done - paid ${data['usage']['paid_usd']:.3f}")
     return {"competitors": len(watched)}
 
 

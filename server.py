@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["fastapi", "uvicorn", "requests", "python-dotenv", "opencv-python-headless", "numpy", "pydantic", "anthropic"]
+# dependencies = ["fastapi", "uvicorn", "requests", "python-dotenv", "opencv-python-headless", "numpy", "pydantic", "anthropic", "edge-tts"]
 # ///
 """HTTP API for the web app (web/). Wraps reel.py: one job at a time, live logs, runs, playlists, approve/post.
 
@@ -348,9 +348,9 @@ def competitors_refresh():
 F = lambda key, label, kind="text", default="", help="", options=None: {"key": key, "label": label, "type": kind, "default": default, "help": help, "options": options}
 SETTINGS_SCHEMA = [
     {"group": "Script writer (text AI)", "icon": "✍️", "fields": [
-        F("LLM_PROVIDER", "Provider", "select", "claude-code", "Writes scripts and playlist plans. If it fails, Gemini takes over for that job.",
+        F("LLM_PROVIDER", "Provider", "select", "claude-code", "Writes scripts and playlist plans. If it fails, the job stops with the reason (no silent fallback).",
           [{"value": "claude-code", "label": "Claude Code (your Claude subscription)"}, {"value": "anthropic", "label": "Anthropic API (pay per token)"},
-           {"value": "openrouter", "label": "OpenRouter (any model)"}, {"value": "gemini", "label": "Gemini"}]),
+           {"value": "gemini", "label": "Gemini"}]),
         F("CLAUDE_MODEL", "Claude Code model", default="", help="Empty = Claude Code's default. e.g. opus, sonnet"),
         F("CLAUDE_CODE_OAUTH_TOKEN", "Claude Code token", "secret", help="Needed in Docker: run `claude setup-token` on your computer and paste it."),
         F("ANTHROPIC_MODEL", "Anthropic model", "select", "claude-opus-5-5", "$4/$20 · $2/$10 · $0.10/$0.50 per 1M tokens (in/out)",
@@ -358,22 +358,30 @@ SETTINGS_SCHEMA = [
         F("ANTHROPIC_EFFORT", "Anthropic effort", "select", "medium", "Higher = more thinking, more tokens.",
           [{"value": v, "label": v} for v in ("low", "medium", "high", "xhigh", "max")]),
         F("ANTHROPIC_API_KEY", "Anthropic API key", "secret", help="console.anthropic.com"),
-        F("OPENROUTER_MODEL", "OpenRouter model", "openrouter", "anthropic/claude-sonnet-5.5", "Any model with structured outputs."),
-        F("OPENROUTER_API_KEY", "OpenRouter API key", "secret", help="openrouter.ai/keys"),
-        F("SCRIPT_MODEL", "Gemini script model", default="gemini-2.5-flash", help="Used when the provider is Gemini, and as the fallback."),
+        F("SCRIPT_MODEL", "Gemini script model", default="gemini-2.5-flash", help="Used only when the provider is Gemini."),
     ]},
     {"group": "Research", "icon": "🔎", "fields": [
-        F("RESEARCH_PROVIDER", "Provider", "select", "gemini", "Fresh news, facts, examples and SEO for every reel.",
-          [{"value": "gemini", "label": "Gemini + Google Search"}, {"value": "openrouter", "label": "OpenRouter + web search"}]),
-        F("RESEARCH_MODEL", "Gemini research + judge model", default="gemini-3.8-flash", help="Also judges footage, voice takes and watches the finished reel."),
-        F("OPENROUTER_RESEARCH_MODEL", "OpenRouter research model", "openrouter", "", "Empty = same as the OpenRouter script model."),
-        F("GEMINI_API_KEY", "Gemini API key", "secret", help="Required: voice, music, footage judge and review always use Gemini. aistudio.google.com"),
+        F("RESEARCH_PROVIDER", "Provider", "select", "claude-code", "Fresh news, facts, examples and SEO for every reel.",
+          [{"value": "claude-code", "label": "Claude Code + web search (your subscription)"}, {"value": "gemini", "label": "Gemini + Google Search"}]),
+        F("RESEARCH_MODEL", "Gemini research model", default="gemini-3.8-flash", help="Only when the provider is Gemini."),
+        F("CLAUDE_JUDGE_MODEL", "Vision judge model (Claude Code)", default="sonnet",
+          help="Judges footage, reviews the finished reel, studies competitors - on your Claude subscription. e.g. sonnet, haiku, opus"),
+        F("GEMINI_API_KEY", "Gemini API key", "secret", help="Only for Gemini voice, Lyria music or Gemini research. aistudio.google.com"),
     ]},
     {"group": "Voice & music", "icon": "🎙️", "fields": [
-        F("TTS_MODEL", "Voice model (one take)", default="gemini-2.5-pro-preview-tts"),
+        F("TTS_ENGINE", "Voice engine", "select", "local", "Local acts every line's emotion in one narrator voice (free, runs on this Mac); Edge reads every word flat.",
+          [{"value": "local", "label": "Local AI voice - VoxCPM2 / OmniVoice (free, this Mac)"}, {"value": "edge", "label": "Edge TTS (free, no key)"}, {"value": "gemini", "label": "Gemini TTS (paid)"}, {"value": "google", "label": "Google Cloud Chirp 3 HD"}]),
+        F("EDGE_VOICE", "Edge voice", "select", "hi-IN-SwaraNeural", "",
+          [{"value": v, "label": l} for v, l in (("hi-IN-SwaraNeural", "Swara - Hindi, female"), ("hi-IN-MadhurNeural", "Madhur - Hindi, male"),
+                                                  ("en-US-AvaMultilingualNeural", "Ava - multilingual, female, conversational"),
+                                                  ("en-US-AndrewMultilingualNeural", "Andrew - multilingual, male, conversational"))]),
+        F("EDGE_RATE", "Edge speed", default="+0%", help="e.g. +8% faster, -5% slower."),
+        F("TTS_MODEL", "Gemini voice model (one take)", default="gemini-2.5-pro-preview-tts"),
         F("LINE_TTS_MODEL", "Voice fallback model", default="gemini-2.5-flash-preview-tts"),
         F("VOICE_TAKES", "Takes per reel", "number", "3", "Each take is a different voice; the most natural one is kept."),
-        F("MUSIC_MODEL", "Music model", default="lyria-3-clip-preview", help="Or drop your own music.mp3 in the project folder."),
+        F("MUSIC_SOURCE", "Music", "select", "openverse", "Or drop your own music.mp3 in the project folder.",
+          [{"value": "openverse", "label": "Free CC0 / CC BY tracks (Openverse; credit added to the caption)"}, {"value": "lyria", "label": "Lyria 3 (Gemini, paid)"}]),
+        F("MUSIC_MODEL", "Lyria model", default="lyria-3-clip-preview"),
     ]},
     {"group": "Reel", "icon": "🎬", "fields": [
         F("TARGET_SECONDS", "Length (seconds)", "number", "", "Empty = config.json (40s)."),
@@ -431,22 +439,6 @@ def save_settings(body: SettingsBody):
     reel.SETTINGS_FILE.write_text(json.dumps(data, indent=1))
     if busy(): SETTINGS_PENDING.append(1); return {"message": "Saved - applies to the next job (one is running now)."}
     apply_settings(); return {"message": "Saved - used from the next reel."}
-
-
-OR_MODELS: dict = {}
-
-
-@app.get("/api/openrouter/models")
-def openrouter_models():
-    """Public OpenRouter catalogue (models that support structured outputs), cached for an hour."""
-    import requests
-    if time.time() - OR_MODELS.get("at", 0) > 3600:
-        try: d = requests.get("https://openrouter.ai/api/v1/models", timeout=20).json()["data"]
-        except Exception as e: raise HTTPException(502, f"OpenRouter: {e}")
-        OR_MODELS.update(at=time.time(), list=sorted(
-            [{"id": m["id"], "name": m.get("name", m["id"]), "in": float(m["pricing"]["prompt"]) * 1e6, "out": float(m["pricing"]["completion"]) * 1e6}
-             for m in d if "structured_outputs" in (m.get("supported_parameters") or []) and not m["id"].endswith(":batch")], key=lambda m: m["id"]))
-    return OR_MODELS["list"]
 
 
 @app.get("/api/stats")

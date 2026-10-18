@@ -27,6 +27,7 @@ RESET="\033[0m"
 
 API_PORT="${API_PORT:-8787}"
 WEB_PORT="${PORT:-3737}"
+TTS_PORT="${TTS_PORT:-8790}"
 
 # PIDs listening on a port, minus Docker's own port forwarder (never kill Docker Desktop)
 port_pids() {
@@ -37,7 +38,7 @@ port_pids() {
 
 stop_services() {
   local stopped=0
-  for port in "$WEB_PORT" "$API_PORT"; do
+  for port in "$WEB_PORT" "$API_PORT" "$TTS_PORT"; do
     local pids
     pids=$(port_pids "$port")
     if [ -n "$pids" ]; then
@@ -62,6 +63,14 @@ stop_services() {
 
 docker_ok() { command -v docker >/dev/null 2>&1 && docker info >/dev/null 2>&1; }
 
+# Local voice engine (tts_server.py): MLX needs Apple silicon and runs on the Mac itself, even when the app is in Docker
+start_tts() {
+  [ "$(uname -s)-$(uname -m)" = "Darwin-arm64" ] && command -v uv >/dev/null 2>&1 || return 0
+  [ -n "$(port_pids "$TTS_PORT")" ] && return 0
+  mkdir -p out && nohup uv run tts_server.py > out/tts_server.log 2>&1 &
+  echo -e "${CYAN}Voice engine starting on :$TTS_PORT (log: out/tts_server.log; first reel downloads ~4 GB of voice models)${RESET}"
+}
+
 # Subcommand: stop
 if [ "$1" = "stop" ]; then
   docker_ok && [ -n "$(docker compose ps -q 2>/dev/null)" ] && docker compose down && echo -e "${GREEN}✓ Stopped the Docker containers${RESET}"
@@ -76,9 +85,10 @@ if [ "$1" = "docker" ] || { [ $# -eq 0 ] && docker_ok; }; then
   docker_ok || { echo -e "${RED}Docker is not running - start Docker Desktop, or use ./start.sh local${RESET}"; exit 1; }
   if [ ! -f ".env" ]; then
     cp .env.example .env
-    echo -e "${RED}Created .env - add GEMINI_API_KEY (and BUFFER_TOKEN for posting), then run again.${RESET}"; exit 1
+    echo -e "${RED}Created .env - add BUFFER_TOKEN for posting (and CLAUDE_CODE_OAUTH_TOKEN for Docker), then run again.${RESET}"; exit 1
   fi
   stop_services >/dev/null  # free the ports if the local version is running
+  start_tts
   mkdir -p out series research assets
   [ -f settings.json ] || echo '{}' > settings.json
   [ -f .youtube_token.json ] && [ ! -f research/.youtube_token.json ] && cp .youtube_token.json research/.youtube_token.json
@@ -132,7 +142,7 @@ fi
 if [ ! -f ".env" ]; then
   cp .env.example .env
   echo -e "${YELLOW}Created .env from .env.example.${RESET}"
-  echo -e "${RED}Please add GEMINI_API_KEY (and BUFFER_TOKEN if posting) to .env, then run again.${RESET}"
+  echo -e "${RED}Add BUFFER_TOKEN to .env if you want to post, then run again.${RESET}"
   exit 1
 fi
 
@@ -170,6 +180,7 @@ for port in "$WEB_PORT" "$API_PORT"; do
   fi
 done
 
+start_tts
 # Start FastAPI backend
 uv run server.py &
 API_PID=$!
