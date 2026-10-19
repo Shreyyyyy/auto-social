@@ -761,10 +761,11 @@ def edge_tts_line(line, path):
 LOCAL_DOWN = []
 
 
-def local_tts_line(line, path):
-    """Local voice engine (tts_server.py, free): one narrator voice acting this line's delivery note -> 24kHz mono wav."""
+def local_tts_line(line, path, delivery=None):
+    """Local voice engine (tts_server.py, free): one narrator voice acting this line's delivery note -> 24kHz mono wav.
+    delivery="" voices a whole take (line.text = the full script) in the narrator's own rhythm."""
     r = requests.post(E("LOCAL_TTS_URL", "http://127.0.0.1:8790") + "/tts", timeout=900,
-                      json={"text": speakable(line.text), "lang": C["tts_language_code"][:2], "delivery": line.delivery})
+                      json={"text": speakable(line.text), "lang": C["tts_language_code"][:2], "delivery": line.delivery if delivery is None else delivery})
     if r.status_code != 200: raise RuntimeError(f"local voice engine: {r.text[:200]}")
     raw = path.with_suffix(".src.wav"); raw.write_bytes(r.content)
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", str(raw), "-ar", "24000", "-ac", "1", "-c:a", "pcm_s16le", str(path)], check=True)
@@ -1432,10 +1433,12 @@ def _make(brief, meta, d):
         (d / "script.json").write_text(reel.model_dump_json(indent=2), encoding="utf-8"); print(f"  {time.time() - t0:.0f}s")
     print(f"  {reel.title} | {reel.genre}")
     t0 = time.time()
-    if not (d / "narration.wav").exists() and not (d / "line0.wav").exists() and TTS_ENGINE == "gemini":
-        print(f"voice: one emotional take ({TTS_MODEL}, trying different voices)...")
-        try: narrate(reel, d / "narration.wav")
-        except Exception as e: print(f"  one-take failed ({e}) -> line by line")
+    if not (d / "narration.wav").exists() and not (d / "line0.wav").exists() and TTS_ENGINE in ("gemini", "local"):
+        print("voice: the whole script in one take (flows like real speech)...")
+        try:
+            if TTS_ENGINE == "local": local_tts_line(Line.model_construct(text="\n".join(l.text for l in reel.lines)), d / "narration.wav", delivery="")
+            else: narrate(reel, d / "narration.wav")
+        except Exception as e: (d / "narration.wav").unlink(missing_ok=True); print(f"  one-take failed ({e}) -> line by line")
     if not (d / "narration.wav").exists():
         for i, l in enumerate(reel.lines):
             print(f"voice {i + 1}/{len(reel.lines)}: {l.caption}")

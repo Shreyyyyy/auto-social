@@ -80,6 +80,23 @@ fi
 
 if [ "$1" = "logs" ]; then exec docker compose logs -f --tail 100; fi
 
+# Subcommand: tunnel - public HTTPS link from the Vercel studio to this Mac's API (Cloudflare quick tunnel: free, no
+# account, but a NEW URL every start), then point Vercel at it and redeploy. Start the app first (./start.sh).
+if [ "$1" = "tunnel" ]; then
+  grep -qE '^API_TOKEN=.+' .env 2>/dev/null || { echo "API_TOKEN=$(openssl rand -hex 24)" >> .env; echo -e "${YELLOW}Created API_TOKEN in .env - restart the app (./start.sh) so the API uses it.${RESET}"; }
+  pkill -f "cloudflared tunnel --url" 2>/dev/null || true
+  mkdir -p out && : > out/tunnel.log && nohup cloudflared tunnel --url "http://127.0.0.1:$API_PORT" > out/tunnel.log 2>&1 &
+  for _ in $(seq 1 60); do URL=$(grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' out/tunnel.log | head -1); [ -n "$URL" ] && break; sleep 1; done
+  [ -n "$URL" ] || { echo -e "${RED}Tunnel failed - see out/tunnel.log${RESET}"; exit 1; }
+  echo -e "${GREEN}Tunnel: $URL -> this Mac's API (log: out/tunnel.log)${RESET}"
+  cd web
+  npx -y vercel whoami >/dev/null 2>&1 || { echo -e "${YELLOW}Log in once: npx vercel login - then run ./start.sh tunnel again.${RESET}"; exit 0; }
+  npx -y vercel env rm API_URL production -y </dev/null >/dev/null 2>&1 || true
+  printf %s "$URL" | npx -y vercel env add API_URL production >/dev/null
+  npx -y vercel deploy --prod --yes </dev/null
+  exit 0
+fi
+
 # Docker mode (default when Docker is running)
 if [ "$1" = "docker" ] || { [ $# -eq 0 ] && docker_ok; }; then
   docker_ok || { echo -e "${RED}Docker is not running - start Docker Desktop, or use ./start.sh local${RESET}"; exit 1; }

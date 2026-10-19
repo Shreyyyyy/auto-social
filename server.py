@@ -6,11 +6,12 @@
 
   uv run server.py      # http://127.0.0.1:8787  (start.sh runs this together with the Next.js app)
 """
-import contextlib, io, json, threading, time, uuid
+import contextlib, hmac, io, json, threading, time, uuid
 from pathlib import Path
 
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -19,6 +20,17 @@ import reel
 
 app = FastAPI(title="Katha API")
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:3737", "http://127.0.0.1:3737"], allow_methods=["*"], allow_headers=["*"])
+
+
+@app.middleware("http")
+async def tunnel_guard(request: Request, call_next):
+    """Requests through the Cloudflare tunnel (the Vercel studio; Cloudflare always adds cf-ray) must carry API_TOKEN.
+    Fails closed when no token is set. Requests from this computer / your Wi-Fi are unchanged."""
+    if request.headers.get("cf-ray"):
+        token = reel.E("API_TOKEN") or ""
+        if not token or not hmac.compare_digest(request.headers.get("x-api-token", ""), token):
+            return JSONResponse({"detail": "forbidden"}, status_code=403)
+    return await call_next(request)
 reel.OUT.mkdir(exist_ok=True)
 app.mount("/media", StaticFiles(directory=reel.OUT), name="media")
 

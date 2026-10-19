@@ -46,9 +46,13 @@ def narrator():
 
 
 def speak(text, lang="hi", delivery=""):
+    """No delivery note = a whole script in one take: VoxCPM2 carries on from the narrator recording (continuation mode),
+    so it keeps the real speaker's rhythm and flows across sentences. Line by line, the delivery note steers each line."""
     with LOCK:
         ref, ref_text = narrator()
-        if lang in ("hi", "en"): return synth(VOX, text=text, ref_audio=ref, instruct=delivery or None), "VoxCPM2"
+        if lang in ("hi", "en") and not delivery:
+            return synth(VOX, text=text, ref_audio=ref, prompt_audio=ref, prompt_text=ref_text + " ", max_tokens=4000), "VoxCPM2"
+        if lang in ("hi", "en"): return synth(VOX, text=text, ref_audio=ref, instruct=delivery), "VoxCPM2"
         return synth(OMNI, text=text, language=LANGS.get(lang, lang), ref_audio=ref, ref_text=ref_text), "OmniVoice"
 
 
